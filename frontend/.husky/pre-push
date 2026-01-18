@@ -1,0 +1,5 @@
+cd frontend
+npm run build
+npm run test -- --watch=false
+cd ../backend/backend
+dotnet build
