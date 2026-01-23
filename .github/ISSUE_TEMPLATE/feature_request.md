@@ -1,5 +1,11 @@
-# Issue Title
-<!-- Short, descriptive title: [Domain] Feature/Task -->
+---
+name: Feature request
+about: Suggest an idea for this project
+title: ''
+labels: ''
+assignees: ''
+
+---
 
 ## Description
 <!-- What needs to be done, in plain language -->
