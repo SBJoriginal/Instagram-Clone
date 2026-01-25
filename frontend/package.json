@@ -9,6 +9,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "format": "prettier --write \"src/**/*.{html,ts,css,scss,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.{html,ts,css,scss,json,md}\"",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -52,11 +53,13 @@
     "@angular/cli": "^21.0.4",
     "@angular/compiler-cli": "^21.0.0",
     "@angular/material": "^21.1.0",
+    "@vitest/browser-playwright": "^4.0.18",
     "angular-eslint": "21.1.0",
     "eslint": "^9.39.1",
     "husky": "^9.1.7",
     "jsdom": "^27.1.0",
     "lint-staged": "^16.2.7",
+    "playwright": "^1.58.0",
     "prettier": "^3.8.0",
     "typescript": "~5.9.2",
     "typescript-eslint": "8.47.0",
