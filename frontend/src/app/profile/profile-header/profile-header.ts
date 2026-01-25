@@ -6,24 +6,18 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 
 @Component({
-  selector: 'app-profil-header',
+  selector: 'app-profile-header',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatButtonModule,
-    MatCardModule
-  ],
-  templateUrl: './profil-header.html',
-  styleUrls: ['./profil-header.css']
+  imports: [CommonModule, MatToolbarModule, MatIconModule, MatButtonModule, MatCardModule],
+  templateUrl: './profile-header.html',
+  styleUrls: ['./profile-header.css'],
 })
-export class ProfilHeader {
+export class ProfileHeader {
   user = {
     name: 'Name',
     email: 'Person_Name@email.com',
     phone: 'XXX - XXX - XXXX',
-    memberSince: 'On since'
+    memberSince: 'On since',
   };
 
   openSettings() {
