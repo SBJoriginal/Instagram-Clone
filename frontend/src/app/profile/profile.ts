@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { ProfilHeader } from './profil-header/profil-header';
+import { ProfileHeader } from './profile-header/profile-header';
 
 @Component({
-  selector: 'app-profil',
-  imports: [ProfilHeader],
-  templateUrl: './profil.html',
-  styleUrl: './profil.css',
+  selector: 'app-profile',
+  imports: [ProfileHeader],
+  templateUrl: './profile.html',
+  styleUrl: './profile.css',
 })
-export class Profil {}
+export class Profile { }
