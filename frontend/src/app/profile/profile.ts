@@ -7,4 +7,4 @@ import { ProfileHeader } from './profile-header/profile-header';
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
-export class Profile { }
+export class Profile {}
