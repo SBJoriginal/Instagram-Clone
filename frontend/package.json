@@ -10,7 +10,7 @@
     "lint": "ng lint",
     "format": "prettier --write \"src/**/*.{html,ts,css,scss,json,md}\"",
     "format:check": "prettier --check \"src/**/*.{html,ts,css,scss,json,md}\"",
-    "prepare": "husky"
+    "prepare": "husky && git config core.hooksPath frontend/.husky"
   },
   "lint-staged": {
     "src/**/*.{html,ts}": [
