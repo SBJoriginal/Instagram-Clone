@@ -1,12 +1,14 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { RouterLink } from '@angular/router';
+import { LogoComponent } from '../../shared/ui/logo/logo.component';
 
 @Component({
-    selector: 'app-landing',
-    standalone: true,
-    imports: [MatButtonModule],
-    templateUrl: './landing.component.html',
-    styleUrl: './landing.component.css',
-    changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: 'app-landing',
+  standalone: true,
+  imports: [MatButtonModule, LogoComponent, RouterLink],
+  templateUrl: './landing.component.html',
+  styleUrl: './landing.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LandingComponent { }
+export class LandingComponent {}
