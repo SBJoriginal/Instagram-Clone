@@ -1,7 +1,7 @@
 import { NgOptimizedImage } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { LogoComponent } from '../../shared/ui/logo/logo.component';
 
 @Component({
@@ -13,7 +13,10 @@ import { LogoComponent } from '../../shared/ui/logo/logo.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LandingComponent {
+  private readonly router = inject(Router);
+
   protected onGoogleSignIn(): void {
     console.log('Sign in with Google');
+    this.router.navigate(['/home']);
   }
 }

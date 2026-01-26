@@ -3,7 +3,7 @@ import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { BackArrowComponent } from '../../shared/ui/back-arrow/back-arrow.component';
 import { LogoComponent } from '../../shared/ui/logo/logo.component';
 import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 
@@ -15,6 +15,7 @@ import { MatButtonModule } from '@angular/material/button';
 })
 export class SignUpComponent {
   private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
 
   protected readonly signUpForm = this.fb.group(
     {
@@ -28,6 +29,7 @@ export class SignUpComponent {
   protected onSignUp(): void {
     if (this.signUpForm.valid) {
       console.log(this.signUpForm.value);
+      this.router.navigate(['/home']);
     }
   }
 

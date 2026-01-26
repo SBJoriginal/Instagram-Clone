@@ -1,0 +1,69 @@
+:host {
+    display: block;
+    height: 100%;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 245px;
+    border-right: 1px solid #dbdbdb;
+    /* Instagram-like border */
+    padding: 8px 12px 20px;
+    background-color: var(--background, #fff);
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.sidebar-header {
+    padding: 25px 12px 16px;
+    margin-bottom: 20px;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.nav-item {
+    width: 100%;
+    height: 48px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 12px;
+    color: #000;
+    font-weight: 400;
+    text-transform: none;
+    /* Override Material button defaults */
+    transition: background-color 0.2s;
+}
+
+.nav-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    /* Subtle hover */
+}
+
+/* Material Icon styling inside button */
+::ng-deep .nav-item .mat-icon {
+    margin-right: 16px;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    color: inherit;
+}
+
+/* Material Button span override */
+::ng-deep .nav-item .mdc-button__label {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    font-size: 1rem;
+}
+
+.active {
+    font-weight: 700;
+}

@@ -1,7 +1,7 @@
 <app-back-arrow />
-<div class="sign-up-container">
+<div class="page-container">
     <app-logo />
-    <form [formGroup]="signUpForm" (ngSubmit)="onSignUp()" class="sign-up-form">
+    <form [formGroup]="signUpForm" (ngSubmit)="onSignUp()" class="auth-form">
         <mat-form-field appearance="outline">
             <mat-label>Email</mat-label>
             <input matInput type="email" formControlName="email" placeholder="Ex. pat@example.com" />
@@ -36,5 +36,5 @@
             Sign Up
         </button>
     </form>
-    <div class="sign-in-link">Already have an account? <a routerLink="/sign-in">Sign In</a></div>
+    <div class="link-text">Already have an account? <a routerLink="/sign-in">Sign In</a></div>
 </div>
