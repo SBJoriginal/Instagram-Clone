@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { ChildrenOutletContexts, RouterOutlet } from '@angular/router';
-import { routeTransition } from './app.animations';
+import { routeTransition } from './shared/animations/route.animations';
 
 @Component({
   selector: 'app-root',

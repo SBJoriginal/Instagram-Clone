@@ -1,0 +1,40 @@
+import { Component, inject } from '@angular/core';
+import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+import { BackArrowComponent } from '../../shared/ui/back-arrow/back-arrow.component';
+import { LogoComponent } from '../../shared/ui/logo/logo.component';
+import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
+import { RouterLink } from '@angular/router';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+
+@Component({
+  selector: 'app-sign-up',
+  imports: [BackArrowComponent, LogoComponent, ReactiveFormsModule, MatFormField, MatLabel, MatError, RouterLink, MatInputModule, MatButtonModule],
+  templateUrl: './sign-up.component.html',
+  styleUrl: './sign-up.component.css',
+})
+export class SignUpComponent {
+  private readonly fb = inject(FormBuilder);
+
+  protected readonly signUpForm = this.fb.group(
+    {
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required],
+      confirmPassword: ['', Validators.required],
+    },
+    { validators: this.passwordMatchValidator },
+  );
+
+  protected onSignUp(): void {
+    if (this.signUpForm.valid) {
+      console.log(this.signUpForm.value);
+    }
+  }
+
+  private passwordMatchValidator(group: any): any {
+    const password = group.get('password')?.value;
+    const confirmPassword = group.get('confirmPassword')?.value;
+    return password === confirmPassword ? null : { mismatch: true };
+  }
+
+}

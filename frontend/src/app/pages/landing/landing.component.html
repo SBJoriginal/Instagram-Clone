@@ -1,7 +1,16 @@
 <div class="landing-container">
   <app-logo />
   <div class="button-group">
+    <button mat-stroked-button color="primary" (click)="onGoogleSignIn()" class="google-btn">
+      <img ngSrc="google-logo.svg" alt="Google Logo" width="18" height="18" class="google-logo" />
+      Continue with Google
+    </button>
+
+    <div class="divider">
+      <span>OR</span>
+    </div>
+
     <button mat-flat-button color="primary" routerLink="/sign-in">Sign In</button>
-    <button mat-stroked-button color="primary">Sign Up</button>
+    <button mat-stroked-button color="primary" routerLink="/sign-up">Sign Up</button>
   </div>
 </div>

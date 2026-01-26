@@ -1,0 +1,40 @@
+<app-back-arrow />
+<div class="sign-up-container">
+    <app-logo />
+    <form [formGroup]="signUpForm" (ngSubmit)="onSignUp()" class="sign-up-form">
+        <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" placeholder="Ex. pat@example.com" />
+            @if (
+            signUpForm.controls['email'].hasError('email') &&
+            !signUpForm.controls['email'].hasError('required'))
+            {
+            <mat-error>Please enter a valid email address</mat-error>
+            }
+            @if (signUpForm.controls['email'].hasError('required')) {
+            <mat-error>Please enter an email address</mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" formControlName="password" />
+            @if (signUpForm.controls['password'].hasError('required')) {
+            <mat-error>Please enter a password</mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Confirm Password</mat-label>
+            <input matInput type="password" formControlName="confirmPassword" />
+            @if (signUpForm.controls['confirmPassword'].hasError('required')) {
+            <mat-error>Please confirm your password</mat-error>
+            }
+            @if (signUpForm.controls['confirmPassword'].hasError('mismatch')) {
+            <mat-error>Passwords do not match</mat-error>
+            }
+        </mat-form-field>
+        <button mat-flat-button color="primary" type="submit" [disabled]="signUpForm.invalid">
+            Sign Up
+        </button>
+    </form>
+    <div class="sign-in-link">Already have an account? <a routerLink="/sign-in">Sign In</a></div>
+</div>
