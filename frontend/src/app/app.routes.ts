@@ -7,8 +7,7 @@ export const routes: Routes = [
   { path: 'home', component: ShellComponent },
   {
     path: 'sign-in',
-    loadComponent: () =>
-      import('./pages/sign-in/sign-in.component').then((m) => m.SignInComponent),
+    loadComponent: () => import('./pages/sign-in/sign-in.component').then((m) => m.SignInComponent),
     data: { animation: 'SignInPage' },
   },
   {

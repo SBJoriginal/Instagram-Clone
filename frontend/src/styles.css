@@ -1,24 +1,24 @@
 /* You can add global styles to this file, and also import other style files */
 
 .page-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    gap: 1.5rem;
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 1.5rem;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 1rem;
 }
 
 .auth-form {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 1rem;
 }
 
 .link-text {
-    font-size: 0.9rem;
+  font-size: 0.9rem;
 }

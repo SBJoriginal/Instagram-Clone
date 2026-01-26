@@ -5,11 +5,11 @@ import { RouterOutlet } from '@angular/router';
 import { NavigationComponent } from './navigation/navigation.component';
 
 @Component({
-    selector: 'app-shell',
-    standalone: true,
-    imports: [RouterOutlet, MatButtonModule, MatIconModule, NavigationComponent],
-    templateUrl: './shell.component.html',
-    styleUrl: './shell.component.css',
-    changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: 'app-shell',
+  standalone: true,
+  imports: [RouterOutlet, MatButtonModule, MatIconModule, NavigationComponent],
+  templateUrl: './shell.component.html',
+  styleUrl: './shell.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ShellComponent { }
+export class ShellComponent {}
