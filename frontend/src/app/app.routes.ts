@@ -15,9 +15,4 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/sign-up/sign-up.component').then((m) => m.SignUpComponent),
     data: { animation: 'SignUpPage' },
   },
-  {
-    path: 'test-upload',
-    loadComponent: () =>
-      import('./pages/test-upload-page/test-upload-page.component').then((m) => m.TestUploadPage),
-  },
 ];
