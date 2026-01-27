@@ -34,7 +34,6 @@ export class SignInComponent {
 
   protected onSignIn(): void {
     if (this.signInForm.valid) {
-      console.log('Sign in with', this.signInForm.value);
       this.router.navigate(['/home']);
     }
   }

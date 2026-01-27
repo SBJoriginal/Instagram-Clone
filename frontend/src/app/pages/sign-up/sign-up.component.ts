@@ -44,7 +44,6 @@ export class SignUpComponent {
 
   protected onSignUp(): void {
     if (this.signUpForm.valid) {
-      console.log(this.signUpForm.value);
       this.router.navigate(['/home']);
     }
   }

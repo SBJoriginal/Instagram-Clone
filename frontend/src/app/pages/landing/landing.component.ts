@@ -16,7 +16,6 @@ export class LandingComponent {
   private readonly router = inject(Router);
 
   protected onGoogleSignIn(): void {
-    console.log('Sign in with Google');
     this.router.navigate(['/home']);
   }
 }
