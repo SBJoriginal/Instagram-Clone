@@ -2,25 +2,28 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { ImageUploadService } from '../../services/image-upload.service';
 
+import { MatCardModule } from '@angular/material/card';
+
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [AsyncPipe],
+  imports: [AsyncPipe, MatCardModule],
   template: `
     <div class="profile-container">
       <h2>My Profile</h2>
       <div class="image-grid">
         @for (image of images | async; track image.id) {
-          <div class="image-card">
+          <mat-card class="image-card">
             <img
+              mat-card-image
               [src]="'http://localhost:5266' + image.filePath"
               [alt]="image.description"
               loading="lazy"
             />
-            <div class="image-info">
+            <mat-card-content>
               <p>{{ image.description }}</p>
-            </div>
-          </div>
+            </mat-card-content>
+          </mat-card>
         } @empty {
           <p>No images uploaded yet.</p>
         }
@@ -40,29 +43,13 @@ import { ImageUploadService } from '../../services/image-upload.service';
     }
 
     .image-card {
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      overflow: hidden;
-      background: white;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      /* MatCard handles basic styling */
     }
 
-    .image-card img {
-      width: 100%;
-      height: 250px;
+    img[mat-card-image] {
       object-fit: contain;
+      height: 250px;
       background-color: #f3f4f6;
-      display: block;
-    }
-
-    .image-info {
-      padding: 12px;
-    }
-
-    .image-info p {
-      margin: 0;
-      color: #374151;
-      font-size: 0.875rem;
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

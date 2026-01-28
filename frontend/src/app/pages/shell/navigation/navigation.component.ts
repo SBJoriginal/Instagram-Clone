@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatListModule } from '@angular/material/list';
 import { LogoComponent } from '../../../shared/ui/logo/logo.component';
 import { RouterLink } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -10,7 +11,7 @@ import { ImageUploadData } from '../../../image-upload/image-upload';
 
 @Component({
   selector: 'app-navigation',
-  imports: [MatIconModule, LogoComponent, MatButtonModule, RouterLink],
+  imports: [MatIconModule, LogoComponent, MatButtonModule, RouterLink, MatListModule],
   templateUrl: './navigation.component.html',
   styleUrl: './navigation.component.css',
 })

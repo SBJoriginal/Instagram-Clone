@@ -49,24 +49,12 @@
         </div>
         <button
           type="button"
+          mat-stroked-button
+          color="warn"
           (click)="removeFile()"
-          class="remove-button"
           aria-label="Remove selected image"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+          <mat-icon>delete</mat-icon>
           Remove
         </button>
       </div>
@@ -82,65 +70,62 @@
 
   <!-- Upload Form -->
   <form [formGroup]="uploadForm" (ngSubmit)="onSubmit()" class="upload-form">
-    <div class="form-group">
-      <label for="description" class="form-label">Description</label>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Description</mat-label>
       <textarea
+        matInput
         id="description"
         formControlName="description"
-        class="form-control"
         rows="3"
         placeholder="Describe your image..."
-        aria-describedby="description-hint"
       ></textarea>
-      <span id="description-hint" class="form-hint">Add a caption to your image</span>
-    </div>
+      <mat-hint>Add a caption to your image</mat-hint>
+    </mat-form-field>
 
-    <div class="form-group">
-      <label for="hashtags" class="form-label">Hashtags</label>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Hashtags</mat-label>
       <input
+        matInput
         type="text"
         id="hashtags"
         formControlName="hashtags"
-        class="form-control"
         placeholder="#sunset #nature #photography"
-        aria-describedby="hashtags-hint"
         (blur)="onHashtagsBlur()"
       />
-      <span id="hashtags-hint" class="form-hint"
-        >Separate hashtags with spaces (e.g., #sunset #nature)</span
-      >
-      @if (formattedHashtags().length > 0) {
-        <div class="tag-preview">
-          @for (tag of formattedHashtags(); track tag) {
-            <span class="tag-badge tag-hashtag">{{ tag }}</span>
-          }
-        </div>
-      }
-    </div>
+      <mat-hint>Separate hashtags with spaces (e.g., #sunset #nature)</mat-hint>
+    </mat-form-field>
 
-    <div class="form-group">
-      <label for="mentions" class="form-label">Mentions</label>
+    @if (formattedHashtags().length > 0) {
+      <div class="tag-preview">
+        @for (tag of formattedHashtags(); track tag) {
+          <span class="tag-badge tag-hashtag">{{ tag }}</span>
+        }
+      </div>
+    }
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Mentions</mat-label>
       <input
+        matInput
         type="text"
         id="mentions"
         formControlName="mentions"
-        class="form-control"
         placeholder="@username @friend"
-        aria-describedby="mentions-hint"
         (blur)="onMentionsBlur()"
       />
-      <span id="mentions-hint" class="form-hint"
-        >Mention other users (e.g., @username @friend)</span
-      >
-      @if (formattedMentions().length > 0) {
-        <div class="tag-preview">
-          @for (tag of formattedMentions(); track tag) {
-            <span class="tag-badge tag-mention">{{ tag }}</span>
-          }
-        </div>
-      }
-    </div>
+      <mat-hint>Mention other users (e.g., @username @friend)</mat-hint>
+    </mat-form-field>
 
-    <button type="submit" class="submit-button" [disabled]="!selectedFile()">Upload Image</button>
+    @if (formattedMentions().length > 0) {
+      <div class="tag-preview">
+        @for (tag of formattedMentions(); track tag) {
+          <span class="tag-badge tag-mention">{{ tag }}</span>
+        }
+      </div>
+    }
+
+    <button mat-raised-button color="primary" type="submit" [disabled]="!selectedFile()">
+      Upload Image
+    </button>
   </form>
 </div>

@@ -1,6 +1,10 @@
 import { Component, output, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
 import { HashtagPipe } from '../pipes/hashtag.pipe';
 import { MentionPipe } from '../pipes/mention.pipe';
 import { FileSizePipe } from '../pipes/file-size.pipe';
@@ -14,7 +18,14 @@ export interface ImageUploadData {
 
 @Component({
   selector: 'app-image-upload',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+  ],
   templateUrl: './image-upload.html',
   styleUrl: './image-upload.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
