@@ -1,0 +1,46 @@
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 300px;
+}
+
+.google-btn {
+  width: 100%;
+}
+
+::ng-deep .google-btn .mat-mdc-button-touch-target {
+  height: 48px;
+}
+
+.google-logo {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  color: #666;
+  font-size: 0.8rem;
+  margin: 0.5rem 0;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #ccc;
+}
+
+.divider::before {
+  margin-right: 0.5em;
+}
+
+.divider::after {
+  margin-left: 0.5em;
+}

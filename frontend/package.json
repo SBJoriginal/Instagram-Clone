@@ -36,6 +36,7 @@
   "private": true,
   "packageManager": "npm@11.7.0",
   "dependencies": {
+    "@angular/animations": "^21.0.0",
     "@angular/cdk": "~21.1.0",
     "@angular/common": "^21.0.0",
     "@angular/compiler": "^21.0.0",
@@ -52,7 +53,6 @@
     "@angular/build": "^21.0.4",
     "@angular/cli": "^21.0.4",
     "@angular/compiler-cli": "^21.0.0",
-    "@angular/material": "^21.1.0",
     "@vitest/browser-playwright": "^4.0.18",
     "angular-eslint": "21.1.0",
     "eslint": "^9.39.1",
