@@ -67,7 +67,7 @@ namespace Api.Controllers
 
   public class ImageUploadDto
   {
-    public IFormFile File { get; set; }
+    public required IFormFile File { get; set; }
     public string? Description { get; set; }
     public string? Hashtags { get; set; }
     public string? Mentions { get; set; }

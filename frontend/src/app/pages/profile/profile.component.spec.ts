@@ -9,7 +9,7 @@ import { vi } from 'vitest';
 describe('ProfileComponent', () => {
   let component: ProfileComponent;
   let fixture: ComponentFixture<ProfileComponent>;
-  let mockImageService: any;
+  let mockImageService: { getImages: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     mockImageService = {
