@@ -1,13 +1,19 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { ImageUploadComponent, ImageUploadData } from '../image-upload/image-upload';
 
 @Component({
   selector: 'app-image-upload-dialog',
-  imports: [MatDialogModule, MatButtonModule, ImageUploadComponent],
+  imports: [MatDialogModule, MatButtonModule, MatIconModule, ImageUploadComponent],
   template: `
-    <h2 mat-dialog-title>Upload Image</h2>
+    <div class="dialog-header">
+      <h2 mat-dialog-title>Upload Image</h2>
+      <button mat-icon-button (click)="close()" aria-label="Close dialog">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
     <mat-dialog-content>
       <div class="instructions">
         <p class="instruction-text">
@@ -19,6 +25,12 @@ import { ImageUploadComponent, ImageUploadData } from '../image-upload/image-upl
     </mat-dialog-content>
   `,
   styles: `
+    .dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
     mat-dialog-content {
       padding: 0;
       margin: 0;
@@ -28,6 +40,11 @@ import { ImageUploadComponent, ImageUploadData } from '../image-upload/image-upl
     h2 {
       margin: 0;
       padding: 24px 24px 16px;
+    }
+
+    button {
+      margin-top: 12px;
+      margin-right: 12px;
     }
 
     .instructions {
@@ -54,6 +71,10 @@ import { ImageUploadComponent, ImageUploadData } from '../image-upload/image-upl
 })
 export class ImageUploadDialog {
   private readonly dialogRef = inject(MatDialogRef<ImageUploadDialog>);
+
+  close(): void {
+    this.dialogRef.close();
+  }
 
   protected handleUpload(data: ImageUploadData): void {
     console.log('=== Image Upload Data ===');

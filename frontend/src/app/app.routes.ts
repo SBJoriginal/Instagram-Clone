@@ -4,7 +4,17 @@ import { ShellComponent } from './pages/shell/shell.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent, data: { animation: 'LandingPage' } },
-  { path: 'home', component: ShellComponent },
+  {
+    path: 'home',
+    component: ShellComponent,
+    children: [
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./pages/profile/profile.component').then((m) => m.ProfileComponent),
+      },
+    ],
+  },
   {
     path: 'sign-in',
     loadComponent: () => import('./pages/sign-in/sign-in.component').then((m) => m.SignInComponent),

@@ -104,6 +104,7 @@
         class="form-control"
         placeholder="#sunset #nature #photography"
         aria-describedby="hashtags-hint"
+        (blur)="onHashtagsBlur()"
       />
       <span id="hashtags-hint" class="form-hint"
         >Separate hashtags with spaces (e.g., #sunset #nature)</span
@@ -126,6 +127,7 @@
         class="form-control"
         placeholder="@username @friend"
         aria-describedby="mentions-hint"
+        (blur)="onMentionsBlur()"
       />
       <span id="mentions-hint" class="form-hint"
         >Mention other users (e.g., @username @friend)</span

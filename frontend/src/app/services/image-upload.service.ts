@@ -26,4 +26,8 @@ export class ImageUploadService {
 
     return this.http.post<ImageResponse>(this.apiUrl, formData);
   }
+
+  getImages(): Observable<ImageResponse[]> {
+    return this.http.get<ImageResponse[]>(this.apiUrl);
+  }
 }

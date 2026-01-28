@@ -144,6 +144,28 @@ export class ImageUploadComponent {
     }
   }
 
+  protected onHashtagsBlur(): void {
+    const control = this.uploadForm.controls.hashtags;
+    const value = control.value;
+    if (!value) return;
+
+    const formatted = new HashtagPipe().transform(value).join(' ');
+    if (formatted !== value) {
+      control.setValue(formatted);
+    }
+  }
+
+  protected onMentionsBlur(): void {
+    const control = this.uploadForm.controls.mentions;
+    const value = control.value;
+    if (!value) return;
+
+    const formatted = new MentionPipe().transform(value).join(' ');
+    if (formatted !== value) {
+      control.setValue(formatted);
+    }
+  }
+
   protected onSubmit(): void {
     const file = this.selectedFile();
     if (!file) {
