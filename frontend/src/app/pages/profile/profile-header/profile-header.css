@@ -5,6 +5,10 @@
   border-radius: 0;
   box-shadow: none !important;
   border: 1px solid #ccc;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: auto;
+  /* Force le header à rester en haut */
 }
 
 mat-card-header {

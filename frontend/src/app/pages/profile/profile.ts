@@ -6,5 +6,8 @@ import { ProfileHeader } from './profile-header/profile-header';
   imports: [ProfileHeader],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
+  host: {
+    style: 'display: block; width: 100%; align-self: flex-start;',
+  },
 })
 export class Profile {}
