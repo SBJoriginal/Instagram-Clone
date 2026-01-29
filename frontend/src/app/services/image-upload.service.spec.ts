@@ -71,17 +71,17 @@ describe('ImageUploadService', () => {
     const updateData = {
       description: 'Updated Desc',
       hashtags: '#updated',
-      mentions: '@updated'
+      mentions: '@updated',
     };
     const mockResponse: ImageResponse = {
       id: 1,
       filePath: '/img1.png',
       description: 'Updated Desc',
       hashtags: '#updated',
-      mentions: '@updated'
+      mentions: '@updated',
     };
 
-    service.updateImage(1, updateData).subscribe(response => {
+    service.updateImage(1, updateData).subscribe((response) => {
       expect(response).toEqual(mockResponse);
     });
 
@@ -92,7 +92,7 @@ describe('ImageUploadService', () => {
   });
 
   it('should delete an image', () => {
-    service.deleteImage(1).subscribe(response => {
+    service.deleteImage(1).subscribe((response) => {
       expect(response).toBeNull(); // Void return
     });
 

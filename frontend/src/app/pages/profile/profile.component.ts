@@ -74,7 +74,9 @@ import { BehaviorSubject, switchMap } from 'rxjs';
       border-radius: 16px;
       overflow: hidden;
       border: none;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      box-shadow:
+        0 4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 2px 4px -1px rgba(0, 0, 0, 0.06);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       flex-direction: column;
@@ -84,7 +86,9 @@ import { BehaviorSubject, switchMap } from 'rxjs';
 
     .image-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
     }
 
     img[mat-card-image] {
@@ -132,17 +136,15 @@ export class ProfileComponent {
   private readonly dialog = inject(MatDialog);
   private readonly refresh$ = new BehaviorSubject<void>(void 0);
 
-  readonly images = this.refresh$.pipe(
-    switchMap(() => this.imageService.getImages())
-  );
+  readonly images = this.refresh$.pipe(switchMap(() => this.imageService.getImages()));
 
   openEditDialog(image: ImageResponse): void {
     const dialogRef = this.dialog.open(ImageEditDialog, {
       data: image,
-      width: '450px'
+      width: '450px',
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.imageService.updateImage(image.id, result).subscribe(() => {
           this.refresh$.next();
