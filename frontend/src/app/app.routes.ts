@@ -1,19 +1,10 @@
 import { Routes } from '@angular/router';
 import { LandingComponent } from './pages/landing/landing.component';
 import { ShellComponent } from './pages/shell/shell.component';
-import { UserListComponent } from './pages/user-list/user-list';
-import { UserProfileComponent } from './pages/user-profile/user-profile';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent, data: { animation: 'LandingPage' } },
-  {
-    path: 'home',
-    component: ShellComponent,
-    children: [
-      { path: 'users', component: UserListComponent },
-      { path: 'users/:id', component: UserProfileComponent },
-    ],
-  },
+  { path: 'home', component: ShellComponent },
   {
     path: 'sign-in',
     loadComponent: () => import('./pages/sign-in/sign-in.component').then((m) => m.SignInComponent),

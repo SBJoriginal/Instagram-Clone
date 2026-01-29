@@ -1,0 +1,64 @@
+.profile-card {
+  background-color: white;
+  border-width: 200px;
+  padding: 24px;
+  position: relative;
+  border-radius: 0;
+  box-shadow: none !important;
+  border: 1px solid black;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: auto;
+  /* Force le header à rester en haut */
+}
+
+mat-card-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.large-avatar {
+  width: 100px !important;
+  height: 100px !important;
+  border-radius: 50%;
+  background-color: #fff;
+  border: 2px solid;
+  object-fit: cover;
+  margin-right: 24px;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+mat-card-title {
+  font-size: 24px;
+  margin-bottom: 8px !important;
+}
+
+.user-details {
+  font-size: 16px;
+  color: #333;
+  line-height: 1.5;
+}
+
+.user-email {
+  color: #000;
+  text-decoration: underline;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.settings-button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  transform: scale(1.2);
+}
+
+.settings-button mat-icon {
+  color: #555;
+}

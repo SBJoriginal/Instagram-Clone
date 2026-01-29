@@ -1,0 +1,13 @@
+import { Component } from '@angular/core';
+import { ProfileHeader } from './profile_header.component/profile_header.component';
+
+@Component({
+  selector: 'app-profile',
+  imports: [ProfileHeader],
+  templateUrl: './profile.html',
+  styleUrl: './profile.css',
+  host: {
+    style: 'display: block; width: 100%; align-self: flex-start;',
+  },
+})
+export class Profile {}
