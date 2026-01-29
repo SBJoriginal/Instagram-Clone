@@ -1,11 +1,19 @@
 @if (images.length > 0) {
-<div class="gallery-grid">
+  <div class="gallery-grid">
     @for (image of images; track image.id) {
-    <div class="gallery-item">
+      <div class="gallery-item">
         <img [src]="image.imageUrl" [alt]="image.description" />
-    </div>
+        <div class="image-overlay">
+          <p class="description">{{ image.description }}</p>
+          <p class="hashtags">{{ image.hashtags.join(' ') }}</p>
+          @if (image.mentionedUser) {
+            <p class="mention">@{{ image.mentionedUser }}</p>
+          }
+          <p class="date">{{ image.createdAt }}</p>
+        </div>
+      </div>
     }
-</div>
+  </div>
 } @else {
-<p class="no-images">No images yet.</p>
+  <p class="no-images">No images yet.</p>
 }

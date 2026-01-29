@@ -1,18 +1,17 @@
 @if (user) {
-<div class="profile-header">
+  <div class="profile-header">
     <img [src]="user.profilePictureUrl" [alt]="user.username" class="profile-picture" />
     <div class="profile-info">
-        <h1>@{{ user.username }}</h1>
-        <p>{{ user.firstName }} {{ user.lastName }}</p>
-        <p>{{ user.email }}</p>
-        <p>{{ user.phoneNumber }}</p>
-        <p>Member since: {{ user.registrationDate }}</p>
+      <h1>@{{ user.username }}</h1>
+      <p>{{ user.firstName }} {{ user.lastName }}</p>
+      <p>{{ user.email }}</p>
+      <p>{{ user.phoneNumber }}</p>
+      <p>Member since: {{ user.registrationDate }}</p>
     </div>
-</div>
+  </div>
 
-<h2>Images</h2>
-<app-image-gallery [images]="userImages" />
-
+  <h2>Images</h2>
+  <app-image-gallery [images]="userImages" />
 } @else {
-<p>User not found.</p>
+  <p class="not-found">User not found.</p>
 }
