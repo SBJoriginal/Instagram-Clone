@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MOCK_USERS, MOCK_IMAGES } from '../../mocks/mock-data';
 import { User } from '../../models/user.model';
@@ -12,10 +12,12 @@ import { ImageGalleryComponent } from '../image-gallery/image-gallery';
   styleUrl: './user-profile.css',
 })
 export class UserProfileComponent {
+  private route = inject(ActivatedRoute);
+
   user: User | undefined;
   userImages: ImagePost[] = [];
 
-  constructor(private route: ActivatedRoute) {
+  constructor() {
     const id = Number(this.route.snapshot.params['id']);
     this.user = MOCK_USERS.find((u) => u.id === id);
     this.userImages = MOCK_IMAGES.filter((img) => img.userId === id);
