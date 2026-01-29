@@ -1,4 +1,4 @@
-import { Component, Inject, inject, ChangeDetectionStrategy, computed } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -29,13 +29,23 @@ import { MentionPipe } from '../pipes/mention.pipe';
 
         <mat-form-field appearance="fill">
           <mat-label>Hashtags</mat-label>
-          <input matInput formControlName="hashtags" (blur)="onHashtagsBlur()" placeholder="#nature #photo" />
+          <input
+            matInput
+            formControlName="hashtags"
+            (blur)="onHashtagsBlur()"
+            placeholder="#nature #photo"
+          />
           <mat-hint>Separate with spaces</mat-hint>
         </mat-form-field>
 
         <mat-form-field appearance="fill">
           <mat-label>Mentions</mat-label>
-          <input matInput formControlName="mentions" (blur)="onMentionsBlur()" placeholder="@user" />
+          <input
+            matInput
+            formControlName="mentions"
+            (blur)="onMentionsBlur()"
+            placeholder="@user"
+          />
           <mat-hint>Separate with spaces</mat-hint>
         </mat-form-field>
       </form>
@@ -60,16 +70,13 @@ import { MentionPipe } from '../pipes/mention.pipe';
 })
 export class ImageEditDialog {
   private readonly dialogRef = inject(MatDialogRef<ImageEditDialog>);
+  protected readonly data = inject<ImageResponse>(MAT_DIALOG_DATA);
 
-  readonly editForm: FormGroup;
-
-  constructor(@Inject(MAT_DIALOG_DATA) public data: ImageResponse) {
-    this.editForm = new FormGroup({
-      description: new FormControl(data.description || '', { nonNullable: true }),
-      hashtags: new FormControl(data.hashtags || '', { nonNullable: true }),
-      mentions: new FormControl(data.mentions || '', { nonNullable: true }),
-    });
-  }
+  readonly editForm = new FormGroup({
+    description: new FormControl(this.data.description || '', { nonNullable: true }),
+    hashtags: new FormControl(this.data.hashtags || '', { nonNullable: true }),
+    mentions: new FormControl(this.data.mentions || '', { nonNullable: true }),
+  });
 
   close(): void {
     this.dialogRef.close();
