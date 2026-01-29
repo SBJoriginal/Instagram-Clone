@@ -1,9 +1,11 @@
 .profile-card {
+  background-color: white;
+  border-width: 200px;
   padding: 24px;
   position: relative;
   border-radius: 0;
   box-shadow: none !important;
-  border: 1px solid #ccc;
+  border: 1px solid black;
   width: 100%;
   box-sizing: border-box;
   margin-bottom: auto;
@@ -21,9 +23,9 @@ mat-card-header {
   height: 100px !important;
   border-radius: 50%;
   background-color: #fff;
-  border: 1px solid #ccc;
+  border: 2px solid;
   object-fit: cover;
-  margin-right: 16px;
+  margin-right: 24px;
 }
 
 .header-text {

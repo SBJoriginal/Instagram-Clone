@@ -9,16 +9,17 @@ import { MatCardModule } from '@angular/material/card';
   selector: 'app-profile-header',
   standalone: true,
   imports: [CommonModule, MatToolbarModule, MatIconModule, MatButtonModule, MatCardModule],
-  templateUrl: './profile-header.html',
-  styleUrls: ['./profile-header.css'],
+  templateUrl: './profile_header.component.html',
+  styleUrls: ['./profile_header.component.css'],
   host: {
     style: 'display: block; width: 100%; align-self: flex-start;',
   },
 })
 export class ProfileHeader {
   user = {
-    name: 'Name',
-    email: 'Person_Name@email.com',
+    firstName: 'firstName',
+    lastName: 'lastName',
+    email: 'example@email.com',
     phone: 'XXX - XXX - XXXX',
     memberSince: 'On since',
   };

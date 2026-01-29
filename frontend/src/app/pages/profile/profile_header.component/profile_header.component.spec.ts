@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ProfileHeader } from './profile-header';
+import { ProfileHeader } from './profile_header.component';
 
 describe('ProfileHeader', () => {
   let component: ProfileHeader;
