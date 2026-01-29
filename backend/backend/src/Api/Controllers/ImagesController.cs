@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Domain.Entities;
 using Infrastructure.Persistence;
+using System.IO;
 
 namespace Api.Controllers
 {
@@ -63,11 +64,52 @@ namespace Api.Controllers
       var images = await _context.Images.OrderByDescending(i => i.CreatedAt).ToListAsync();
       return Ok(images);
     }
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] ImageUpdateDto update)
+    {
+      var image = await _context.Images.FindAsync(id);
+      if (image == null) return NotFound();
+
+      image.Description = update.Description ?? "";
+      image.Hashtags = update.Hashtags ?? "";
+      image.Mentions = update.Mentions ?? "";
+
+      await _context.SaveChangesAsync();
+      return Ok(image);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+      var image = await _context.Images.FindAsync(id);
+      if (image == null) return NotFound();
+
+      // Delete file from disk
+      if (!string.IsNullOrEmpty(image.FilePath))
+      {
+        var fileSystemPath = Path.Combine(_environment.WebRootPath ?? _environment.ContentRootPath, image.FilePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+        if (System.IO.File.Exists(fileSystemPath))
+        {
+          System.IO.File.Delete(fileSystemPath);
+        }
+      }
+
+      _context.Images.Remove(image);
+      await _context.SaveChangesAsync();
+      return NoContent();
+    }
   }
 
   public class ImageUploadDto
   {
     public required IFormFile File { get; set; }
+    public string? Description { get; set; }
+    public string? Hashtags { get; set; }
+    public string? Mentions { get; set; }
+  }
+
+  public class ImageUpdateDto
+  {
     public string? Description { get; set; }
     public string? Hashtags { get; set; }
     public string? Mentions { get; set; }
