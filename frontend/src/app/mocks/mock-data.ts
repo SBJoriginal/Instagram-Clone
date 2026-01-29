@@ -1,5 +1,5 @@
 import { User } from '../models/user.model';
-import { ImagePost } from '../models/image.models';
+import { ImagePost } from '../models/image.model';
 
 export const MOCK_USERS: User[] = [
   {

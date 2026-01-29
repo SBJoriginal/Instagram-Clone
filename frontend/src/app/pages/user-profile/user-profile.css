@@ -1,0 +1,20 @@
+.profile-header {
+    display: flex;
+    gap: 24px;
+    padding: 24px;
+}
+
+.profile-picture {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+}
+
+.profile-info h1 {
+    margin: 0 0 8px;
+}
+
+.profile-info p {
+    margin: 4px 0;
+    color: #555;
+}

@@ -1,0 +1,17 @@
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+}
+
+.gallery-item img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+}
+
+.no-images {
+    color: #999;
+    text-align: center;
+    padding: 40px;
+}

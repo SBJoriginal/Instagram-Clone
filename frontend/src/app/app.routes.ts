@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { LandingComponent } from './pages/landing/landing.component';
 import { ShellComponent } from './pages/shell/shell.component';
 import { UserListComponent } from './pages/user-list/user-list';
-import { UserProfile } from './pages/user-profile/user-profile';
+import { UserProfileComponent } from './pages/user-profile/user-profile';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent, data: { animation: 'LandingPage' } },
@@ -11,7 +11,7 @@ export const routes: Routes = [
     component: ShellComponent,
     children: [
       { path: 'users', component: UserListComponent },
-      { path: 'users/:id', component: UserProfile },
+      { path: 'users/:id', component: UserProfileComponent },
     ],
   },
   {
