@@ -9,10 +9,6 @@
   margin-top: 20px;
 }
 
-.image-card {
-  /* MatCard handles basic styling */
-}
-
 img[mat-card-image] {
   object-fit: contain;
   height: 250px;
