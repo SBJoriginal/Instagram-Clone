@@ -7,23 +7,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.23" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.23" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.23" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="src\Api\Controllers\" />
     <Folder Include="src\Api\Middleware\" />
     <Folder Include="src\Api\Filters\" />
     <Folder Include="src\Application\Interfaces\" />
-    <Folder Include="src\Application\DTOs\" />
-    <Folder Include="src\Application\Validators\" />
     <Folder Include="src\Application\Services\" />
-    <Folder Include="src\Domain\Entities\" />
     <Folder Include="src\Domain\Enums\" />
     <Folder Include="src\Domain\Exceptions\" />
     <Folder Include="src\Domain\ValueObjects\" />
