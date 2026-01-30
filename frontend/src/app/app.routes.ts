@@ -10,8 +10,7 @@ export const routes: Routes = [
     children: [
       {
         path: 'profile',
-        loadComponent: () =>
-          import('./pages/profile/profile.component').then((m) => m.ProfileComponent),
+        loadComponent: () => import('./pages/profile/profile').then((m) => m.Profile),
       },
     ],
   },
