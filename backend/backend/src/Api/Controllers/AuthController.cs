@@ -1,6 +1,6 @@
 using backend.src.Application.DTOs;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using UGram.src.Application.Interfaces;
 
 namespace backend.src.Api.Controllers
 {
@@ -8,11 +8,19 @@ namespace backend.src.Api.Controllers
   [ApiController]
   public class AuthController : ControllerBase
   {
+    private readonly IAuthService _authService;
+
+    public AuthController(IAuthService authService)
+    {
+      _authService = authService;
+    }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
     {
-      return Ok("Register endpoint");
+      var createdUser = await _authService.RegisterAsync(registerDto);
+
+      return CreatedAtAction(nameof(Register), new { id = createdUser.Id }, createdUser);
 
     }
   }

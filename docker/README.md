@@ -18,7 +18,23 @@ docker-compose up -d
 This will:
 1. Start a PostgreSQL database container
 2. Build and start the backend API container
-3. Run database migrations automatically
+3. Build and start the frontend container
+4. Run database migrations automatically
+
+### Launch Backend Only
+
+If you want to run the backend and database without the frontend (e.g., for local frontend development):
+
+```bash
+docker-compose up -d db backend
+```
+
+This will:
+1. Start only the PostgreSQL database container
+2. Build and start only the backend API container
+3. Skip the frontend container
+
+The backend will be available at **http://localhost:8080** and Swagger UI at **http://localhost:8080/swagger**.
 
 ## Services
 

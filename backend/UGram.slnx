@@ -1,3 +1,6 @@
 <Solution>
   <Project Path="backend/UGram.csproj" />
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
 </Solution>

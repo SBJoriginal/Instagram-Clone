@@ -9,11 +9,11 @@ namespace backend.src.Domain.Entities
     public Guid Id { get; set; }
 
     [Required]
-    public string UserId { get; set; }
+    public string UserId { get; set; } = string.Empty;
 
     [Required]
     [ForeignKey("UserId")]
-    public ApplicationUser User { get; set; }
+    public ApplicationUser User { get; set; } = null!;
 
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
