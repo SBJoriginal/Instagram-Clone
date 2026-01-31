@@ -1,4 +1,4 @@
-@if (user) {
+@if (user$ | async; as user) {
   <div class="profile-header">
     <img [src]="user.profilePictureUrl" [alt]="user.username" class="profile-picture" />
     <div class="profile-info">
@@ -11,7 +11,9 @@
   </div>
 
   <h2>Images</h2>
-  <app-image-gallery [images]="userImages" />
+  @if (userImages$ | async; as userImages) {
+    <app-image-gallery [images]="userImages" />
+  }
 } @else {
   <p class="not-found">User not found.</p>
 }

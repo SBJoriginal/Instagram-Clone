@@ -1,25 +1,28 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { MOCK_USERS, MOCK_IMAGES } from '../../mocks/mock-data';
+import { AsyncPipe } from '@angular/common';
+import { UserService } from '../../services/user.service';
 import { User } from '../../models/user.model';
 import { ImagePost } from '../../models/image.model';
 import { ImageGalleryComponent } from '../image-gallery/image-gallery';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-user-profile',
-  imports: [ImageGalleryComponent],
+  imports: [ImageGalleryComponent, AsyncPipe],
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.css',
 })
 export class UserProfileComponent {
   private route = inject(ActivatedRoute);
+  private userService = inject(UserService);
 
-  user: User | undefined;
-  userImages: ImagePost[] = [];
+  user$: Observable<User>;
+  userImages$: Observable<ImagePost[]>;
 
   constructor() {
     const id = Number(this.route.snapshot.params['id']);
-    this.user = MOCK_USERS.find((u) => u.id === id);
-    this.userImages = MOCK_IMAGES.filter((img) => img.userId === id);
+    this.user$ = this.userService.getUserById(id);
+    this.userImages$ = this.userService.getUserImages(id);
   }
 }
