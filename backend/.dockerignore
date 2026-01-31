@@ -1,0 +1,28 @@
+# Build outputs
+**/bin/
+**/obj/
+**/out/
+
+# Visual Studio / Rider
+**/.vs/
+**/.vscode/
+**/.idea/
+*.user
+*.suo
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+!README.md
+
+# Test results
+**/TestResults/
+
+# Temporary files
+**/uploads/
+**/*.tmp
+**/*.temp

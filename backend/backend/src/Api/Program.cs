@@ -8,11 +8,11 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-//builder.Services.AddDbContext<Infrastructure.Persistence.AppDbContext>(options =>
-//    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<Infrastructure.Persistence.AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseInMemoryDatabase("InMemoryDb"));
+//builder.Services.AddDbContext<AppDbContext>(options =>
+//    options.UseInMemoryDatabase("InMemoryDb"));
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
@@ -33,7 +33,7 @@ builder.Services.AddFluentValidationAutoValidation()
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Docker")
 {
   app.UseSwagger();
   app.UseSwaggerUI();
@@ -44,12 +44,12 @@ if (app.Environment.IsDevelopment())
     try
     {
       var db = scope.ServiceProvider.GetRequiredService<Infrastructure.Persistence.AppDbContext>();
-      db.Database.EnsureCreated();
-      logger.LogInformation("Database initialized successfully.");
+      db.Database.Migrate();
+      logger.LogInformation("Database migration completed successfully.");
     }
     catch (Exception ex)
     {
-      logger.LogError(ex, "An error occurred while initializing the database. Ensure PostgreSQL is running and the connection string is correct.");
+      logger.LogError(ex, "An error occurred while migrating the database. Ensure PostgreSQL is running and the connection string is correct.");
     }
   }
 }
