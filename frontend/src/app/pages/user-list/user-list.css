@@ -1,52 +1,14 @@
-:host {
-  display: block;
-  width: 100%;
+.user-item {
+  cursor: pointer;
+  border-bottom: 1px solid #e0e0e0;
 }
 
-h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  padding: 24px 24px 0;
+.user-item:hover {
+  background-color: rgba(0, 0, 0, 0.04);
 }
 
-.user-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 16px 24px;
-  max-width: 600px;
-}
-
-.user-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 12px;
-  border-radius: 8px;
-  text-decoration: none;
-  color: inherit;
-  transition: background-color 0.2s;
-}
-
-.user-card:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
-.user-card img {
-  width: 56px;
-  height: 56px;
+.user-avatar {
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid #dbdbdb;
-}
-
-.user-card strong {
-  font-size: 0.95rem;
-  display: block;
-}
-
-.user-card p {
-  margin: 2px 0 0;
-  font-size: 0.85rem;
-  color: #737373;
+  border: 2px solid black;
 }

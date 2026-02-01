@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
 import { UserService } from '../../services/user.service';
 import { User } from '../../models/user.model';
 import { ImagePost } from '../../models/image.model';
@@ -9,9 +10,12 @@ import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-user-profile',
-  imports: [ImageGalleryComponent, AsyncPipe],
+  imports: [ImageGalleryComponent, AsyncPipe, MatCardModule],
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.css',
+  host: {
+    style: 'display: block; width: 100%; align-self: flex-start;',
+  },
 })
 export class UserProfileComponent {
   private route = inject(ActivatedRoute);

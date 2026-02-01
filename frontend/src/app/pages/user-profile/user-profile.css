@@ -1,53 +1,53 @@
-:host {
-  display: block;
+.profile-card {
+  background-color: white;
+  padding: 24px;
+  position: relative;
+  border-radius: 0;
+  box-shadow: none !important;
+  border: 1px solid black;
   width: 100%;
-  max-width: 935px;
-  margin: 0 auto;
+  box-sizing: border-box;
+  margin-bottom: auto;
 }
 
-.profile-header {
+mat-card-header {
   display: flex;
-  gap: 40px;
-  padding: 30px 24px;
   align-items: center;
-  border-bottom: 1px solid #dbdbdb;
+  gap: 24px;
 }
 
-.profile-picture {
-  width: 150px;
-  height: 150px;
+.large-avatar {
+  width: 100px !important;
+  height: 100px !important;
   border-radius: 50%;
+  background-color: #fff;
+  border: 2px solid;
   object-fit: cover;
-  border: 2px solid #dbdbdb;
-  flex-shrink: 0;
+  margin-right: 24px;
 }
 
-.profile-info h1 {
-  margin: 0 0 12px;
-  font-size: 1.4rem;
-  font-weight: 400;
+.header-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.profile-info p {
-  margin: 4px 0;
-  font-size: 0.9rem;
-  color: #555;
+mat-card-title {
+  font-size: 24px;
+  margin-bottom: 8px !important;
 }
 
-.profile-info p:last-child {
-  color: #737373;
-  font-size: 0.85rem;
+.user-details {
+  font-size: 16px;
+  color: #333;
+  line-height: 1.5;
 }
 
-h2 {
-  text-align: center;
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: #262626;
-  padding: 20px 0 12px;
-  margin: 0;
+.user-email {
+  color: #000;
+  text-decoration: underline;
+  display: block;
+  margin-bottom: 4px;
 }
 
 .not-found {

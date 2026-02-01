@@ -1,16 +1,23 @@
 @if (user$ | async; as user) {
-  <div class="profile-header">
-    <img [src]="user.profilePictureUrl" [alt]="user.username" class="profile-picture" />
-    <div class="profile-info">
-      <h1>@{{ user.username }}</h1>
-      <p>{{ user.firstName }} {{ user.lastName }}</p>
-      <p>{{ user.email }}</p>
-      <p>{{ user.phoneNumber }}</p>
-      <p>Member since: {{ user.registrationDate }}</p>
-    </div>
-  </div>
+  <mat-card class="profile-card">
+    <mat-card-header>
+      <img
+        mat-card-avatar
+        class="large-avatar"
+        [src]="user.profilePictureUrl"
+        [alt]="user.username"
+      />
+      <div class="header-text">
+        <mat-card-title>{{ user.firstName }} {{ user.lastName }}</mat-card-title>
+        <mat-card-subtitle class="user-details">
+          <a [href]="'mailto:' + user.email" class="user-email">{{ user.email }}</a>
+          <div>{{ user.phoneNumber }}</div>
+          <div>Membre depuis {{ user.registrationDate }}</div>
+        </mat-card-subtitle>
+      </div>
+    </mat-card-header>
+  </mat-card>
 
-  <h2>Images</h2>
   @if (userImages$ | async; as userImages) {
     <app-image-gallery [images]="userImages" />
   }
