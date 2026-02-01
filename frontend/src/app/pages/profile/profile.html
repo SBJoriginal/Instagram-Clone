@@ -1,0 +1,36 @@
+<app-profile-header></app-profile-header>
+
+<div class="profile-container">
+  <div class="image-grid">
+    @for (image of images | async; track image.id) {
+      <mat-card class="image-card">
+        <div class="image-header">
+          <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Image actions">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="openEditDialog(image)">
+              <mat-icon>edit</mat-icon>
+              <span>Edit</span>
+            </button>
+            <button mat-menu-item (click)="deleteImage(image)">
+              <mat-icon>delete</mat-icon>
+              <span>Delete</span>
+            </button>
+          </mat-menu>
+        </div>
+        <img
+          mat-card-image
+          [src]="'http://localhost:5266' + image.filePath"
+          [alt]="image.description"
+          loading="lazy"
+        />
+        <mat-card-content>
+          <p>{{ image.description }}</p>
+        </mat-card-content>
+      </mat-card>
+    } @empty {
+      <p>No images uploaded yet.</p>
+    }
+  </div>
+</div>

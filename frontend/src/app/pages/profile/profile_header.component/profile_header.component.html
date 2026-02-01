@@ -1,0 +1,17 @@
+<mat-card class="profile-card">
+  <mat-card-header>
+    <img mat-card-avatar class="large-avatar" src="assets/default-avatar.png" alt="User avatar" />
+    <div class="header-text">
+      <mat-card-title>{{ user.firstName }} {{ user.lastName }}</mat-card-title>
+      <mat-card-subtitle class="user-details">
+        <a href="mailto:{{ user.email }}" class="user-email">{{ user.email }}</a>
+        <div>{{ user.phone }}</div>
+        <div>{{ user.memberSince }}</div>
+      </mat-card-subtitle>
+    </div>
+  </mat-card-header>
+
+  <button mat-icon-button class="settings-button" (click)="openSettings()" aria-label="Settings">
+    <mat-icon>settings</mat-icon>
+  </button>
+</mat-card>

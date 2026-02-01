@@ -1,0 +1,31 @@
+.profile-container {
+  padding: 20px;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+img[mat-card-image] {
+  object-fit: contain;
+  height: 250px;
+  background-color: #f3f4f6;
+}
+
+.image-card {
+  position: relative;
+}
+
+.image-header {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+}
+
+.image-header button {
+  background-color: rgba(255, 255, 255, 0.7);
+}
