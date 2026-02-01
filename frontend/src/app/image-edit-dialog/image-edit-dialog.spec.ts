@@ -4,6 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { vi } from 'vitest';
+import { ImageUploadComponent } from '../image-upload/image-upload';
 
 describe('ImageEditDialog', () => {
   let component: ImageEditDialog;
@@ -39,32 +40,26 @@ describe('ImageEditDialog', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should initialize form with data', () => {
-    expect(component.editForm.get('description')?.value).toBe('Test Desc');
-    expect(component.editForm.get('hashtags')?.value).toBe('#test');
-    expect(component.editForm.get('mentions')?.value).toBe('@test');
+  it('should initialize with data', () => {
+    expect(component['data']).toBe(mockData);
   });
 
-  it('should format hashtags on blur', () => {
-    component.editForm.get('hashtags')?.setValue('test #nature');
-    component.onHashtagsBlur();
-    expect(component.editForm.get('hashtags')?.value).toBe('#test #nature');
-  });
-
-  it('should format mentions on blur', () => {
-    component.editForm.get('mentions')?.setValue('user @dev');
-    component.onMentionsBlur();
-    expect(component.editForm.get('mentions')?.value).toBe('@user @dev');
-  });
-
-  it('should close dialog on cancel', () => {
-    fixture.debugElement.query(By.css('button[mat-button]')).nativeElement.click();
+  it('should close dialog on cancel event', () => {
+    const uploadComponent = fixture.debugElement.query(By.directive(ImageUploadComponent)).componentInstance;
+    uploadComponent.cancel.emit();
     expect(mockDialogRef.close).toHaveBeenCalled();
   });
 
-  it('should close with data on save', () => {
-    component.editForm.get('description')?.setValue('New Desc');
-    fixture.debugElement.query(By.css('button[mat-raised-button]')).nativeElement.click();
+  it('should close with data on uploadImage event', () => {
+    const uploadComponent = fixture.debugElement.query(By.directive(ImageUploadComponent)).componentInstance;
+    const testUploadData = {
+      file: null as any,
+      description: 'New Desc',
+      hashtags: '#test',
+      mentions: '@test'
+    };
+
+    uploadComponent.uploadImage.emit(testUploadData);
 
     expect(mockDialogRef.close).toHaveBeenCalledWith({
       description: 'New Desc',
