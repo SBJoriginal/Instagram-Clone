@@ -21,6 +21,29 @@ This will:
 3. Build and start the frontend container
 4. Run database migrations automatically
 
+### Visual Studio Debugging (Database Only Mode)
+
+For local development with debugging in Visual Studio, run only the database in Docker:
+
+```bash
+# Start only the database
+docker-compose up -d db
+```
+
+This starts just the PostgreSQL container. Then:
+
+1. Open `backend/UGram.slnx` in Visual Studio
+2. Press **F5** to start debugging
+3. Set breakpoints and debug normally
+
+The backend will connect to the Docker database on `localhost:5432` automatically.
+
+**Why this is useful:**
+- ✅ Full Visual Studio debugging (breakpoints, watch, step-through)
+- ✅ Fast iteration (no container rebuilds)
+- ✅ Database persistence via Docker
+- ✅ Consistent database setup across team
+
 ### Launch Backend Only
 
 If you want to run the backend and database without the frontend (e.g., for local frontend development):
@@ -34,7 +57,7 @@ This will:
 2. Build and start only the backend API container
 3. Skip the frontend container
 
-The backend will be available at **http://localhost:8080** and Swagger UI at **http://localhost:8080/swagger**.
+The backend will be available at **http://localhost:8081** and Swagger UI at **http://localhost:8081/swagger**.
 
 ## Services
 

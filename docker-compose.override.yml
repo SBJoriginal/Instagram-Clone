@@ -1,0 +1,12 @@
+services:
+  # Override to run only database for local development
+  # Backend will run in Visual Studio with debugging enabled
+
+  db:
+    profiles: [ "dev" ]
+
+  backend:
+    profiles: [ "full" ]
+
+  frontend:
+    profiles: [ "full" ]

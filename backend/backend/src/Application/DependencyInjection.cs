@@ -24,6 +24,8 @@ namespace UGram.src.Application
     private static void AddAuthenticationServices(IServiceCollection services)
     {
       services.AddScoped<IAuthService, AuthService>();
+      services.AddScoped<IUserProfileService, ProfileService>();
+      services.AddScoped<ITokenService, JwtTokenService>();
     }
   }
 }

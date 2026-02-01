@@ -4,6 +4,6 @@ namespace backend.src.Domain.Entities
 {
   public class ApplicationUser : IdentityUser
   {
-    public UserProfile UserProfile { get; set; } = new UserProfile();
+    public UserProfile? UserProfile { get; set; }
   }
 }

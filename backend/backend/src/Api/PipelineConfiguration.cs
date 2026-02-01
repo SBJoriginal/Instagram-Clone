@@ -11,6 +11,8 @@ namespace UGram.src.Api
 
     public static WebApplication ConfigurePipeline(this WebApplication app)
     {
+      app.UseExceptionHandler();
+
       if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Docker")
       {
         app.UseSwagger();
@@ -24,7 +26,6 @@ namespace UGram.src.Api
       app.UseCors("AllowAll");
       app.UseAuthentication();
       app.UseAuthorization();
-      app.UseExceptionHandler();
       app.MapControllers();
 
       return app;
@@ -60,6 +61,7 @@ namespace UGram.src.Api
       catch (Exception ex)
       {
         logger.LogError(ex, "An error occurred while migrating the database. Ensure PostgreSQL is running and the connection string is correct.");
+        throw;
       }
     }
   }

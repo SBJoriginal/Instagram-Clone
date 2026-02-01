@@ -5,6 +5,10 @@ namespace UGram.src.Application.Interfaces
 {
   public interface IAuthService
   {
-    public Task<UserDto> RegisterAsync(RegisterDto registerDto);
+    public Task<RegisterResponseDto> RegisterAsync(RegisterDto registerDto);
+
+    public Task<LoginResponseDto> LoginAsync(LoginDto loginDto);
+
+    public LoginResponseDto RefreshToken(string accessToken, string refreshToken);
   }
 }

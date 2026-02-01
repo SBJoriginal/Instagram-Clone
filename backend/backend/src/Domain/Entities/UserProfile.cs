@@ -15,11 +15,11 @@ namespace backend.src.Domain.Entities
     [ForeignKey("UserId")]
     public ApplicationUser User { get; set; } = null!;
 
-    public string? FirstName { get; set; }
-    public string? LastName { get; set; }
-
-    public string? PhoneNumber { get; set; }
-
-    public DateTime? SignUpDate { get; set; }
+    [Required]
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
+    public DateTime SignUpDate { get; set; } = DateTime.Now; 
   }
 }

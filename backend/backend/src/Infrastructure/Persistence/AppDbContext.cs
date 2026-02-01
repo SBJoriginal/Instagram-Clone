@@ -26,7 +26,7 @@ namespace Infrastructure.Persistence
       modelBuilder.Entity<ApplicationUser>()
           .HasOne(u => u.UserProfile)
           .WithOne(p => p.User)
-          .HasPrincipalKey<UserProfile>(u => u.UserId)
+          .HasForeignKey<UserProfile>(p => p.UserId)
           .OnDelete(DeleteBehavior.Cascade);
     }
   }
