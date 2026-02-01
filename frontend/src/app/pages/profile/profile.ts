@@ -6,7 +6,11 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
-import { ImageResponse, ImageUploadService, ImageUpdateData } from '../../services/image-upload.service';
+import {
+  ImageResponse,
+  ImageUploadService,
+  ImageUpdateData,
+} from '../../services/image-upload.service';
 import { BehaviorSubject, switchMap } from 'rxjs';
 import { ImageEditDialog } from '../../image-edit-dialog/image-edit-dialog';
 
