@@ -9,5 +9,4 @@ import { ImagePost } from '../../models/image.model';
 })
 export class ImageGalleryComponent {
   @Input() images: ImagePost[] = [];
-
 }
