@@ -6,7 +6,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
-import { ImageResponse, ImageUploadService } from '../../services/image-upload.service';
+import { ImageResponse, ImageUploadService, ImageUpdateData } from '../../services/image-upload.service';
 import { BehaviorSubject, switchMap } from 'rxjs';
 import { ImageEditDialog } from '../../image-edit-dialog/image-edit-dialog';
 
@@ -33,9 +33,11 @@ export class Profile {
       data: image,
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().subscribe((result: ImageUpdateData) => {
       if (result) {
-        this.refresh$.next();
+        this.imageService.updateImage(image.id, result).subscribe(() => {
+          this.refresh$.next();
+        });
       }
     });
   }

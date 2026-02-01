@@ -1,69 +1,27 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ImageResponse, ImageUpdateData } from '../services/image-upload.service';
-import { HashtagPipe } from '../pipes/hashtag.pipe';
-import { MentionPipe } from '../pipes/mention.pipe';
+import { ImageUploadComponent, ImageUploadData } from '../image-upload/image-upload';
 
 @Component({
   selector: 'app-image-edit-dialog',
   standalone: true,
   imports: [
     MatDialogModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    ReactiveFormsModule,
+    ImageUploadComponent
   ],
   template: `
-    <h2 mat-dialog-title>Edit Image</h2>
-    <mat-dialog-content>
-      <form [formGroup]="editForm" class="edit-form">
-        <mat-form-field appearance="fill">
-          <mat-label>Description</mat-label>
-          <textarea matInput formControlName="description" rows="3"></textarea>
-        </mat-form-field>
-
-        <mat-form-field appearance="fill">
-          <mat-label>Hashtags</mat-label>
-          <input
-            matInput
-            formControlName="hashtags"
-            (blur)="onHashtagsBlur()"
-            placeholder="#nature #photo"
-          />
-          <mat-hint>Separate with spaces</mat-hint>
-        </mat-form-field>
-
-        <mat-form-field appearance="fill">
-          <mat-label>Mentions</mat-label>
-          <input
-            matInput
-            formControlName="mentions"
-            (blur)="onMentionsBlur()"
-            placeholder="@user"
-          />
-          <mat-hint>Separate with spaces</mat-hint>
-        </mat-form-field>
-      </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="close()">Cancel</button>
-      <button mat-raised-button color="primary" (click)="save()">Save</button>
-    </mat-dialog-actions>
+    <app-image-upload 
+      [editData]="data" 
+      (uploadImage)="onSave($event)" 
+      (cancel)="close()">
+    </app-image-upload>
   `,
   styles: `
-    .edit-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      width: 100%;
-    }
-    textarea {
-      resize: vertical;
+    :host {
+      display: block;
+      max-height: 90vh;
+      overflow-y: auto;
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -72,45 +30,16 @@ export class ImageEditDialog {
   private readonly dialogRef = inject(MatDialogRef<ImageEditDialog>);
   protected readonly data = inject<ImageResponse>(MAT_DIALOG_DATA);
 
-  readonly editForm = new FormGroup({
-    description: new FormControl(this.data.description || '', { nonNullable: true }),
-    hashtags: new FormControl(this.data.hashtags || '', { nonNullable: true }),
-    mentions: new FormControl(this.data.mentions || '', { nonNullable: true }),
-  });
-
   close(): void {
     this.dialogRef.close();
   }
 
-  save(): void {
-    const formValue = this.editForm.getRawValue();
+  onSave(formData: ImageUploadData): void {
     const updateData: ImageUpdateData = {
-      description: formValue.description,
-      hashtags: formValue.hashtags,
-      mentions: formValue.mentions,
+      description: formData.description,
+      hashtags: formData.hashtags,
+      mentions: formData.mentions,
     };
     this.dialogRef.close(updateData);
-  }
-
-  onHashtagsBlur(): void {
-    const control = this.editForm.controls['hashtags'];
-    const value = control.value;
-    if (!value) return;
-
-    const formatted = new HashtagPipe().transform(value).join(' ');
-    if (formatted !== value) {
-      control.setValue(formatted);
-    }
-  }
-
-  onMentionsBlur(): void {
-    const control = this.editForm.controls['mentions'];
-    const value = control.value;
-    if (!value) return;
-
-    const formatted = new MentionPipe().transform(value).join(' ');
-    if (formatted !== value) {
-      control.setValue(formatted);
-    }
   }
 }
