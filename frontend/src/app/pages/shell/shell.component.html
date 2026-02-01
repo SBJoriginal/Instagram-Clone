@@ -1,6 +1,10 @@
-<div class="shell-container">
-  <app-navigation />
-  <main class="main-content">
-    <router-outlet />
-  </main>
-</div>
+<mat-sidenav-container class="shell-container" autosize>
+  <mat-sidenav mode="side" opened="true">
+    <app-navigation />
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <main class="main-content">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>
