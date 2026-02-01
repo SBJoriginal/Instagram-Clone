@@ -6,15 +6,9 @@ import { ImageUploadComponent, ImageUploadData } from '../image-upload/image-upl
 @Component({
   selector: 'app-image-edit-dialog',
   standalone: true,
-  imports: [
-    MatDialogModule,
-    ImageUploadComponent
-  ],
+  imports: [MatDialogModule, ImageUploadComponent],
   template: `
-    <app-image-upload 
-      [editData]="data" 
-      (uploadImage)="onSave($event)" 
-      (cancel)="close()">
+    <app-image-upload [editData]="data" (uploadImage)="onSave($event)" (cancelEdit)="close()">
     </app-image-upload>
   `,
   styles: `

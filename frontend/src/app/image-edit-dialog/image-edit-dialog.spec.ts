@@ -45,18 +45,22 @@ describe('ImageEditDialog', () => {
   });
 
   it('should close dialog on cancel event', () => {
-    const uploadComponent = fixture.debugElement.query(By.directive(ImageUploadComponent)).componentInstance;
-    uploadComponent.cancel.emit();
+    const uploadComponent = fixture.debugElement.query(
+      By.directive(ImageUploadComponent),
+    ).componentInstance;
+    uploadComponent.cancelEdit.emit();
     expect(mockDialogRef.close).toHaveBeenCalled();
   });
 
   it('should close with data on uploadImage event', () => {
-    const uploadComponent = fixture.debugElement.query(By.directive(ImageUploadComponent)).componentInstance;
+    const uploadComponent = fixture.debugElement.query(
+      By.directive(ImageUploadComponent),
+    ).componentInstance;
     const testUploadData = {
-      file: null as any,
+      file: null as unknown as File,
       description: 'New Desc',
       hashtags: '#test',
-      mentions: '@test'
+      mentions: '@test',
     };
 
     uploadComponent.uploadImage.emit(testUploadData);

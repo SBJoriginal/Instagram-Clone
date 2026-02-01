@@ -1,4 +1,12 @@
-import { Component, output, signal, computed, ChangeDetectionStrategy, input, OnInit } from '@angular/core';
+import {
+  Component,
+  output,
+  signal,
+  computed,
+  ChangeDetectionStrategy,
+  input,
+  OnInit,
+} from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -37,7 +45,7 @@ export class ImageUploadComponent implements OnInit {
 
   // Output event for upload data
   readonly uploadImage = output<ImageUploadData>();
-  readonly cancel = output<void>();
+  readonly cancelEdit = output<void>();
 
   // Signals for state management
   protected readonly selectedFile = signal<File | null>(null);
