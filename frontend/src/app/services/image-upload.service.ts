@@ -7,6 +7,14 @@ export interface ImageResponse {
   id: number;
   filePath: string;
   description: string;
+  hashtags: string;
+  mentions: string;
+}
+
+export interface ImageUpdateData {
+  description: string;
+  hashtags: string;
+  mentions: string;
 }
 
 @Injectable({
@@ -29,5 +37,13 @@ export class ImageUploadService {
 
   getImages(): Observable<ImageResponse[]> {
     return this.http.get<ImageResponse[]>(this.apiUrl);
+  }
+
+  updateImage(id: number, data: ImageUpdateData): Observable<ImageResponse> {
+    return this.http.put<ImageResponse>(`${this.apiUrl}/${id}`, data);
+  }
+
+  deleteImage(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

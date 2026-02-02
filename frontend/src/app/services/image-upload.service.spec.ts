@@ -37,6 +37,8 @@ describe('ImageUploadService', () => {
       id: 1,
       filePath: '/uploads/test.png',
       description: 'Test Description',
+      hashtags: '#test',
+      mentions: '@user',
     };
 
     service.uploadImage(mockData).subscribe((response) => {
@@ -51,8 +53,8 @@ describe('ImageUploadService', () => {
 
   it('should get all images', () => {
     const mockImages: ImageResponse[] = [
-      { id: 1, filePath: '/img1.png', description: 'desc1' },
-      { id: 2, filePath: '/img2.png', description: 'desc2' },
+      { id: 1, filePath: '/img1.png', description: 'desc1', hashtags: '', mentions: '' },
+      { id: 2, filePath: '/img2.png', description: 'desc2', hashtags: '', mentions: '' },
     ];
 
     service.getImages().subscribe((images) => {
@@ -63,5 +65,39 @@ describe('ImageUploadService', () => {
     const req = httpMock.expectOne('http://localhost:5266/api/images');
     expect(req.request.method).toBe('GET');
     req.flush(mockImages);
+  });
+
+  it('should update an image', () => {
+    const updateData = {
+      description: 'Updated Desc',
+      hashtags: '#updated',
+      mentions: '@updated',
+    };
+    const mockResponse: ImageResponse = {
+      id: 1,
+      filePath: '/img1.png',
+      description: 'Updated Desc',
+      hashtags: '#updated',
+      mentions: '@updated',
+    };
+
+    service.updateImage(1, updateData).subscribe((response) => {
+      expect(response).toEqual(mockResponse);
+    });
+
+    const req = httpMock.expectOne('http://localhost:5266/api/images/1');
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual(updateData);
+    req.flush(mockResponse);
+  });
+
+  it('should delete an image', () => {
+    service.deleteImage(1).subscribe((response) => {
+      expect(response).toBeNull(); // Void return
+    });
+
+    const req = httpMock.expectOne('http://localhost:5266/api/images/1');
+    expect(req.request.method).toBe('DELETE');
+    req.flush(null);
   });
 });

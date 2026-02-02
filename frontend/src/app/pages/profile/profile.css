@@ -14,3 +14,18 @@ img[mat-card-image] {
   height: 250px;
   background-color: #f3f4f6;
 }
+
+.image-card {
+  position: relative;
+}
+
+.image-header {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+}
+
+.image-header button {
+  background-color: rgba(255, 255, 255, 0.7);
+}
