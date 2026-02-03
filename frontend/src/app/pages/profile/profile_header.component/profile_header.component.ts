@@ -1,9 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { ProfileEditComponent } from '../profile_edit.component/profile_edit.component';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { ProfileEditData } from '../profile.model';
 
 @Component({
   selector: 'app-profile-header',
@@ -14,17 +17,37 @@ import { MatCardModule } from '@angular/material/card';
   host: {
     style: 'display: block; width: 100%; align-self: flex-start;',
   },
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileHeader {
-  user = {
+  readonly dialog = inject(MatDialog);
+
+  user = signal({
     firstName: 'firstName',
     lastName: 'lastName',
     email: 'example@email.com',
     phone: 'XXX - XXX - XXXX',
     memberSince: 'On since',
-  };
+    avatarUrl: 'default-avatar.png',
+  });
 
   openSettings() {
-    console.log('Settings clicked');
+    const originalUser = this.user(); // Snapshot
+
+    const dialogRef = this.dialog.open(ProfileEditComponent, {
+      data: this.user(),
+    });
+
+    // Real-time updates
+    dialogRef.componentInstance.valueChange.subscribe((newValue: Partial<ProfileEditData>) => {
+      this.user.update((current) => ({ ...current, ...newValue }));
+    });
+
+
+
+    // Revert on cancel
+    dialogRef.componentInstance.cancelEvent.subscribe(() => {
+      this.user.set(originalUser);
+    });
   }
 }
