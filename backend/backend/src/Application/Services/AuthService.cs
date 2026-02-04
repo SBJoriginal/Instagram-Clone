@@ -38,12 +38,14 @@ namespace UGram.src.Application.Services
       await RegisterUserAsync(registerDto, newUser);
 
       var token = _tokenService.GenerateToken(newUser);
+      var refreshToken = _tokenService.GenerateRefreshToken();
 
       var userDto = new RegisterResponseDto
       {
         Id = newUser.Id,
         Email = newUser.Email,
-        Token = token
+        Token = token,
+        RefreshToken = refreshToken
       };
       return userDto;
     }

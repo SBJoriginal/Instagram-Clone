@@ -21,7 +21,12 @@ namespace Infrastructure.Persistence
 
       modelBuilder.Entity<Image>()
           .Property(i => i.CreatedAt)
-          .HasConversion(v => v, v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+          .HasConversion(v => v, v => DateTime.SpecifyKind(v, DateTimeKind.Utc))
+          .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+      modelBuilder.Entity<UserProfile>()
+          .Property(p => p.SignUpDate)
+          .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
       modelBuilder.Entity<ApplicationUser>()
           .HasOne(u => u.UserProfile)

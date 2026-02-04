@@ -15,11 +15,14 @@ namespace backend.src.Domain.Entities
     [ForeignKey("UserId")]
     public ApplicationUser User { get; set; } = null!;
 
-    [Required]
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
-    public DateTime SignUpDate { get; set; } = DateTime.Now;
+
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public DateTime SignUpDate { get; set; }
+
+    public string? ProfilePictureUrl { get; set; }
   }
 }

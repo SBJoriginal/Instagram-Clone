@@ -1,8 +1,7 @@
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Domain.Entities;
-using Infrastructure.Persistence;
+using UGram.src.Application.DTOs;
+using UGram.src.Application.Interfaces;
 
 namespace Api.Controllers
 {
@@ -10,66 +9,48 @@ namespace Api.Controllers
   [Route("api/[controller]")]
   public class ImagesController : ControllerBase
   {
-    private readonly AppDbContext _context;
-    private readonly IWebHostEnvironment _environment;
+    private readonly IImageService _imageService;
 
-    public ImagesController(AppDbContext context, IWebHostEnvironment environment)
+    public ImagesController(IImageService imageService)
     {
-      _context = context;
-      _environment = environment;
+      _imageService = imageService;
     }
 
     [HttpPost]
-    public async Task<IActionResult> Upload([FromForm] ImageUploadDto upload)
+    public async Task<IActionResult> Upload([FromForm] ImageUploadRequestDto upload)
     {
-      if (upload.File == null || upload.File.Length == 0)
-        return BadRequest("No file uploaded.");
-
-      // 1. Save file to disk
-      var uploadsFolder = Path.Combine(_environment.WebRootPath ?? _environment.ContentRootPath, "uploads");
-      if (!Directory.Exists(uploadsFolder))
-        Directory.CreateDirectory(uploadsFolder);
-
-      var uniqueFileName = Guid.NewGuid().ToString() + "_" + upload.File.FileName;
-      var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-      using (var stream = new FileStream(filePath, FileMode.Create))
+      try
       {
-        await upload.File.CopyToAsync(stream);
+        var result = await _imageService.UploadImageAsync(
+          upload.File,
+          upload.Description ?? "",
+          upload.Hashtags ?? "",
+          upload.Mentions ?? "");
+
+        return CreatedAtAction(nameof(GetImages), new { id = result.Id }, result);
       }
-
-      // 2. Save metadata to DB
-      var image = new Image
+      catch (ArgumentException ex)
       {
-        FileName = uniqueFileName,
-        ContentType = upload.File.ContentType,
-        Size = upload.File.Length,
-        Description = upload.Description ?? "",
-        Hashtags = upload.Hashtags ?? "",
-        Mentions = upload.Mentions ?? "",
-        FilePath = "/uploads/" + uniqueFileName,
-        CreatedAt = DateTime.UtcNow
-      };
-
-      _context.Images.Add(image);
-      await _context.SaveChangesAsync();
-
-      return Ok(new { image.Id, image.FilePath, image.Description });
+        return BadRequest(new { error = ex.Message });
+      }
+      catch (Exception ex)
+      {
+        return StatusCode(StatusCodes.Status500InternalServerError, new { error = ex.Message });
+      }
     }
 
     [HttpGet]
     public async Task<IActionResult> GetImages()
     {
-      var images = await _context.Images.OrderByDescending(i => i.CreatedAt).ToListAsync();
-      return Ok(images);
+      try
+      {
+        var images = await _imageService.GetAllImagesAsync();
+        return Ok(images);
+      }
+      catch (Exception ex)
+      {
+        return StatusCode(StatusCodes.Status500InternalServerError, new { error = ex.Message });
+      }
     }
-  }
-
-  public class ImageUploadDto
-  {
-    public required IFormFile File { get; set; }
-    public string? Description { get; set; }
-    public string? Hashtags { get; set; }
-    public string? Mentions { get; set; }
   }
 }

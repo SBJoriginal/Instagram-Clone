@@ -1,9 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { ProfileService } from '../../../services/profile.service';
+import { TokenService } from '../../../services/token.service';
+import { AuthService } from '../../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-profile-header',
@@ -15,16 +19,68 @@ import { MatCardModule } from '@angular/material/card';
     style: 'display: block; width: 100%; align-self: flex-start;',
   },
 })
-export class ProfileHeader {
-  user = {
-    firstName: 'firstName',
-    lastName: 'lastName',
-    email: 'example@email.com',
-    phone: 'XXX - XXX - XXXX',
-    memberSince: 'On since',
-  };
+export class ProfileHeader implements OnInit {
+  private readonly profileService = inject(ProfileService);
+  private readonly tokenService = inject(TokenService);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
+  protected readonly user = signal({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    memberSince: '',
+    profilePictureUrl: '',
+  });
+
+  protected readonly isLoading = signal(true);
+
+  ngOnInit(): void {
+    this.loadProfile();
+  }
+
+  private loadProfile(): void {
+    const userId = this.tokenService.getUserIdFromToken();
+    const email = this.tokenService.getEmailFromToken();
+
+    if (!userId || !email) {
+      this.isLoading.set(false);
+      return;
+    }
+
+    this.profileService.getProfile().subscribe({
+      next: (profile) => {
+        this.user.set({
+          firstName: profile.firstName || '',
+          lastName: profile.lastName || '',
+          email: profile.email,
+          phone: profile.phoneNumber || '',
+          memberSince: new Date(profile.signUpDate).toLocaleDateString(),
+          profilePictureUrl: profile.profilePictureUrl || '',
+        });
+        this.isLoading.set(false);
+      },
+      error: () => {
+        // Profile not completed yet, show email only
+        this.user.set({
+          firstName: '',
+          lastName: '',
+          email: email,
+          phone: '',
+          memberSince: '',
+          profilePictureUrl: '',
+        });
+        this.isLoading.set(false);
+      },
+    });
+  }
 
   openSettings() {
-    console.log('Settings clicked');
+    this.router.navigate(['/complete-profile']);
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }

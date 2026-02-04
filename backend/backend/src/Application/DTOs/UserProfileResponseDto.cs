@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace UGram.src.Application.DTOs
 {
   public class UserProfileResponseDto
@@ -11,5 +9,7 @@ namespace UGram.src.Application.DTOs
     public string PhoneNumber { get; set; } = string.Empty;
 
     public DateTime SignUpDate { get; set; } = DateTime.Now;
+
+    public string? ProfilePictureUrl { get; set; }
   }
 }

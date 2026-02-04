@@ -34,6 +34,14 @@ namespace backend.src.Api.Controllers
       return Ok(await _userProfileService.GetUserProfileAsync(userId));
     }
 
+    [HttpPost("profile-picture")]
+    public async Task<IActionResult> UploadProfilePicture([FromForm] ProfilePictureUploadDto uploadDto)
+    {
+      var userId = GetAuthenticatedUserId();
+      var result = await _userProfileService.UploadProfilePictureAsync(userId, uploadDto.File);
+      return Ok(result);
+    }
+
     private string GetAuthenticatedUserId()
     {
       var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

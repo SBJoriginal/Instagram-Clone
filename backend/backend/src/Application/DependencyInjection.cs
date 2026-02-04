@@ -26,6 +26,8 @@ namespace UGram.src.Application
       services.AddScoped<IAuthService, AuthService>();
       services.AddScoped<IUserProfileService, ProfileService>();
       services.AddScoped<ITokenService, JwtTokenService>();
+      services.AddScoped<IImageStorageService, LocalImageStorageService>();
+      services.AddScoped<IImageService, ImageService>();
     }
   }
 }
