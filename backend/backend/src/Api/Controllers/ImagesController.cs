@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using UGram.src.Application.DTOs;
 using UGram.src.Application.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using Infrastructure.Persistence;
+using Domain.Entities;
 
 namespace Api.Controllers
 {
@@ -10,10 +13,14 @@ namespace Api.Controllers
   public class ImagesController : ControllerBase
   {
     private readonly IImageService _imageService;
+    private readonly AppDbContext _context;
+    private readonly IWebHostEnvironment _environment;
 
-    public ImagesController(IImageService imageService)
+    public ImagesController(IImageService imageService, AppDbContext context, IWebHostEnvironment environment)
     {
       _imageService = imageService;
+      _context = context;
+      _environment = environment;
     }
 
     [HttpPost]
