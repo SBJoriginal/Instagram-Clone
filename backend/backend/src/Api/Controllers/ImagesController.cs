@@ -52,5 +52,39 @@ namespace Api.Controllers
         return StatusCode(StatusCodes.Status500InternalServerError, new { error = ex.Message });
       }
     }
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] ImageUpdateDto update)
+    {
+      var image = await _context.Images.FindAsync(id);
+      if (image == null) return NotFound();
+
+      image.Description = update.Description ?? "";
+      image.Hashtags = update.Hashtags ?? "";
+      image.Mentions = update.Mentions ?? "";
+
+      await _context.SaveChangesAsync();
+      return Ok(image);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+      var image = await _context.Images.FindAsync(id);
+      if (image == null) return NotFound();
+
+      // Delete file from disk
+      if (!string.IsNullOrEmpty(image.FilePath))
+      {
+        var fileSystemPath = Path.Combine(_environment.WebRootPath ?? _environment.ContentRootPath, image.FilePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+        if (System.IO.File.Exists(fileSystemPath))
+        {
+          System.IO.File.Delete(fileSystemPath);
+        }
+      }
+
+      _context.Images.Remove(image);
+      await _context.SaveChangesAsync();
+      return NoContent();
+    }
   }
 }

@@ -1,65 +1,78 @@
 <div class="upload-container">
-  <h2>Upload Image</h2>
+  <h2>{{ editData() ? 'Edit Image' : 'Upload Image' }}</h2>
 
   <!-- File Upload Area -->
-  <div
-    class="upload-area"
-    [class.has-file]="selectedFile()"
-    (drop)="onFileDropped($event)"
-    (dragover)="onDragOver($event)"
-  >
-    @if (!selectedFile()) {
-      <div class="upload-prompt">
-        <svg
-          class="upload-icon"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-          />
-        </svg>
-        <p class="upload-text">Drag and drop an image here, or</p>
-        <label for="fileInput" class="file-label">
-          <span class="browse-button">Browse Files</span>
-          <input
-            type="file"
-            id="fileInput"
-            accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-            (change)="onFileSelected($event)"
-            class="file-input"
-            aria-label="Select image file"
-          />
-        </label>
-        <p class="upload-hint">JPG, PNG, GIF, or WebP - Max 5MB</p>
-      </div>
-    } @else {
-      <!-- Image Preview -->
-      <div class="preview-container">
-        <img [src]="previewUrl()" [alt]="'Preview of ' + fileInfo()?.name" class="preview-image" />
-        <div class="file-info">
-          <p class="file-name">{{ fileInfo()?.name }}</p>
-          <p class="file-details">{{ fileInfo()?.size }} - {{ fileInfo()?.type }}</p>
+  @if (!editData() || selectedFile()) {
+    <div
+      class="upload-area"
+      [class.has-file]="selectedFile()"
+      (drop)="onFileDropped($event)"
+      (dragover)="onDragOver($event)"
+    >
+      @if (!selectedFile()) {
+        <div class="upload-prompt">
+          <svg
+            class="upload-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+            />
+          </svg>
+          <p class="upload-text">Drag and drop an image here, or</p>
+          <label for="fileInput" class="file-label">
+            <span class="browse-button">Browse Files</span>
+            <input
+              type="file"
+              id="fileInput"
+              accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+              (change)="onFileSelected($event)"
+              class="file-input"
+              aria-label="Select image file"
+            />
+          </label>
+          <p class="upload-hint">JPG, PNG, GIF, or WebP - Max 5MB</p>
         </div>
-        <button
-          type="button"
-          mat-stroked-button
-          color="warn"
-          (click)="removeFile()"
-          aria-label="Remove selected image"
-        >
-          <mat-icon>delete</mat-icon>
-          Remove
-        </button>
-      </div>
-    }
-  </div>
+      } @else {
+        <!-- Image Preview -->
+        <div class="preview-container">
+          <img
+            [src]="previewUrl()"
+            [alt]="'Preview of ' + (fileInfo()?.name || 'edited image')"
+            class="preview-image"
+          />
+          @if (selectedFile()) {
+            <div class="file-info">
+              <p class="file-name">{{ fileInfo()?.name }}</p>
+              <p class="file-details">{{ fileInfo()?.size }} - {{ fileInfo()?.type }}</p>
+            </div>
+          }
+          <button
+            type="button"
+            mat-stroked-button
+            color="warn"
+            (click)="removeFile()"
+            aria-label="Remove selected image"
+          >
+            <mat-icon>delete</mat-icon>
+            Remove
+          </button>
+        </div>
+      }
+    </div>
+  } @else {
+    <!-- Current Image View in Edit Mode -->
+    <div class="preview-container edit-preview">
+      <img [src]="previewUrl()" alt="Current image" class="preview-image" />
+    </div>
+  }
 
   <!-- Validation Error -->
   @if (validationError()) {
@@ -124,8 +137,18 @@
       </div>
     }
 
-    <button mat-raised-button color="primary" type="submit" [disabled]="!selectedFile()">
-      Upload Image
-    </button>
+    <div class="form-actions">
+      @if (editData()) {
+        <button mat-button type="button" (click)="cancelEdit.emit()">Cancel</button>
+      }
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="!editData() && !selectedFile()"
+      >
+        {{ editData() ? 'Save Changes' : 'Upload Image' }}
+      </button>
+    </div>
   </form>
 </div>
