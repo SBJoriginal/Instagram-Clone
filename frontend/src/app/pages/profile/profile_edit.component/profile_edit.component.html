@@ -1,56 +1,102 @@
 <div class="dialog-header">
-    <h2 mat-dialog-title>Edit Profile</h2>
-    <button mat-icon-button (click)="onCancel()" aria-label="Close dialog">
-        <mat-icon>close</mat-icon>
-    </button>
+  <h2 mat-dialog-title>Edit Profile</h2>
+  <button mat-icon-button (click)="onCancel()" aria-label="Close dialog">
+    <mat-icon>close</mat-icon>
+  </button>
 </div>
 <mat-dialog-content class="dialog-content">
-    <div class="edit-layout">
-        <!-- New Avatar Section on the left -->
-        <div class="avatar-section">
-            <div class="avatar-preview-container">
-                <img [src]="tempAvatarUrl() || 'default-avatar.png'" alt="User avatar" class="preview-avatar" />
-                <button mat-button class="camera-overlay" (click)="fileInput.click()" aria-label="Change photo">
-                    <mat-icon>photo_camera</mat-icon>
-                </button>
-                <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)"
-                    style="display: none" />
-            </div>
-            <p class="avatar-hint">Click to change photo</p>
-        </div>
-
-        <!-- Form Section on the right -->
-        <form [formGroup]="editForm" class="edit-form">
-            <div class="form-row">
-                <mat-form-field appearance="outline">
-                    <mat-label>First Name</mat-label>
-                    <input matInput formControlName="firstName" placeholder="First Name" />
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                    <mat-label>Last Name</mat-label>
-                    <input matInput formControlName="lastName" placeholder="Last Name" />
-                </mat-form-field>
-            </div>
-
-            <mat-form-field appearance="outline">
-                <mat-label>Email Address</mat-label>
-                <input matInput formControlName="email" placeholder="Email Address" />
-                <mat-icon matSuffix>email</mat-icon>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-                <mat-label>Phone Number</mat-label>
-                <input matInput formControlName="phone" placeholder="Phone Number" maxlength="12"
-                    (input)="onPhoneInput($event)" /> <mat-icon matSuffix>phone</mat-icon>
-            </mat-form-field>
-        </form>
+  <div class="edit-layout">
+    <!-- New Avatar Section on the left -->
+    <div class="avatar-section">
+      <div class="avatar-preview-container">
+        <img
+          [src]="tempAvatarUrl() || 'default-avatar.png'"
+          alt="User avatar"
+          class="preview-avatar"
+        />
+        <button
+          mat-button
+          class="camera-overlay"
+          (click)="fileInput.click()"
+          aria-label="Change photo"
+        >
+          <mat-icon>photo_camera</mat-icon>
+        </button>
+        <input
+          #fileInput
+          type="file"
+          accept="image/*"
+          (change)="onFileSelected($event)"
+          style="display: none"
+        />
+      </div>
+      <p class="avatar-hint">Click to change photo</p>
     </div>
+
+    <!-- Form Section on the right -->
+    <form [formGroup]="editForm" class="edit-form">
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>First Name</mat-label>
+          <input
+            matInput
+            formControlName="firstName"
+            placeholder="First Name"
+            (focus)="onFieldFocus('firstName')"
+            (blur)="onFieldBlur('firstName')"
+          />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Last Name</mat-label>
+          <input
+            matInput
+            formControlName="lastName"
+            placeholder="Last Name"
+            (focus)="onFieldFocus('lastName')"
+            (blur)="onFieldBlur('lastName')"
+          />
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Email Address</mat-label>
+        <input
+          matInput
+          type="email"
+          formControlName="email"
+          placeholder="Email Address"
+          (focus)="onFieldFocus('email')"
+          (blur)="onFieldBlur('email')"
+        />
+        <mat-icon matSuffix>email</mat-icon>
+        @if (editForm.get('email')?.hasError('email')) {
+          <mat-error> Please enter a valid email with @ </mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Phone Number</mat-label>
+        <input
+          matInput
+          type="tel"
+          formControlName="phone"
+          placeholder="XXX-XXX-XXXX"
+          maxlength="12"
+          (input)="onPhoneInput($event)"
+          (focus)="onFieldFocus('phone')"
+          (blur)="onFieldBlur('phone')"
+        />
+        <mat-icon matSuffix>phone</mat-icon>
+        @if (editForm.get('phone')?.hasError('pattern')) {
+          <mat-error> Phone must be 10 digits (XXX-XXX-XXXX) </mat-error>
+        }
+      </mat-form-field>
+    </form>
+  </div>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="dialog-actions">
-    <button mat-button (click)="onCancel()" class="cancel-btn">Cancel</button>
-    <button mat-flat-button color="primary" (click)="onSave()" class="save-btn">
-        Save Changes
-    </button>
+  <button mat-button (click)="onCancel()" class="cancel-btn">Cancel</button>
+  <button mat-flat-button color="primary" (click)="onSave()" class="save-btn">Save Changes</button>
 </mat-dialog-actions>

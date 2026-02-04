@@ -6,7 +6,6 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { ProfileEditData } from '../profile.model';
 
 @Component({
   selector: 'app-profile-header',
@@ -26,28 +25,21 @@ export class ProfileHeader {
     firstName: 'firstName',
     lastName: 'lastName',
     email: 'example@email.com',
-    phone: 'XXX - XXX - XXXX',
+    phone: 'Phone',
     memberSince: 'On since',
     avatarUrl: 'default-avatar.png',
   });
 
   openSettings() {
-    const originalUser = this.user(); // Snapshot
 
     const dialogRef = this.dialog.open(ProfileEditComponent, {
       data: this.user(),
     });
 
-    // Real-time updates
-    dialogRef.componentInstance.valueChange.subscribe((newValue: Partial<ProfileEditData>) => {
-      this.user.update((current) => ({ ...current, ...newValue }));
-    });
-
-
-
-    // Revert on cancel
-    dialogRef.componentInstance.cancelEvent.subscribe(() => {
-      this.user.set(originalUser);
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.user.update((current) => ({ ...current, ...result }));
+      }
     });
   }
 }
