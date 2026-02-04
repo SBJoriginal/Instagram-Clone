@@ -44,13 +44,7 @@ export class CompleteProfileComponent {
       this.isLoading.set(true);
       this.errorMessage.set(null);
 
-      const userId = this.tokenService.getUserIdFromToken();
-
-      if (!userId) {
-        this.errorMessage.set('User not found. Please try logging in again.');
-        this.isLoading.set(false);
-        return;
-      }
+      this.errorMessage.set(null);
 
       const profileData = {
         firstName: this.profileForm.value.firstName!,

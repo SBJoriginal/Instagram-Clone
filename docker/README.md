@@ -9,17 +9,37 @@ This document explains how to run the UGram backend with PostgreSQL using Docker
 
 ## Quick Start
 
-From the project root directory, run:
+**IMPORTANT**: All docker-compose commands must be run from the **project root directory** (where `docker-compose.yml` is located), not from the `docker/` folder.
+
+### First Time Setup (Build and Run All Services)
 
 ```bash
-docker-compose up -d
+# From project root directory
+docker-compose --profile full up -d --build
 ```
 
 This will:
-1. Start a PostgreSQL database container
-2. Build and start the backend API container
-3. Build and start the frontend container
-4. Run database migrations automatically
+1. Build the backend Docker image
+2. Build the frontend Docker image
+3. Start a PostgreSQL database container
+4. Start the backend API container
+5. Start the frontend container
+6. Run database migrations automatically
+
+The services will be available at:
+- **Frontend**: http://localhost:4200
+- **Backend API**: http://localhost:8081
+- **Swagger UI**: http://localhost:8081/swagger
+- **Database**: localhost:5432
+
+### Subsequent Runs (No Build)
+
+```bash
+# From project root directory
+docker-compose --profile full up -d
+```
+
+This starts all services without rebuilding images.
 
 ### Visual Studio Debugging (Database Only Mode)
 
@@ -27,7 +47,7 @@ For local development with debugging in Visual Studio, run only the database in 
 
 ```bash
 # Start only the database
-docker-compose up -d db
+docker-compose --profile dev up -d
 ```
 
 This starts just the PostgreSQL container. Then:
@@ -49,7 +69,7 @@ The backend will connect to the Docker database on `localhost:5432` automaticall
 If you want to run the backend and database without the frontend (e.g., for local frontend development):
 
 ```bash
-docker-compose up -d db backend
+docker-compose --profile full up -d db backend
 ```
 
 This will:
@@ -76,14 +96,34 @@ The backend will be available at **http://localhost:8081** and Swagger UI at **h
 
 ## Useful Commands
 
+**Note**: All commands should be run from the **project root directory**.
+
+**Docker Profiles**: This project uses Docker Compose profiles to control which services run:
+- `--profile full` - Runs all services (db, backend, frontend)
+- `--profile dev` - Runs only the database (for local development with Visual Studio)
+
 ### Start services
 ```bash
-docker-compose up -d
+# Start all services (no rebuild)
+docker-compose --profile full up -d
+
+# Start all services and rebuild images
+docker-compose --profile full up -d --build
+
+# Start only database for local development
+docker-compose --profile dev up -d
+
+# Start specific services only (overrides profiles)
+docker-compose up -d db backend
 ```
 
 ### Stop services
 ```bash
+# Stop all running services
 docker-compose down
+
+# Stop and remove volumes (deletes database data)
+docker-compose down -v
 ```
 
 ### View logs
@@ -96,11 +136,21 @@ docker-compose logs -f backend
 
 # Database only
 docker-compose logs -f db
+
+# Frontend only
+docker-compose logs -f frontend
 ```
 
-### Rebuild backend after code changes
+### Rebuild after code changes
 ```bash
-docker-compose up -d --build backend
+# Rebuild and restart all services
+docker-compose --profile full up -d --build
+
+# Rebuild only backend
+docker-compose --profile full up -d --build backend
+
+# Rebuild only frontend
+docker-compose --profile full up -d --build frontend
 ```
 
 ### Remove all data (including database volume)

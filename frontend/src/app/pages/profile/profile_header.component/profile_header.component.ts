@@ -41,14 +41,8 @@ export class ProfileHeader implements OnInit {
   }
 
   private loadProfile(): void {
-    const userId = this.tokenService.getUserIdFromToken();
-    const email = this.tokenService.getEmailFromToken();
-
-    if (!userId || !email) {
-      this.isLoading.set(false);
-      return;
-    }
-
+    // Just call the API - the auth interceptor will add the token
+    // and the backend will validate and extract the user information
     this.profileService.getProfile().subscribe({
       next: (profile) => {
         this.user.set({
@@ -61,12 +55,14 @@ export class ProfileHeader implements OnInit {
         });
         this.isLoading.set(false);
       },
-      error: () => {
-        // Profile not completed yet, show email only
+      error: (error) => {
+        console.error('Failed to load profile:', error);
+        // Profile not completed yet or error occurred
+        const email = this.tokenService.getEmailFromToken();
         this.user.set({
           firstName: '',
           lastName: '',
-          email: email,
+          email: email || '',
           phone: '',
           memberSince: '',
           profilePictureUrl: '',
