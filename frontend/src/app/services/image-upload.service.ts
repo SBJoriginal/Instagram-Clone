@@ -35,8 +35,13 @@ export class ImageUploadService {
     return this.http.post<ImageResponse>(this.apiUrl, formData);
   }
 
-  getImages(): Observable<ImageResponse[]> {
-    return this.http.get<ImageResponse[]>(this.apiUrl);
+  getImages(page: number = 1, limit: number = 15): Observable<ImageResponse[]> {
+    return this.http.get<ImageResponse[]>(this.apiUrl, {
+      params: {
+        page: page.toString(),
+        limit: limit.toString()
+      }
+    });
   }
 
   updateImage(id: number, data: ImageUpdateData): Observable<ImageResponse> {

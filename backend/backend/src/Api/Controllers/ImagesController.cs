@@ -59,11 +59,17 @@ namespace Api.Controllers
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetImages()
+    public async Task<IActionResult> GetImages([FromQuery] int page = 1, [FromQuery] int limit = 15)
     {
-      var images = await _context.Images.OrderByDescending(i => i.CreatedAt).ToListAsync();
+      var images = await _context.Images
+        .OrderByDescending(i => i.CreatedAt)
+        .Skip((page - 1) * limit)
+        .Take(limit)
+        .ToListAsync();
+
       return Ok(images);
     }
+
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] ImageUpdateDto update)
     {
