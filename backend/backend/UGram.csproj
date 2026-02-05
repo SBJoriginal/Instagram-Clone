@@ -20,9 +20,11 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.23" />
+    <PackageReference Include="Moq" Version="4.20.72" />
 
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="xunit" Version="2.9.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,6 +36,7 @@
     <Folder Include="src\Infrastructure\Repositories\" />
     <Folder Include="src\Infrastructure\Persistence\" />
     <Folder Include="tests\Integration\" />
+    <Folder Include="tests\Integration\Controllers\" />
     <Folder Include="tests\Unit\" />
   </ItemGroup>
 

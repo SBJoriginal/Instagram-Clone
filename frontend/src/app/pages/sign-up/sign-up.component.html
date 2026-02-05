@@ -21,23 +21,63 @@
     </mat-form-field>
     <mat-form-field appearance="outline">
       <mat-label>Password</mat-label>
-      <input matInput type="password" formControlName="password" />
+      <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" />
+      <button
+        mat-icon-button
+        matSuffix
+        type="button"
+        (click)="hidePassword = !hidePassword"
+        [attr.aria-label]="'Hide password'"
+        [attr.aria-pressed]="hidePassword"
+      >
+        <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
       @if (signUpForm.controls['password'].hasError('required')) {
         <mat-error>Please enter a password</mat-error>
       }
-      @if (signUpForm.controls['password'].hasError('minLength')) {
-        <mat-error>Password must be at least 6 characters long</mat-error>
-      }
-      @if (signUpForm.controls['password'].hasError('hasUpperCase')) {
-        <mat-error>Password must contain at least one uppercase letter</mat-error>
-      }
-      @if (signUpForm.controls['password'].hasError('hasLowerCase')) {
-        <mat-error>Password must contain at least one lowercase letter</mat-error>
-      }
-      @if (signUpForm.controls['password'].hasError('hasSpecialCharacter')) {
-        <mat-error>Password must contain at least one special character</mat-error>
-      }
     </mat-form-field>
+
+    <div class="password-requirements">
+      <p class="requirements-title">Password must contain:</p>
+      <ul>
+        <li
+          [class.valid]="isRequirementMet('minLength')"
+          [class.invalid]="!isRequirementMet('minLength')"
+        >
+          <mat-icon class="check-icon">{{
+            isRequirementMet('minLength') ? 'check' : 'close'
+          }}</mat-icon>
+          At least 6 characters
+        </li>
+        <li
+          [class.valid]="isRequirementMet('hasUpperCase')"
+          [class.invalid]="!isRequirementMet('hasUpperCase')"
+        >
+          <mat-icon class="check-icon">{{
+            isRequirementMet('hasUpperCase') ? 'check' : 'close'
+          }}</mat-icon>
+          At least one uppercase letter
+        </li>
+        <li
+          [class.valid]="isRequirementMet('hasLowerCase')"
+          [class.invalid]="!isRequirementMet('hasLowerCase')"
+        >
+          <mat-icon class="check-icon">{{
+            isRequirementMet('hasLowerCase') ? 'check' : 'close'
+          }}</mat-icon>
+          At least one lowercase letter
+        </li>
+        <li
+          [class.valid]="isRequirementMet('hasSpecialCharacter')"
+          [class.invalid]="!isRequirementMet('hasSpecialCharacter')"
+        >
+          <mat-icon class="check-icon">{{
+            isRequirementMet('hasSpecialCharacter') ? 'check' : 'close'
+          }}</mat-icon>
+          At least one special character
+        </li>
+      </ul>
+    </div>
     <mat-form-field appearance="outline">
       <mat-label>Confirm Password</mat-label>
       <input matInput type="password" formControlName="confirmPassword" />

@@ -26,7 +26,7 @@ namespace UGram.src.Application.Services
 
       if (existingUser != null)
       {
-        throw new UserAlreadyExists(registerDto.Email);
+        throw new UserAlreadyExistsException(registerDto.Email);
       }
 
       var newUser = new ApplicationUser

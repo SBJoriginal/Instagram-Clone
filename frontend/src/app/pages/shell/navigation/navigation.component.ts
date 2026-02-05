@@ -8,6 +8,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ImageUploadDialog } from '../../../image-upload-dialog/image-upload-dialog';
 import { ImageUploadService, ImageResponse } from '../../../services/image-upload.service';
 import { ImageUploadData } from '../../../image-upload/image-upload';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-navigation',
@@ -25,6 +26,11 @@ import { ImageUploadData } from '../../../image-upload/image-upload';
 export class NavigationComponent {
   private dialog = inject(MatDialog);
   private uploadService = inject(ImageUploadService);
+  private authService = inject(AuthService); // Inject AuthService
+
+  logout() {
+    this.authService.logout();
+  }
 
   openCreateDialog() {
     const dialogRef = this.dialog.open(ImageUploadDialog);

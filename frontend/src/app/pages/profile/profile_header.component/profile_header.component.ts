@@ -6,8 +6,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { ProfileService } from '../../../services/profile.service';
 import { TokenService } from '../../../services/token.service';
-import { AuthService } from '../../../services/auth.service';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-profile-header',
@@ -22,8 +20,6 @@ import { Router } from '@angular/router';
 export class ProfileHeader implements OnInit {
   private readonly profileService = inject(ProfileService);
   private readonly tokenService = inject(TokenService);
-  private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
 
   protected readonly user = signal({
     firstName: '',
@@ -70,13 +66,5 @@ export class ProfileHeader implements OnInit {
         this.isLoading.set(false);
       },
     });
-  }
-
-  openSettings() {
-    this.router.navigate(['/complete-profile']);
-  }
-
-  logout(): void {
-    this.authService.logout();
   }
 }

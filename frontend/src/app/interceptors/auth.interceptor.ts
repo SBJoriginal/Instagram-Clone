@@ -26,27 +26,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      // Handle 401 Unauthorized - try to refresh token
-      if (error.status === 401 && !req.url.includes('/api/auth/refresh')) {
-        return authService.refreshToken().pipe(
-          switchMap(() => {
-            // Retry original request with new token
-            const newToken = tokenService.getAccessToken();
-            const retryReq = req.clone({
-              setHeaders: {
-                Authorization: `Bearer ${newToken}`,
-              },
-            });
-            return next(retryReq);
-          }),
-          catchError((refreshError) => {
-            // Refresh failed, logout user
-            authService.logout();
-            return throwError(() => refreshError);
-          }),
-        );
+      // Handle 401 Unauthorized - logout user
+      if (error.status === 401) {
+        authService.logout();
       }
-
       return throwError(() => error);
     }),
   );

@@ -66,8 +66,4 @@ export class CompleteProfileComponent {
       });
     }
   }
-
-  protected onSkip(): void {
-    this.router.navigate(['/home']);
-  }
 }

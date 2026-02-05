@@ -7,6 +7,7 @@
         mat-card-avatar
         class="large-avatar"
         [src]="user().profilePictureUrl || 'assets/default-avatar.png'"
+        (error)="user().profilePictureUrl = ''"
         alt="User avatar"
       />
       <div class="header-text">
@@ -28,19 +29,5 @@
         </mat-card-subtitle>
       </div>
     </mat-card-header>
-
-    <div class="actions">
-      <button
-        mat-icon-button
-        (click)="openSettings()"
-        aria-label="Settings"
-        title="Complete Profile"
-      >
-        <mat-icon>settings</mat-icon>
-      </button>
-      <button mat-icon-button (click)="logout()" aria-label="Logout" title="Logout">
-        <mat-icon>logout</mat-icon>
-      </button>
-    </div>
   }
 </mat-card>

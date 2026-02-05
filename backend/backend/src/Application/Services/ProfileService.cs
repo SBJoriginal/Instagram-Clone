@@ -191,7 +191,7 @@ namespace UGram.src.Application.Services
 
       if (profileExists)
       {
-        throw new UserProfileAlreadyExists(userId);
+        throw new UserProfileAlreadyExistsException(userId);
       }
     }
 

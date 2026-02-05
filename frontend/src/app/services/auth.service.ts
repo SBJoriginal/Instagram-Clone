@@ -66,7 +66,7 @@ export class AuthService {
 
   logout(): void {
     this.tokenService.clearTokens();
-    this.router.navigate(['/sign-in']);
+    this.router.navigate(['/']);
   }
 
   isAuthenticated(): boolean {
