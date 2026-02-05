@@ -4,7 +4,7 @@ import { ProfileService } from '../services/profile.service';
 import { catchError, map, of } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
-export const profileGuard: CanActivateFn = (route, state) => {
+export const profileGuard: CanActivateFn = () => {
   const profileService = inject(ProfileService);
   const router = inject(Router);
 
