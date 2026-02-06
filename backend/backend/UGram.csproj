@@ -4,34 +4,45 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>6cb55bb6-575a-4d11-a09d-8973c46ea609</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="tests\**" />
+    <EmbeddedResource Remove="tests\**" />
+    <None Remove="tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.22" />
+    <PackageReference Include="AWSSDK.S3" Version="4.0.18.1" />
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.23" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.23" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.23" />
+
+
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="src\Api\Controllers\" />
-    <Folder Include="src\Api\Middleware\" />
     <Folder Include="src\Api\Filters\" />
-    <Folder Include="src\Application\Interfaces\" />
-    <Folder Include="src\Application\DTOs\" />
-    <Folder Include="src\Application\Validators\" />
-    <Folder Include="src\Application\Services\" />
-    <Folder Include="src\Domain\Entities\" />
     <Folder Include="src\Domain\Enums\" />
-    <Folder Include="src\Domain\Exceptions\" />
     <Folder Include="src\Domain\ValueObjects\" />
     <Folder Include="src\Infrastructure\Migrations\" />
     <Folder Include="src\Infrastructure\External\" />
     <Folder Include="src\Infrastructure\Repositories\" />
     <Folder Include="src\Infrastructure\Persistence\" />
     <Folder Include="tests\Integration\" />
+    <Folder Include="tests\Integration\Controllers\" />
     <Folder Include="tests\Unit\" />
   </ItemGroup>
 

@@ -17,6 +17,7 @@ import { HashtagPipe } from '../pipes/hashtag.pipe';
 import { MentionPipe } from '../pipes/mention.pipe';
 import { FileSizePipe } from '../pipes/file-size.pipe';
 import { ImageResponse } from '../services/image-upload.service';
+import { environment } from '../../environments/environment';
 
 export interface ImageUploadData {
   file: File;
@@ -200,7 +201,8 @@ export class ImageUploadComponent implements OnInit {
       });
       // In edit mode, we don't necessarily have a File object, but we have a URL
       if (data.filePath) {
-        this.previewUrl.set('http://localhost:5266' + data.filePath);
+        const baseUrl = environment.apiUrl.replace('/api', '');
+        this.previewUrl.set(baseUrl + data.filePath);
       }
     }
   }

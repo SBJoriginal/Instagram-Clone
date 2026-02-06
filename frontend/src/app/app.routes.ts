@@ -4,16 +4,16 @@ import { ShellComponent } from './pages/shell/shell.component';
 import { Profile } from './pages/profile/profile';
 import { Explore } from './pages/explore/explore'; // Import direct
 import { ImageDetail } from './pages/explore/image-detail/image-detail'; // Import direct
+import { authGuard } from './guards/auth.guard';
+import { profileGuard } from './guards/profile.guard';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent, data: { animation: 'LandingPage' } },
   {
     path: 'home',
     component: ShellComponent,
-    children: [
-      { path: 'profile', component: Profile },
-      { path: 'explore', component: Explore },
-    ]
+    canActivate: [authGuard, profileGuard],
+    children: [{ path: 'profile', component: Profile }, { path: 'explore', component: Explore }],
   },
   {
     path: 'sign-in',
@@ -24,5 +24,14 @@ export const routes: Routes = [
     path: 'sign-up',
     loadComponent: () => import('./pages/sign-up/sign-up.component').then((m) => m.SignUpComponent),
     data: { animation: 'SignUpPage' },
+  },
+  {
+    path: 'complete-profile',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/complete-profile/complete-profile.component').then(
+        (m) => m.CompleteProfileComponent,
+      ),
+    data: { animation: 'CompleteProfilePage' },
   },
 ];

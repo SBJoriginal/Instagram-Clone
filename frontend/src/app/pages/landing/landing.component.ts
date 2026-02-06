@@ -15,7 +15,5 @@ import { LogoComponent } from '../../shared/ui/logo/logo.component';
 export class LandingComponent {
   private readonly router = inject(Router);
 
-  protected onGoogleSignIn(): void {
-    this.router.navigate(['/home']);
-  }
+  // Google Sign-In removed
 }
