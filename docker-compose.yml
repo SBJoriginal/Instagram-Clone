@@ -1,4 +1,3 @@
-
 services:
   db:
     image: postgres:15-alpine
@@ -32,6 +31,7 @@ services:
       - "8081:8080"
     volumes:
       - ./backend/backend/uploads:/app/uploads
+      - ./backend/backend/wwwroot/images:/app/wwwroot/images
     depends_on:
       db:
         condition: service_healthy
