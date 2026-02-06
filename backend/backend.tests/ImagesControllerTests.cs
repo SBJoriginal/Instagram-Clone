@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
+using UGram.src.Application.DTOs;
+using UGram.src.Application.Interfaces;
 
 namespace Backend.Tests
 {
@@ -14,6 +16,7 @@ namespace Backend.Tests
     {
         private readonly AppDbContext _context;
         private readonly Mock<IWebHostEnvironment> _mockEnvironment;
+        private readonly Mock<IImageService> _mockImageService;
         private readonly ImagesController _controller;
 
         public ImagesControllerTests()
@@ -23,12 +26,13 @@ namespace Backend.Tests
                 .Options;
             _context = new AppDbContext(options);
             _mockEnvironment = new Mock<IWebHostEnvironment>();
+            _mockImageService = new Mock<IImageService>();
             
             // Setup default environment paths
             _mockEnvironment.Setup(e => e.WebRootPath).Returns("wwwroot");
             _mockEnvironment.Setup(e => e.ContentRootPath).Returns("root");
 
-            _controller = new ImagesController(_context, _mockEnvironment.Object);
+            _controller = new ImagesController(_mockImageService.Object, _context, _mockEnvironment.Object);
         }
 
         [Fact]
