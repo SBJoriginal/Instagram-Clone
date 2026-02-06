@@ -2,6 +2,10 @@
 <div class="page-container">
   <app-logo />
   <form [formGroup]="signUpForm" (ngSubmit)="onSignUp()" class="auth-form">
+    @if (errorMessage()) {
+      <div class="error-message">{{ errorMessage() }}</div>
+    }
+
     <mat-form-field appearance="outline">
       <mat-label>Email</mat-label>
       <input matInput type="email" formControlName="email" placeholder="Ex. pat@example.com" />
@@ -17,23 +21,84 @@
     </mat-form-field>
     <mat-form-field appearance="outline">
       <mat-label>Password</mat-label>
-      <input matInput type="password" formControlName="password" />
+      <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" />
+      <button
+        mat-icon-button
+        matSuffix
+        type="button"
+        (click)="hidePassword = !hidePassword"
+        [attr.aria-label]="'Hide password'"
+        [attr.aria-pressed]="hidePassword"
+      >
+        <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
       @if (signUpForm.controls['password'].hasError('required')) {
         <mat-error>Please enter a password</mat-error>
       }
     </mat-form-field>
+
+    <div class="password-requirements">
+      <p class="requirements-title">Password must contain:</p>
+      <ul>
+        <li
+          [class.valid]="isRequirementMet('minLength')"
+          [class.invalid]="!isRequirementMet('minLength')"
+        >
+          <mat-icon class="check-icon">{{
+            isRequirementMet('minLength') ? 'check' : 'close'
+          }}</mat-icon>
+          At least 6 characters
+        </li>
+        <li
+          [class.valid]="isRequirementMet('hasUpperCase')"
+          [class.invalid]="!isRequirementMet('hasUpperCase')"
+        >
+          <mat-icon class="check-icon">{{
+            isRequirementMet('hasUpperCase') ? 'check' : 'close'
+          }}</mat-icon>
+          At least one uppercase letter
+        </li>
+        <li
+          [class.valid]="isRequirementMet('hasLowerCase')"
+          [class.invalid]="!isRequirementMet('hasLowerCase')"
+        >
+          <mat-icon class="check-icon">{{
+            isRequirementMet('hasLowerCase') ? 'check' : 'close'
+          }}</mat-icon>
+          At least one lowercase letter
+        </li>
+        <li
+          [class.valid]="isRequirementMet('hasSpecialCharacter')"
+          [class.invalid]="!isRequirementMet('hasSpecialCharacter')"
+        >
+          <mat-icon class="check-icon">{{
+            isRequirementMet('hasSpecialCharacter') ? 'check' : 'close'
+          }}</mat-icon>
+          At least one special character
+        </li>
+      </ul>
+    </div>
     <mat-form-field appearance="outline">
       <mat-label>Confirm Password</mat-label>
       <input matInput type="password" formControlName="confirmPassword" />
       @if (signUpForm.controls['confirmPassword'].hasError('required')) {
         <mat-error>Please confirm your password</mat-error>
       }
-      @if (signUpForm.controls['confirmPassword'].hasError('mismatch')) {
+      @if (signUpForm.hasError('mismatch')) {
         <mat-error>Passwords do not match</mat-error>
       }
     </mat-form-field>
-    <button mat-flat-button color="primary" type="submit" [disabled]="signUpForm.invalid">
-      Sign Up
+    <button
+      mat-flat-button
+      color="primary"
+      type="submit"
+      [disabled]="signUpForm.invalid || isLoading()"
+    >
+      @if (isLoading()) {
+        <mat-spinner diameter="20"></mat-spinner>
+      } @else {
+        Sign Up
+      }
     </button>
   </form>
   <div class="link-text">Already have an account? <a routerLink="/sign-in">Sign In</a></div>

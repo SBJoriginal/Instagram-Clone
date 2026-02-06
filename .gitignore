@@ -53,3 +53,8 @@ Thumbs.db
 *.vstemplate
 .vs/
 *.csproj.user
+
+# Docker (Visual Studio generated files)
+**/obj/Docker/
+backend/**/docker-compose.dcproj
+docker-compose.vs.*.yml

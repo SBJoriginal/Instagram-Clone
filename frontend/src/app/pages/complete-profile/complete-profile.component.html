@@ -1,0 +1,55 @@
+<app-back-arrow />
+<div class="page-container">
+  <app-logo />
+
+  <div class="header-section">
+    <h2>Complete Your Profile</h2>
+    <p>Add your details to personalize your account</p>
+  </div>
+
+  <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="auth-form">
+    @if (errorMessage()) {
+      <div class="error-message">{{ errorMessage() }}</div>
+    }
+
+    <mat-form-field appearance="outline">
+      <mat-label>First Name</mat-label>
+      <input matInput formControlName="firstName" placeholder="John" />
+      @if (profileForm.controls.firstName.hasError('required')) {
+        <mat-error>First name is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Last Name</mat-label>
+      <input matInput formControlName="lastName" placeholder="Doe" />
+      @if (profileForm.controls.lastName.hasError('required')) {
+        <mat-error>Last name is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Phone Number</mat-label>
+      <input matInput formControlName="phoneNumber" placeholder="+1234567890" />
+      @if (profileForm.controls.phoneNumber.hasError('required')) {
+        <mat-error>Phone number is required</mat-error>
+      }
+      @if (profileForm.controls.phoneNumber.hasError('pattern')) {
+        <mat-error>Please enter a valid phone number</mat-error>
+      }
+    </mat-form-field>
+
+    <button
+      mat-flat-button
+      color="primary"
+      type="submit"
+      [disabled]="profileForm.invalid || isLoading()"
+    >
+      @if (isLoading()) {
+        <mat-spinner diameter="20"></mat-spinner>
+      } @else {
+        Complete Profile
+      }
+    </button>
+  </form>
+</div>

@@ -34,6 +34,12 @@
             "styles": [
               "src/material-theme.scss",
               "src/styles.css"
+            ],
+            "fileReplacements": [
+              {
+                "replace": "src/environments/environment.ts",
+                "with": "src/environments/environment.development.ts"
+              }
             ]
           },
           "configurations": {

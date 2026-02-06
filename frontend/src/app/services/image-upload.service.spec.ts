@@ -45,7 +45,7 @@ describe('ImageUploadService', () => {
       expect(response).toEqual(mockResponse);
     });
 
-    const req = httpMock.expectOne('http://localhost:5266/api/images');
+    const req = httpMock.expectOne('http://localhost:8081/api/images');
     expect(req.request.method).toBe('POST');
     expect(req.request.body instanceof FormData).toBeTruthy();
     req.flush(mockResponse);
@@ -62,7 +62,7 @@ describe('ImageUploadService', () => {
       expect(images).toEqual(mockImages);
     });
 
-    const req = httpMock.expectOne('http://localhost:5266/api/images');
+    const req = httpMock.expectOne('http://localhost:8081/api/images');
     expect(req.request.method).toBe('GET');
     req.flush(mockImages);
   });
@@ -85,7 +85,7 @@ describe('ImageUploadService', () => {
       expect(response).toEqual(mockResponse);
     });
 
-    const req = httpMock.expectOne('http://localhost:5266/api/images/1');
+    const req = httpMock.expectOne('http://localhost:8081/api/images/1');
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toEqual(updateData);
     req.flush(mockResponse);
@@ -96,7 +96,7 @@ describe('ImageUploadService', () => {
       expect(response).toBeNull(); // Void return
     });
 
-    const req = httpMock.expectOne('http://localhost:5266/api/images/1');
+    const req = httpMock.expectOne('http://localhost:8081/api/images/1');
     expect(req.request.method).toBe('DELETE');
     req.flush(null);
   });

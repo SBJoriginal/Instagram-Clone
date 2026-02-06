@@ -1,19 +1,37 @@
 <mat-card class="profile-card">
-  <mat-card-header>
-    <img mat-card-avatar class="large-avatar" [src]="user().avatarUrl" alt="User avatar" />
-    <div class="header-text">
-      <mat-card-title
-        >{{ user().firstName || 'FirstName' }} {{ user().lastName || 'LastName' }}</mat-card-title
-      >
-      <mat-card-subtitle class="user-details">
-        <a href="mailto:{{ user().email }}" class="user-email">{{ user().email || 'Email' }}</a>
-        <div>{{ user().phone || 'Phone' }}</div>
-        <div>{{ user().memberSince }}</div>
-      </mat-card-subtitle>
-    </div>
-  </mat-card-header>
+  @if (isLoading()) {
+    <div class="loading">Loading profile...</div>
+  } @else {
+    <mat-card-header>
+      <img
+        mat-card-avatar
+        class="large-avatar"
+        [src]="user().profilePictureUrl || 'assets/default-avatar.png'"
+        (error)="user().profilePictureUrl = ''"
+        alt="User avatar"
+      />
+      <div class="header-text">
+        <mat-card-title>
+          @if (user().firstName && user().lastName) {
+            {{ user().firstName }} {{ user().lastName }}
+          } @else {
+            Profile Not Complete
+          }
+        </mat-card-title>
+        <mat-card-subtitle class="user-details">
+          <a [href]="'mailto:' + user().email" class="user-email">{{ user().email }}</a>
+          @if (user().phone) {
+            <div>{{ user().phone }}</div>
+          }
+          @if (user().memberSince) {
+            <div>Member since {{ user().memberSince }}</div>
+          }
+        </mat-card-subtitle>
+      </div>
+    </mat-card-header>
 
-  <button mat-icon-button class="settings-button" (click)="openSettings()" aria-label="Settings">
-    <mat-icon>settings</mat-icon>
-  </button>
+    <button mat-icon-button class="settings-button" (click)="openSettings()" aria-label="Settings">
+      <mat-icon>settings</mat-icon>
+    </button>
+  }
 </mat-card>
