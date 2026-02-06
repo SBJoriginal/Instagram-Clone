@@ -50,7 +50,7 @@ export class ImageUploadService {
     this.imageCreatedSource.next();
   }
 
-  getImages(page = 1, limit: number = 15): Observable<ImageResponse[]> {
+  getImages(page = 1, limit = 15): Observable<ImageResponse[]> {
     return this.http.get<ImageResponse[]>(this.apiUrl, {
       params: {
         page: page.toString(),
