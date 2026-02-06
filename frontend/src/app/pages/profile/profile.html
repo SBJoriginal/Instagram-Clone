@@ -19,12 +19,16 @@
             </button>
           </mat-menu>
         </div>
+        
         <img
           mat-card-image
           [src]="baseUrl + image.filePath"
           [alt]="image.description"
           loading="lazy"
+          (click)="openImageDetail(image)"
+          class="clickable-image"
         />
+        
         <mat-card-content>
           <p>{{ image.description }}</p>
         </mat-card-content>
