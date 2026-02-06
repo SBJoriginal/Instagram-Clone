@@ -47,6 +47,7 @@ describe('ImageUploadService', () => {
       expect(response).toEqual(mockResponse);
     });
 
+    // L'upload ne contient pas de paramètres de pagination
     const req = httpMock.expectOne('http://localhost:8081/api/images');
     expect(req.request.method).toBe('POST');
     expect(req.request.body instanceof FormData).toBeTruthy();
@@ -80,7 +81,8 @@ describe('ImageUploadService', () => {
       expect(images).toEqual(mockImages);
     });
 
-    const req = httpMock.expectOne('http://localhost:8081/api/images');
+    // On ajoute ici les paramètres de pagination par défaut (1 et 15)
+    const req = httpMock.expectOne('http://localhost:8081/api/images?page=1&limit=15');
     expect(req.request.method).toBe('GET');
     req.flush(mockImages);
   });
