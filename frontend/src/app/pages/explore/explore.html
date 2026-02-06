@@ -4,7 +4,7 @@
     <div class="image-grid">
         @for (image of images(); track image.id) {
         <div class="grid-item" (click)="openImage(image)" style="cursor: pointer;">
-            <img [src]="'http://localhost:5266' + image.filePath" [alt]="image.description" loading="lazy">
+            <img [src]="'http://localhost:8081' + image.filePath" [alt]="image.description" loading="lazy">
             <div class="overlay">
                 <mat-icon>visibility</mat-icon>
             </div>

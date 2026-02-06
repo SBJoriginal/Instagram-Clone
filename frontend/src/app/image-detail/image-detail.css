@@ -1,0 +1,71 @@
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 500px;
+    margin: 0 auto;
+    max-height: 80vh;
+    overflow-y: auto; 
+}
+
+.user-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #efefef;
+}
+
+.user-header mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: #555;
+}
+
+.username {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.image-main {
+    width: 100%;
+    background: #f8f8f8;
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+}
+
+.image-main img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+}
+
+.info-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 10px 0;
+}
+
+.description-text {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.blue-text {
+    color: #00376b;
+    font-weight: 500;
+    word-break: break-all;
+    margin-right: 8px;
+}
+
+.date-footer {
+    color: #8e8e8e;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    margin-top: 10px;
+}

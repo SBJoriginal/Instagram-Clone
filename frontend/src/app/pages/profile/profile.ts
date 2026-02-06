@@ -14,10 +14,11 @@ import {
 } from '../../services/image-upload.service';
 import { BehaviorSubject, switchMap } from 'rxjs';
 import { ImageEditDialog } from '../../image-edit-dialog/image-edit-dialog';
+import { ImageDetail } from '../../image-detail/image-detail';
 
 @Component({
   selector: 'app-profile',
-  imports: [ProfileHeader, AsyncPipe, MatCardModule, MatMenuModule, MatButtonModule, MatIconModule],
+  imports: [ProfileHeader, AsyncPipe, MatCardModule, MatMenuModule, MatButtonModule, MatIconModule, ImageDetail],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,12 +31,20 @@ export class Profile {
   readonly imageUploadService = inject(ImageUploadService);
   protected readonly baseUrl = environment.apiUrl.replace('/api', '');
 
-  // State
   private readonly refresh$ = new BehaviorSubject<void>(void 0);
   protected readonly images = this.refresh$.pipe(
-    switchMap(() => this.imageUploadService.getImages()),
+    switchMap(() => this.imageUploadService.getMyImages()),
   );
-
+  openImageDetail(image: ImageResponse): void {
+      this.dialog.open(ImageDetail, {
+        data: image,
+        width: '90vw',
+        maxWidth: '1000px',
+        height: 'auto',
+        panelClass: 'custom-modalbox',
+        autoFocus: false
+      });
+    }
   openEditDialog(image: ImageResponse): void {
     const dialogRef = this.dialog.open(ImageEditDialog, {
       width: '450px',

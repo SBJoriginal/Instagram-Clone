@@ -1,0 +1,38 @@
+<h2 mat-dialog-title>Détails de l'image</h2>
+
+<mat-dialog-content class="mat-typography">
+    <div class="modal-body">
+        
+        <div class="user-header">
+            <mat-icon>account_circle</mat-icon>
+            <span class="username">{{ image.userId || 'Utilisateur' }}</span>
+        </div>
+
+        <div class="image-main">
+            <img [src]="'http://localhost:8081' + image.filePath" [alt]="image.description">
+        </div>
+
+        <div class="info-content">
+            <p class="description-text">
+                <span class="blue-text">{{ image.description || 'Aucune description' }}</span> 
+            </p>
+
+            <div *ngIf="image.hashtags">
+                <span class="blue-text">{{ image.hashtags }}</span>
+            </div>
+
+            <div *ngIf="image.mentions">
+                <span class="blue-text">{{ image.mentions }}</span>
+            </div>
+
+            <div class="date-footer">
+                {{ image.createdAt | date:'longDate' }}
+            </div>
+        </div>
+
+    </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button (click)="dialogRef.close()">Fermer</button>
+</mat-dialog-actions>

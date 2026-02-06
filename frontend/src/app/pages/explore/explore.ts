@@ -6,7 +6,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ImageUploadService, ImageResponse } from '../../services/image-upload.service';
 import { ExploreHeaderComponent } from './explore-header.component/explore-header.component';
-import { ImageDetail } from './image-detail/image-detail';
+import { ImageDetail } from '../../image-detail/image-detail';
 
 @Component({
   selector: 'app-explore',
@@ -57,7 +57,6 @@ export class Explore implements OnInit, AfterViewInit {
     if (this.loading() || !this.hasMore()) return;
 
     this.loading.set(true);
-    // On appelle le service (assure-toi que le backend retourne toutes les images)
     this.imageService.getImages(this.page(), 15).subscribe({
       next: (newImages) => {
         this.images.update(current => [...current, ...newImages]);
@@ -71,7 +70,6 @@ export class Explore implements OnInit, AfterViewInit {
       }
     });
   }
-
 
   openImage(image: ImageResponse): void {
     this.dialog.open(ImageDetail, {

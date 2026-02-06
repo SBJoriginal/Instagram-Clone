@@ -1,6 +1,5 @@
 using Domain.Entities;
 using Infrastructure.Persistence;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using UGram.src.Application.DTOs;
 using UGram.src.Application.Interfaces;
@@ -18,7 +17,7 @@ namespace UGram.src.Application.Services
       _imageStorageService = imageStorageService;
     }
 
-    public async Task<ImageUploadResponseDto> UploadImageAsync(IFormFile file, string description, string hashtags, string mentions)
+    public async Task<ImageUploadResponseDto> UploadImageAsync(IFormFile file, string description, string hashtags, string mentions, string userId)
     {
       if (file == null || file.Length == 0)
         throw new ArgumentException("No file uploaded.");
@@ -33,7 +32,9 @@ namespace UGram.src.Application.Services
         Description = description ?? "",
         Hashtags = hashtags ?? "",
         Mentions = mentions ?? "",
-        FilePath = filePath
+        FilePath = filePath,
+        UserId = userId,
+        CreatedAt = DateTime.UtcNow
       };
 
       _context.Images.Add(image);
@@ -43,13 +44,22 @@ namespace UGram.src.Application.Services
       {
         Id = image.Id,
         FilePath = image.FilePath,
-        Description = image.Description
+        Description = image.Description,
+        UserId = image.UserId,
+        CreatedAt = image.CreatedAt
       };
     }
 
-    public async Task<IEnumerable<ImageResponseDto>> GetAllImagesAsync()
+    public async Task<IEnumerable<ImageResponseDto>> GetAllImagesAsync(string? userId = null)
     {
-      var images = await _context.Images
+      var query = _context.Images.AsQueryable();
+
+      if (!string.IsNullOrEmpty(userId))
+      {
+        query = query.Where(i => i.UserId == userId);
+      }
+
+      var images = await query
         .OrderByDescending(i => i.CreatedAt)
         .ToListAsync();
 
@@ -63,6 +73,7 @@ namespace UGram.src.Application.Services
         Hashtags = i.Hashtags,
         Mentions = i.Mentions,
         FilePath = i.FilePath,
+        UserId = i.UserId,//replaced with username when that is implemented
         CreatedAt = i.CreatedAt
       });
     }

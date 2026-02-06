@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using UGram.src.Application.DTOs;
 using UGram.src.Application.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using Infrastructure.Persistence;
-using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Api.Controllers
 {
@@ -23,18 +23,30 @@ namespace Api.Controllers
       _environment = environment;
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Upload([FromForm] ImageUploadRequestDto upload)
     {
       try
       {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+        {
+          throw new UnauthorizedAccessException("User ID claim not found.");
+        }
+
         var result = await _imageService.UploadImageAsync(
-          upload.File,
-          upload.Description ?? "",
-          upload.Hashtags ?? "",
-          upload.Mentions ?? "");
+            upload.File,
+            upload.Description ?? "",
+            upload.Hashtags ?? "",
+            upload.Mentions ?? "",
+            userId);
 
         return CreatedAtAction(nameof(GetImages), new { id = result.Id }, result);
+      }
+      catch (UnauthorizedAccessException ex)
+      {
+        return Unauthorized(new { error = ex.Message });
       }
       catch (ArgumentException ex)
       {
@@ -60,6 +72,17 @@ namespace Api.Controllers
       }
     }
 
+    [Authorize]
+    [HttpGet("my-images")]
+    public async Task<IActionResult> GetMyImages()
+    {
+      var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+      if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+      var images = await _imageService.GetAllImagesAsync(userId);
+      return Ok(images);
+    }
+
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] ImageUpdateDto update)
     {
@@ -80,7 +103,6 @@ namespace Api.Controllers
       var image = await _context.Images.FindAsync(id);
       if (image == null) return NotFound();
 
-      // Delete file from disk
       if (!string.IsNullOrEmpty(image.FilePath))
       {
         var fileSystemPath = Path.Combine(_environment.WebRootPath ?? _environment.ContentRootPath, image.FilePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
