@@ -33,21 +33,12 @@ export class NavigationComponent {
   }
 
   openCreateDialog() {
-    const dialogRef = this.dialog.open(ImageUploadDialog);
+  const dialogRef = this.dialog.open(ImageUploadDialog);
 
-    dialogRef.afterClosed().subscribe((result: ImageUploadData | undefined) => {
-      if (result) {
-        this.uploadService.uploadImage(result).subscribe({
-          next: (response: ImageResponse) => {
-            alert(`Successfully uploaded!\nID: ${response.id}\nPath: ${response.filePath}`);
-          },
-          error: (err: unknown) => {
-            console.error('Upload failed', err);
-            const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-            alert('Upload failed: ' + errorMessage);
-          },
-        });
-      }
-    });
-  }
+  dialogRef.afterClosed().subscribe((result: ImageResponse | undefined) => {
+    if (result) {
+      console.log('Upload déjà complété avec succès par le dialogue:', result);
+    }
+  });
+}
 }

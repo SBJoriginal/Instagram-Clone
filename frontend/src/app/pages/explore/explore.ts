@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy, signal, ElementRef, ViewChild, AfterViewInit, OnInit } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, signal, ElementRef, ViewChild, AfterViewInit, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,6 +7,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ImageUploadService, ImageResponse } from '../../services/image-upload.service';
 import { ExploreHeaderComponent } from './explore-header.component/explore-header.component';
 import { ImageDetail } from '../../image-detail/image-detail';
+import { Subscriber, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-explore',
@@ -26,9 +27,10 @@ import { ImageDetail } from '../../image-detail/image-detail';
     style: 'display: block; width: 100%;',
   },
 })
-export class Explore implements OnInit, AfterViewInit {
+export class Explore implements OnInit, AfterViewInit, OnDestroy {
   private readonly imageService = inject(ImageUploadService);
   private readonly dialog = inject(MatDialog);
+  private uploadSubscription?: Subscription;
 
   readonly images = signal<ImageResponse[]>([]);
   readonly loading = signal(false);
@@ -39,6 +41,21 @@ export class Explore implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.loadMore();
+
+    this.uploadSubscription = this.imageService.imageCreated$.subscribe(() => {
+      this.refreshGrid();
+    });
+  }
+
+  private refreshGrid(): void {
+    this.images.set([]);
+    this.page.set(1);
+    this.hasMore.set(true);
+    this.loadMore();
+  }
+
+  ngOnDestroy(): void {
+    this.uploadSubscription?.unsubscribe();
   }
 
   ngAfterViewInit(): void {

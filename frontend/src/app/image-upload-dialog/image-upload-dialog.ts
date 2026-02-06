@@ -3,6 +3,7 @@ import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ImageUploadComponent, ImageUploadData } from '../image-upload/image-upload';
+import { ImageUploadService } from '../services/image-upload.service';
 
 @Component({
   selector: 'app-image-upload-dialog',
@@ -71,6 +72,7 @@ import { ImageUploadComponent, ImageUploadData } from '../image-upload/image-upl
 })
 export class ImageUploadDialog {
   private readonly dialogRef = inject(MatDialogRef<ImageUploadDialog>);
+  private readonly imageUploadService = inject(ImageUploadService);
 
   close(): void {
     this.dialogRef.close();
@@ -88,6 +90,15 @@ export class ImageUploadDialog {
     // console.log('========================');
 
     // Close dialog and return the data
-    this.dialogRef.close(data);
+
+    this.imageUploadService.uploadImage(data).subscribe({
+      next: (response) => {
+        this.imageUploadService.notifyImageCreated();
+        this.dialogRef.close(response);
+      },
+      error: (error) => {
+        console.error('Image upload failed:', error);
+      },
+    });
   }
 }

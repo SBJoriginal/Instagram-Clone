@@ -12,7 +12,7 @@ import {
   ImageUploadService,
   ImageUpdateData,
 } from '../../services/image-upload.service';
-import { BehaviorSubject, switchMap } from 'rxjs';
+import { BehaviorSubject, switchMap, merge } from 'rxjs';
 import { ImageEditDialog } from '../../image-edit-dialog/image-edit-dialog';
 import { ImageDetail } from '../../image-detail/image-detail';
 
@@ -32,9 +32,10 @@ export class Profile {
   protected readonly baseUrl = environment.apiUrl.replace('/api', '');
 
   private readonly refresh$ = new BehaviorSubject<void>(void 0);
-  protected readonly images = this.refresh$.pipe(
-    switchMap(() => this.imageUploadService.getMyImages()),
-  );
+  protected readonly images = merge(this.refresh$, this.imageUploadService.imageCreated$).pipe(
+    switchMap(() => this.imageUploadService.getMyImages())
+  ); 
+  
   openImageDetail(image: ImageResponse): void {
       this.dialog.open(ImageDetail, {
         data: image,

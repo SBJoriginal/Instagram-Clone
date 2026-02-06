@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { ImageUploadData } from '../image-upload/image-upload';
+import { Subject } from 'rxjs';
 
 export interface ImageResponse {
   id: number;
@@ -12,6 +13,9 @@ export interface ImageResponse {
   mentions: string;
   userId: string; //will be username when that is implemented
   createdAt: string;
+  fileName?: string;
+  contentType?: string;
+  size?: number;
 }
 
 export interface ImageUpdateData {
@@ -26,6 +30,8 @@ export interface ImageUpdateData {
 export class ImageUploadService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/images`;
+  private imageCreatedSource = new Subject<void>();
+  imageCreated$ = this.imageCreatedSource.asObservable();
 
   uploadImage(data: ImageUploadData): Observable<ImageResponse> {
     const formData = new FormData();
@@ -34,7 +40,14 @@ export class ImageUploadService {
     formData.append('Hashtags', data.hashtags);
     formData.append('Mentions', data.mentions);
 
-    return this.http.post<ImageResponse>(this.apiUrl, formData);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    return this.http.post<ImageResponse>(this.apiUrl, formData, { headers });
+  }
+
+  notifyImageCreated() {
+    this.imageCreatedSource.next();
   }
 
   getImages(page: number = 1, limit: number = 15): Observable<ImageResponse[]> {
