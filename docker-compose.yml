@@ -1,0 +1,78 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: ugram_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: equipe22
+      POSTGRES_DB: ugram_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ugram-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    container_name: ugram_backend
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Host=db;Database=ugram_dev;Username=postgres;Password=equipe22
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./backend/backend/uploads:/app/uploads
+      - ./backend/backend/wwwroot/images:/app/wwwroot/images
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - ugram-network
+    restart: unless-stopped
+    entrypoint: [ "/bin/sh", "-c" ]
+    command:
+      - |
+        echo "========================================"
+        echo "Backend API available at:"
+        echo "  - http://localhost:8080"
+        echo "  - Swagger UI: http://localhost:8080/swagger"
+        echo "========================================"
+        exec dotnet UGram.dll
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../docker/frontend.Dockerfile
+    container_name: ugram_frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - ugram-network
+    restart: unless-stopped
+    entrypoint: [ "/bin/sh", "-c" ]
+    command:
+      - |
+        echo "========================================"
+        echo "Frontend available at:"
+        echo "  - http://localhost:4200"
+        echo "========================================"
+        exec nginx -g 'daemon off;'
+
+volumes:
+  postgres_data:
+
+
+networks:
+  ugram-network:
+    driver: bridge

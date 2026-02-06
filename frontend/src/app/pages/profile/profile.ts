@@ -6,6 +6,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
+import { environment } from '../../../environments/environment';
 import {
   ImageResponse,
   ImageUploadService,
@@ -25,11 +26,15 @@ import { ImageEditDialog } from '../../image-edit-dialog/image-edit-dialog';
   },
 })
 export class Profile {
-  private readonly imageService = inject(ImageUploadService);
-  private readonly dialog = inject(MatDialog);
-  private readonly refresh$ = new BehaviorSubject<void>(void 0);
+  readonly dialog = inject(MatDialog);
+  readonly imageUploadService = inject(ImageUploadService);
+  protected readonly baseUrl = environment.apiUrl.replace('/api', '');
 
-  readonly images = this.refresh$.pipe(switchMap(() => this.imageService.getImages()));
+  // State
+  private readonly refresh$ = new BehaviorSubject<void>(void 0);
+  protected readonly images = this.refresh$.pipe(
+    switchMap(() => this.imageUploadService.getImages()),
+  );
 
   openEditDialog(image: ImageResponse): void {
     const dialogRef = this.dialog.open(ImageEditDialog, {
@@ -39,7 +44,7 @@ export class Profile {
 
     dialogRef.afterClosed().subscribe((result: ImageUpdateData) => {
       if (result) {
-        this.imageService.updateImage(image.id, result).subscribe(() => {
+        this.imageUploadService.updateImage(image.id, result).subscribe(() => {
           this.refresh$.next();
         });
       }
@@ -48,7 +53,7 @@ export class Profile {
 
   deleteImage(image: ImageResponse): void {
     if (confirm('Are you sure you want to delete this image?')) {
-      this.imageService.deleteImage(image.id).subscribe(() => {
+      this.imageUploadService.deleteImage(image.id).subscribe(() => {
         this.refresh$.next();
       });
     }

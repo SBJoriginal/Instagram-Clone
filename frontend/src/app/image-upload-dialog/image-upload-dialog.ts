@@ -77,15 +77,15 @@ export class ImageUploadDialog {
   }
 
   protected handleUpload(data: ImageUploadData): void {
-    console.log('=== Image Upload Data ===');
-    console.log('File:', data.file);
-    console.log('File Name:', data.file.name);
-    console.log('File Size:', data.file.size, 'bytes');
-    console.log('File Type:', data.file.type);
-    console.log('Description:', data.description);
-    console.log('Hashtags:', data.hashtags);
-    console.log('Mentions:', data.mentions);
-    console.log('========================');
+    // console.log('=== Image Upload Data ===');
+    // console.log('File:', data.file);
+    // console.log('File Name:', data.file.name);
+    // console.log('File Size:', data.file.size, 'bytes');
+    // console.log('File Type:', data.file.type);
+    // console.log('Description:', data.description);
+    // console.log('Hashtags:', data.hashtags);
+    // console.log('Mentions:', data.mentions);
+    // console.log('========================');
 
     // Close dialog and return the data
     this.dialogRef.close(data);

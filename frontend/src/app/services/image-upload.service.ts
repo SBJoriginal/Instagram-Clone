@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 import { ImageUploadData } from '../image-upload/image-upload';
 
 export interface ImageResponse {
@@ -22,8 +23,7 @@ export interface ImageUpdateData {
 })
 export class ImageUploadService {
   private readonly http = inject(HttpClient);
-  // In a real app, this should be in an environment file
-  private readonly apiUrl = 'http://localhost:5266/api/images';
+  private readonly apiUrl = `${environment.apiUrl}/images`;
 
   uploadImage(data: ImageUploadData): Observable<ImageResponse> {
     const formData = new FormData();

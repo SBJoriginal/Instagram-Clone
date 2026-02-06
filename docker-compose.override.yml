@@ -1,0 +1,10 @@
+services:
+  # Database runs in both profiles since backend/frontend depend on it
+  # Backend and frontend only run in 'full' profile
+  # In 'dev' profile, only db runs (for local Visual Studio debugging)
+  
+  backend:
+    profiles: [ "full" ]
+
+  frontend:
+    profiles: [ "full" ]
