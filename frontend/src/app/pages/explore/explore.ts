@@ -7,7 +7,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ImageUploadService, ImageResponse } from '../../services/image-upload.service';
 import { ExploreHeaderComponent } from './explore-header.component/explore-header.component';
 import { ImageDetail } from '../../image-detail/image-detail';
-import { Subscriber, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-explore',

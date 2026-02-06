@@ -2,8 +2,7 @@ import { Routes } from '@angular/router';
 import { LandingComponent } from './pages/landing/landing.component';
 import { ShellComponent } from './pages/shell/shell.component';
 import { Profile } from './pages/profile/profile';
-import { Explore } from './pages/explore/explore'; // Import direct
-import { ImageDetail } from './image-detail/image-detail'; // Import direct
+import { Explore } from './pages/explore/explore';
 import { authGuard } from './guards/auth.guard';
 import { profileGuard } from './guards/profile.guard';
 

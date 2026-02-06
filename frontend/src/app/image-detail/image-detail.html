@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>Détails de l'image</h2>
+<h2 mat-dialog-title>Details de l'image</h2>
 
 <mat-dialog-content class="mat-typography">
     <div class="modal-body">
@@ -17,13 +17,17 @@
                 <span class="blue-text">{{ image.description || 'Aucune description' }}</span> 
             </p>
 
-            <div *ngIf="image.hashtags">
-                <span class="blue-text">{{ image.hashtags }}</span>
-            </div>
+            @if (image.hashtags) {
+                <div>
+                    <span class="blue-text">{{ image.hashtags }}</span>
+                </div>
+            }
 
-            <div *ngIf="image.mentions">
-                <span class="blue-text">{{ image.mentions }}</span>
-            </div>
+            @if (image.mentions) {
+                <div>
+                    <span class="blue-text">{{ image.mentions }}</span>
+                </div>
+            }
 
             <div class="date-footer">
                 {{ image.createdAt | date:'longDate' }}

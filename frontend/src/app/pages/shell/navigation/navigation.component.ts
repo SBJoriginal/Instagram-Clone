@@ -7,7 +7,6 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ImageUploadDialog } from '../../../image-upload-dialog/image-upload-dialog';
 import { ImageUploadService, ImageResponse } from '../../../services/image-upload.service';
-import { ImageUploadData } from '../../../image-upload/image-upload';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
