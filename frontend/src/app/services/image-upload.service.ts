@@ -54,8 +54,8 @@ export class ImageUploadService {
     return this.http.get<ImageResponse[]>(this.apiUrl, {
       params: {
         page: page.toString(),
-        limit: limit.toString()
-      }
+        limit: limit.toString(),
+      },
     });
   }
 

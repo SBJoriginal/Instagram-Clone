@@ -12,7 +12,10 @@ export const routes: Routes = [
     path: 'home',
     component: ShellComponent,
     canActivate: [authGuard, profileGuard],
-    children: [{ path: 'profile', component: Profile }, { path: 'explore', component: Explore }],
+    children: [
+      { path: 'profile', component: Profile },
+      { path: 'explore', component: Explore },
+    ],
   },
   {
     path: 'sign-in',

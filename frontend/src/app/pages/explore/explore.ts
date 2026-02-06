@@ -1,4 +1,14 @@
-import { Component, inject, ChangeDetectionStrategy, signal, ElementRef, ViewChild, AfterViewInit, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  inject,
+  ChangeDetectionStrategy,
+  signal,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  OnInit,
+  OnDestroy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,7 +28,7 @@ import { Subscription } from 'rxjs';
     MatProgressSpinnerModule,
     MatDialogModule,
     MatIconModule,
-    ExploreHeaderComponent
+    ExploreHeaderComponent,
   ],
   templateUrl: './explore.html',
   styleUrl: './explore.css',
@@ -59,11 +69,14 @@ export class Explore implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && !this.loading() && this.hasMore()) {
-        this.loadMore();
-      }
-    }, { threshold: 0.1 });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !this.loading() && this.hasMore()) {
+          this.loadMore();
+        }
+      },
+      { threshold: 0.1 },
+    );
 
     if (this.sentinel) {
       observer.observe(this.sentinel.nativeElement);
@@ -76,15 +89,15 @@ export class Explore implements OnInit, AfterViewInit, OnDestroy {
     this.loading.set(true);
     this.imageService.getImages(this.page(), 15).subscribe({
       next: (newImages) => {
-        this.images.update(current => [...current, ...newImages]);
+        this.images.update((current) => [...current, ...newImages]);
         this.hasMore.set(newImages.length === 15);
-        this.page.update(p => p + 1);
+        this.page.update((p) => p + 1);
         this.loading.set(false);
       },
       error: () => {
         this.loading.set(false);
         this.hasMore.set(false);
-      }
+      },
     });
   }
 
@@ -94,7 +107,7 @@ export class Explore implements OnInit, AfterViewInit, OnDestroy {
       width: '90vw',
       maxWidth: '1000px',
       height: 'auto',
-      panelClass: 'custom-modalbox'
+      panelClass: 'custom-modalbox',
     });
   }
 }

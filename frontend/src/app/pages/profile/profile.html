@@ -19,21 +19,22 @@
             </button>
           </mat-menu>
         </div>
-        
-        <button 
-            type="button"
-            class="image-trigger-button"
-            (click)="openImageDetail(image)"
-            [aria-label]="'View details for ' + image.description">
-            <img
-              mat-card-image
-              [src]="baseUrl + image.filePath"
-              [alt]="image.description"
-              loading="lazy"
-              class="clickable-image"
-            />
+
+        <button
+          type="button"
+          class="image-trigger-button"
+          (click)="openImageDetail(image)"
+          [aria-label]="'View details for ' + image.description"
+        >
+          <img
+            mat-card-image
+            [src]="baseUrl + image.filePath"
+            [alt]="image.description"
+            loading="lazy"
+            class="clickable-image"
+          />
         </button>
-        
+
         <mat-card-content>
           <p>{{ image.description }}</p>
         </mat-card-content>

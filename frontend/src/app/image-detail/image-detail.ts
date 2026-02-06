@@ -10,7 +10,7 @@ import { ImageResponse } from '../services/image-upload.service';
   standalone: true,
   imports: [CommonModule, MatDialogModule, MatIconModule, MatButtonModule],
   templateUrl: './image-detail.html',
-  styleUrl: './image-detail.css'
+  styleUrl: './image-detail.css',
 })
 export class ImageDetail {
   readonly image = inject<ImageResponse>(MAT_DIALOG_DATA);

@@ -18,7 +18,15 @@ import { ImageDetail } from '../../image-detail/image-detail';
 
 @Component({
   selector: 'app-profile',
-  imports: [ProfileHeader, AsyncPipe, MatCardModule, MatMenuModule, MatButtonModule, MatIconModule, ImageDetail],
+  imports: [
+    ProfileHeader,
+    AsyncPipe,
+    MatCardModule,
+    MatMenuModule,
+    MatButtonModule,
+    MatIconModule,
+    ImageDetail,
+  ],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,19 +41,19 @@ export class Profile {
 
   private readonly refresh$ = new BehaviorSubject<void>(void 0);
   protected readonly images = merge(this.refresh$, this.imageUploadService.imageCreated$).pipe(
-    switchMap(() => this.imageUploadService.getMyImages())
-  ); 
-  
+    switchMap(() => this.imageUploadService.getMyImages()),
+  );
+
   openImageDetail(image: ImageResponse): void {
-      this.dialog.open(ImageDetail, {
-        data: image,
-        width: '90vw',
-        maxWidth: '1000px',
-        height: 'auto',
-        panelClass: 'custom-modalbox',
-        autoFocus: false
-      });
-    }
+    this.dialog.open(ImageDetail, {
+      data: image,
+      width: '90vw',
+      maxWidth: '1000px',
+      height: 'auto',
+      panelClass: 'custom-modalbox',
+      autoFocus: false,
+    });
+  }
   openEditDialog(image: ImageResponse): void {
     const dialogRef = this.dialog.open(ImageEditDialog, {
       width: '450px',

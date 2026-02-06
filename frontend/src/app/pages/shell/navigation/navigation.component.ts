@@ -32,12 +32,12 @@ export class NavigationComponent {
   }
 
   openCreateDialog() {
-  const dialogRef = this.dialog.open(ImageUploadDialog);
+    const dialogRef = this.dialog.open(ImageUploadDialog);
 
-  dialogRef.afterClosed().subscribe((result: ImageResponse | undefined) => {
-    if (result) {
-      console.log('Upload déjà complété avec succès par le dialogue:', result);
-    }
-  });
-}
+    dialogRef.afterClosed().subscribe((result: ImageResponse | undefined) => {
+      if (result) {
+        console.log('Upload déjà complété avec succès par le dialogue:', result);
+      }
+    });
+  }
 }
