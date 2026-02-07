@@ -7,7 +7,7 @@ import { ImagePost } from '../models/image.model';
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5266/api';
+  private apiUrl = 'http://localhost:8081/api';
 
   getUsers(): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/users`);
