@@ -11,7 +11,7 @@ export interface ImageResponse {
   description: string;
   hashtags: string;
   mentions: string;
-  userId: string; //will be username when that is implemented
+  userId: string;
   createdAt: string;
   fileName?: string;
   contentType?: string;
@@ -61,6 +61,10 @@ export class ImageUploadService {
 
   getMyImages(): Observable<ImageResponse[]> {
     return this.http.get<ImageResponse[]>(`${this.apiUrl}/my-images`);
+  }
+
+  getImageById(id: number): Observable<ImageResponse> {
+    return this.http.get<ImageResponse>(`${this.apiUrl}/${id}`);
   }
 
   updateImage(id: number, data: ImageUpdateData): Observable<ImageResponse> {

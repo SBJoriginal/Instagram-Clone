@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { environment } from '../../../environments/environment';
+import { Router } from '@angular/router';
 import {
   ImageResponse,
   ImageUploadService,
@@ -14,19 +15,11 @@ import {
 } from '../../services/image-upload.service';
 import { BehaviorSubject, switchMap, merge } from 'rxjs';
 import { ImageEditDialog } from '../../image-edit-dialog/image-edit-dialog';
-import { ImageDetail } from '../../image-detail/image-detail';
 
 @Component({
   selector: 'app-profile',
-  imports: [
-    ProfileHeader,
-    AsyncPipe,
-    MatCardModule,
-    MatMenuModule,
-    MatButtonModule,
-    MatIconModule,
-    ImageDetail,
-  ],
+  standalone: true,
+  imports: [ProfileHeader, AsyncPipe, MatCardModule, MatMenuModule, MatButtonModule, MatIconModule],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,6 +28,7 @@ import { ImageDetail } from '../../image-detail/image-detail';
   },
 })
 export class Profile {
+  private readonly router = inject(Router);
   readonly dialog = inject(MatDialog);
   readonly imageUploadService = inject(ImageUploadService);
   protected readonly baseUrl = environment.apiUrl.replace('/api', '');
@@ -45,15 +39,9 @@ export class Profile {
   );
 
   openImageDetail(image: ImageResponse): void {
-    this.dialog.open(ImageDetail, {
-      data: image,
-      width: '90vw',
-      maxWidth: '1000px',
-      height: 'auto',
-      panelClass: 'custom-modalbox',
-      autoFocus: false,
-    });
+    this.router.navigate(['/home/image', image.id]);
   }
+
   openEditDialog(image: ImageResponse): void {
     const dialogRef = this.dialog.open(ImageEditDialog, {
       width: '450px',

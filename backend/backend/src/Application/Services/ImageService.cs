@@ -17,21 +17,19 @@ namespace UGram.src.Application.Services
       _imageStorageService = imageStorageService;
     }
 
-    public async Task<ImageUploadResponseDto> UploadImageAsync(IFormFile file, string description, string hashtags, string mentions, string userId)
+    public async Task<ImageUploadResponseDto> UploadImageAsync(ImageUploadRequestDto upload, string userId)
     {
-      if (file == null || file.Length == 0)
+
+      if (upload.File == null || upload.File.Length == 0)
         throw new ArgumentException("No file uploaded.");
 
-      var filePath = await _imageStorageService.SaveImageAsync(file, "images");
+      var filePath = await _imageStorageService.SaveImageAsync(upload.File, "images");
 
       var image = new Image
       {
-        FileName = Path.GetFileName(file.FileName),
-        ContentType = file.ContentType,
-        Size = file.Length,
-        Description = description ?? "",
-        Hashtags = hashtags ?? "",
-        Mentions = mentions ?? "",
+        Description = upload.Description ?? "",
+        Hashtags = upload.Hashtags ?? "",
+        Mentions = upload.Mentions ?? "",
         FilePath = filePath,
         UserId = userId,
         CreatedAt = DateTime.UtcNow
@@ -76,6 +74,26 @@ namespace UGram.src.Application.Services
         UserId = i.UserId,//replaced with username when that is implemented
         CreatedAt = i.CreatedAt
       });
+    }
+
+    public async Task<ImageResponseDto?> GetImageByIdAsync(int id)
+    {
+      var image = await _context.Images.FindAsync(id);
+      if (image == null) return null;
+
+      return new ImageResponseDto
+      {
+        Id = image.Id,
+        FileName = image.FileName,
+        ContentType = image.ContentType,
+        Size = image.Size,
+        Description = image.Description,
+        Hashtags = image.Hashtags,
+        Mentions = image.Mentions,
+        FilePath = image.FilePath,
+        UserId = image.UserId,
+        CreatedAt = image.CreatedAt
+      };
     }
   }
 }

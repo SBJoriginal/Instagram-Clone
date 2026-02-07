@@ -10,13 +10,11 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ImageUploadService, ImageResponse } from '../../services/image-upload.service';
 import { ExploreHeaderComponent } from './explore-header.component/explore-header.component';
-import { ImageDetail } from '../../image-detail/image-detail';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -26,7 +24,6 @@ import { Subscription } from 'rxjs';
     CommonModule,
     RouterModule,
     MatProgressSpinnerModule,
-    MatDialogModule,
     MatIconModule,
     ExploreHeaderComponent,
   ],
@@ -39,7 +36,7 @@ import { Subscription } from 'rxjs';
 })
 export class Explore implements OnInit, AfterViewInit, OnDestroy {
   private readonly imageService = inject(ImageUploadService);
-  private readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
   private uploadSubscription?: Subscription;
 
   readonly images = signal<ImageResponse[]>([]);
@@ -102,12 +99,6 @@ export class Explore implements OnInit, AfterViewInit, OnDestroy {
   }
 
   openImage(image: ImageResponse): void {
-    this.dialog.open(ImageDetail, {
-      data: image,
-      width: '90vw',
-      maxWidth: '1000px',
-      height: 'auto',
-      panelClass: 'custom-modalbox',
-    });
+    this.router.navigate(['/home/image', image.id]);
   }
 }

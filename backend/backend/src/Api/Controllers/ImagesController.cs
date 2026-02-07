@@ -27,35 +27,12 @@ namespace Api.Controllers
     [HttpPost]
     public async Task<IActionResult> Upload([FromForm] ImageUploadRequestDto upload)
     {
-      try
-      {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrEmpty(userId))
-        {
-          throw new UnauthorizedAccessException("User ID claim not found.");
-        }
+      var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+      if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
-        var result = await _imageService.UploadImageAsync(
-            upload.File,
-            upload.Description ?? "",
-            upload.Hashtags ?? "",
-            upload.Mentions ?? "",
-            userId);
+      var result = await _imageService.UploadImageAsync(upload, userId);
+      return CreatedAtAction(nameof(GetImages), new { id = result.Id }, result);
 
-        return CreatedAtAction(nameof(GetImages), new { id = result.Id }, result);
-      }
-      catch (UnauthorizedAccessException ex)
-      {
-        return Unauthorized(new { error = ex.Message });
-      }
-      catch (ArgumentException ex)
-      {
-        return BadRequest(new { error = ex.Message });
-      }
-      catch (Exception ex)
-      {
-        return StatusCode(StatusCodes.Status500InternalServerError, new { error = ex.Message });
-      }
     }
 
     [HttpGet]
@@ -81,6 +58,16 @@ namespace Api.Controllers
 
       var images = await _imageService.GetAllImagesAsync(userId);
       return Ok(images);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetImageById(int id)
+    {
+      var result = await _imageService.GetImageByIdAsync(id);
+
+      if (result == null) return NotFound();
+
+      return Ok(result);
     }
 
     [HttpPut("{id}")]
