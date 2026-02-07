@@ -27,6 +27,14 @@ namespace backend.src.Api.Controllers
       return NoContent();
     }
 
+    [HttpPost("update-profile")]
+    public async Task<IActionResult> UpdateUserProfile([FromBody] UserProfileRequestDto userProfileDto)
+    {
+      var userId = GetAuthenticatedUserId();
+      await _userProfileService.UpdateProfileAsync(userId, userProfileDto);
+      return NoContent();
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetUserProfile()
     {
@@ -40,6 +48,13 @@ namespace backend.src.Api.Controllers
       var userId = GetAuthenticatedUserId();
       var result = await _userProfileService.UploadProfilePictureAsync(userId, uploadDto.File);
       return Ok(result);
+    }
+
+    [HttpGet("profile-picture")]
+    public async Task<IActionResult> GetProfilePicture()
+    {
+      var userId = GetAuthenticatedUserId();
+      return Ok(await _userProfileService.GetProfilePictureAsync(userId));
     }
 
     private string GetAuthenticatedUserId()

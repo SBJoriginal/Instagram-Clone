@@ -25,12 +25,14 @@ export interface User {
 }
 
 export interface ProfileRequest {
+  username: string;
   firstName: string;
   lastName: string;
   phoneNumber: string;
 }
 
 export interface ProfileResponse {
+  username: string;
   firstName: string;
   lastName: string;
   email: string;

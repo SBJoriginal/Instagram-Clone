@@ -10,7 +10,7 @@
     <div class="avatar-section">
       <div class="avatar-preview-container">
         <img
-          [src]="tempAvatarUrl() || 'default-avatar.png'"
+          [src]="tempAvatarUrl() || '/default-avatar.png'"
           alt="User avatar"
           class="preview-avatar"
         />
@@ -35,6 +35,21 @@
 
     <!-- Form Section on the right -->
     <form [formGroup]="editForm" class="edit-form">
+      <mat-form-field appearance="outline">
+        <mat-label>Username</mat-label>
+        <input
+          matInput
+          formControlName="username"
+          placeholder="Username"
+          (focus)="onFieldFocus('username')"
+          (blur)="onFieldBlur('username')"
+        />
+        <mat-icon matSuffix>person</mat-icon>
+        @if (editForm.get('username')?.hasError('required')) {
+          <mat-error> Username is required </mat-error>
+        }
+      </mat-form-field>
+
       <div class="form-row">
         <mat-form-field appearance="outline">
           <mat-label>First Name</mat-label>
@@ -45,6 +60,9 @@
             (focus)="onFieldFocus('firstName')"
             (blur)="onFieldBlur('firstName')"
           />
+          @if (editForm.get('firstName')?.hasError('required')) {
+            <mat-error> First name is required </mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline">
@@ -56,8 +74,19 @@
             (focus)="onFieldFocus('lastName')"
             (blur)="onFieldBlur('lastName')"
           />
+          @if (editForm.get('lastName')?.hasError('required')) {
+            <mat-error> Last name is required </mat-error>
+          }
         </mat-form-field>
       </div>
+
+      @if (
+        (editForm.get('firstName')?.hasError('pattern') ||
+          editForm.get('lastName')?.hasError('pattern')) &&
+        (editForm.get('firstName')?.touched || editForm.get('lastName')?.touched)
+      ) {
+        <div class="shared-error">First name and last name must only contain characters</div>
+      }
 
       <mat-form-field appearance="outline">
         <mat-label>Email Address</mat-label>
@@ -70,8 +99,10 @@
           (blur)="onFieldBlur('email')"
         />
         <mat-icon matSuffix>email</mat-icon>
-        @if (editForm.get('email')?.hasError('email')) {
-          <mat-error> Please enter a valid email with @ </mat-error>
+        @if (editForm.get('email')?.hasError('required')) {
+          <mat-error> Email is required </mat-error>
+        } @else if (editForm.get('email')?.hasError('pattern')) {
+          <mat-error> Invalid email format (e.g. .com) </mat-error>
         }
       </mat-form-field>
 
@@ -88,8 +119,10 @@
           (blur)="onFieldBlur('phone')"
         />
         <mat-icon matSuffix>phone</mat-icon>
-        @if (editForm.get('phone')?.hasError('pattern')) {
-          <mat-error> Phone must be 10 digits (XXX-XXX-XXXX) </mat-error>
+        @if (editForm.get('phone')?.hasError('required')) {
+          <mat-error> Phone is required </mat-error>
+        } @else if (editForm.get('phone')?.hasError('pattern')) {
+          <mat-error> Use XXX-XXX-XXXX </mat-error>
         }
       </mat-form-field>
     </form>
@@ -98,5 +131,13 @@
 
 <mat-dialog-actions align="end" class="dialog-actions">
   <button mat-button (click)="onCancel()" class="cancel-btn">Cancel</button>
-  <button mat-flat-button color="primary" (click)="onSave()" class="save-btn">Save Changes</button>
+  <button
+    mat-flat-button
+    color="primary"
+    (click)="onSave()"
+    class="save-btn"
+    [disabled]="editForm.invalid"
+  >
+    Save Changes
+  </button>
 </mat-dialog-actions>

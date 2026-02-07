@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ProfileRequest } from '../../models/auth.models';
 import { ProfileService } from '../../services/profile.service';
 import { TokenService } from '../../services/token.service';
 import { BackArrowComponent } from '../../shared/ui/back-arrow/back-arrow.component';
@@ -34,10 +35,34 @@ export class CompleteProfileComponent {
   protected readonly errorMessage = signal<string | null>(null);
 
   protected readonly profileForm = this.fb.group({
-    firstName: ['', [Validators.required]],
-    lastName: ['', [Validators.required]],
-    phoneNumber: ['', [Validators.required, Validators.pattern(/^\+?[1-9]\d{1,14}$/)]],
+    username: ['', [Validators.required]],
+    firstName: ['', [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)]],
+    lastName: ['', [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)]],
+    phoneNumber: ['', [Validators.required]],
   });
+
+  protected onPhoneInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, ''); // Remove non-digits
+
+    if (value.length > 10) {
+      value = value.substring(0, 10);
+    }
+
+    let formattedValue = '';
+    if (value.length > 0) {
+      formattedValue = value.substring(0, 3);
+      if (value.length > 3) {
+        formattedValue += '-' + value.substring(3, 6);
+      }
+      if (value.length > 6) {
+        formattedValue += '-' + value.substring(6, 10);
+      }
+    }
+
+    this.profileForm.controls.phoneNumber.setValue(formattedValue, { emitEvent: false });
+    input.value = formattedValue;
+  }
 
   protected onSubmit(): void {
     if (this.profileForm.valid && !this.isLoading()) {
@@ -46,7 +71,8 @@ export class CompleteProfileComponent {
 
       this.errorMessage.set(null);
 
-      const profileData = {
+      const profileData: ProfileRequest = {
+        username: this.profileForm.value.username!,
         firstName: this.profileForm.value.firstName!,
         lastName: this.profileForm.value.lastName!,
         phoneNumber: this.profileForm.value.phoneNumber!,

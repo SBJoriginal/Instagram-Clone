@@ -46,6 +46,7 @@ namespace UGram.src.Application.Services
       await Task.CompletedTask;
     }
 
+
     public string GetImageUrl(string filePath)
     {
       if (string.IsNullOrEmpty(filePath))

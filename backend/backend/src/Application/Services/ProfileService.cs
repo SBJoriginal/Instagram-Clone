@@ -29,11 +29,12 @@ namespace UGram.src.Application.Services
 
     public async Task<UserProfileResponseDto> GetUserProfileAsync(string userId)
     {
-      await VerifyUserExistence(userId);
+      ApplicationUser user = await GetUserById(userId);
       UserProfile userProfile = GetUserProfile(userId);
 
       var userProfileDto = new UserProfileResponseDto
       {
+        Username = user.UserName ?? string.Empty,
         FirstName = userProfile.FirstName,
         LastName = userProfile.LastName,
         Email = userProfile.Email,
@@ -50,6 +51,9 @@ namespace UGram.src.Application.Services
       ApplicationUser user = await GetUserById(userId);
       await VerifyProfileDoesntExist(userId);
 
+      user.UserName = userProfileDto.Username;
+      await _userManager.UpdateAsync(user);
+
       var newProfile = new UserProfile
       {
         UserId = userId,
@@ -60,6 +64,30 @@ namespace UGram.src.Application.Services
       };
 
       _context.UserProfiles.Add(newProfile);
+
+      await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateProfileAsync(string userId, UserProfileRequestDto userProfileDto)
+    {
+      ApplicationUser user = await GetUserById(userId);
+      UserProfile userProfile = GetUserProfile(userId);
+
+      // Mettre à jour le nom d'utilisateur dans Identity
+      if (!string.IsNullOrEmpty(userProfileDto.Username) && user.UserName != userProfileDto.Username)
+      {
+        user.UserName = userProfileDto.Username;
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+          throw new Exception($"Failed to update username: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        }
+      }
+
+      // Mettre à jour les autres champs dans UserProfile
+      userProfile.FirstName = userProfileDto.FirstName;
+      userProfile.LastName = userProfileDto.LastName;
+      userProfile.PhoneNumber = userProfileDto.PhoneNumber;
 
       await _context.SaveChangesAsync();
     }
@@ -103,13 +131,38 @@ namespace UGram.src.Application.Services
         UserId = userId,
         Description = "Profile Picture"
       };
-
       _context.Images.Add(image);
       await _context.SaveChangesAsync();
 
       return new ProfilePictureResponseDto
       {
         ProfilePictureUrl = imagePath,
+        ImageId = image.Id
+      };
+    }
+
+    public async Task<ProfilePictureResponseDto> GetProfilePictureAsync(string userId)
+    {
+      await VerifyUserExistence(userId);
+      UserProfile userProfile = GetUserProfile(userId);
+
+      if (string.IsNullOrEmpty(userProfile.ProfilePictureUrl))
+      {
+        throw new NotFoundException("Profile Picture", userId);
+      }
+
+      // Récupérer l'image depuis la base de données
+      var image = await _context.Images
+        .FirstOrDefaultAsync(i => i.FilePath == userProfile.ProfilePictureUrl && i.UserId == userId);
+
+      if (image == null)
+      {
+        throw new NotFoundException("Profile Picture", userId);
+      }
+
+      return new ProfilePictureResponseDto
+      {
+        ProfilePictureUrl = userProfile.ProfilePictureUrl,
         ImageId = image.Id
       };
     }

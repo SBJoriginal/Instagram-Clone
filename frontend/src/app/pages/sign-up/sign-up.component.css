@@ -64,3 +64,19 @@
 .password-requirements li.invalid mat-icon {
   opacity: 1;
 }
+
+.name-fields {
+  display: flex;
+  gap: 16px;
+}
+
+.name-fields mat-form-field {
+  flex: 1;
+}
+
+@media (max-width: 600px) {
+  .name-fields {
+    flex-direction: column;
+    gap: 0;
+  }
+}
