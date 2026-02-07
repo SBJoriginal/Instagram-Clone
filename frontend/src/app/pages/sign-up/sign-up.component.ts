@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {
   FormBuilder,
   Validators,
@@ -12,6 +12,10 @@ import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
 import { Router, RouterLink } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
+import { AuthService } from '../../services/auth.service';
+import { PasswordValidators } from '../../validators/password.validators';
 
 @Component({
   selector: 'app-sign-up',
@@ -25,6 +29,8 @@ import { MatButtonModule } from '@angular/material/button';
     RouterLink,
     MatInputModule,
     MatButtonModule,
+    MatProgressSpinnerModule,
+    MatIconModule,
   ],
   templateUrl: './sign-up.component.html',
   styleUrl: './sign-up.component.css',
@@ -32,19 +38,55 @@ import { MatButtonModule } from '@angular/material/button';
 export class SignUpComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+
+  protected readonly isLoading = signal(false);
+  protected readonly errorMessage = signal<string | null>(null);
+  protected hidePassword = true;
 
   protected readonly signUpForm = this.fb.group(
     {
       email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required],
+      password: [
+        '',
+        [
+          Validators.required,
+          PasswordValidators.minLength(6),
+          PasswordValidators.hasUpperCase(),
+          PasswordValidators.hasLowerCase(),
+          PasswordValidators.hasSpecialCharacter(),
+        ],
+      ],
       confirmPassword: ['', Validators.required],
     },
     { validators: this.passwordMatchValidator },
   );
 
+  protected isRequirementMet(errorName: string): boolean {
+    const passwordControl = this.signUpForm.controls.password;
+    if (passwordControl.hasError('required')) {
+      return false;
+    }
+    return !passwordControl.hasError(errorName);
+  }
+
   protected onSignUp(): void {
-    if (this.signUpForm.valid) {
-      this.router.navigate(['/home']);
+    if (this.signUpForm.valid && !this.isLoading()) {
+      this.isLoading.set(true);
+      this.errorMessage.set(null);
+
+      const { email, password } = this.signUpForm.value;
+
+      this.authService.register(email!, password!).subscribe({
+        next: () => {
+          this.isLoading.set(false);
+          this.router.navigate(['/complete-profile']);
+        },
+        error: (error) => {
+          this.isLoading.set(false);
+          this.errorMessage.set(error.error?.message || 'Registration failed. Please try again.');
+        },
+      });
     }
   }
 

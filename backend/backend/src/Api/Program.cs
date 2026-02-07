@@ -1,60 +1,14 @@
-using Microsoft.EntityFrameworkCore;
+using UGram.src.Api;
+using UGram.src.Application;
+using UGram.src.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-builder.Services.AddDbContext<Infrastructure.Persistence.AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddCors(options =>
-{
-  options.AddPolicy("AllowAll", p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-});
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddApplication()
+                .AddInfrastructure(builder.Configuration)
+                .AddWebAPI(builder.Configuration);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-  app.UseSwagger();
-  app.UseSwaggerUI();
-
-  using (var scope = app.Services.CreateScope())
-  {
-    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-    try
-    {
-      var db = scope.ServiceProvider.GetRequiredService<Infrastructure.Persistence.AppDbContext>();
-      db.Database.EnsureCreated();
-      logger.LogInformation("Database initialized successfully.");
-    }
-    catch (Exception ex)
-    {
-      logger.LogError(ex, "An error occurred while initializing the database. Ensure PostgreSQL is running and the connection string is correct.");
-    }
-  }
-}
-
-app.UseStaticFiles();
-
-var uploadsPath = Path.Combine(app.Environment.ContentRootPath, "uploads");
-if (!Directory.Exists(uploadsPath))
-{
-  Directory.CreateDirectory(uploadsPath);
-}
-
-app.UseStaticFiles(new StaticFileOptions
-{
-  FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadsPath),
-  RequestPath = "/uploads"
-});
-app.UseCors("AllowAll");
-app.UseAuthorization();
-
-app.MapControllers();
+app.ConfigurePipeline();
 
 app.Run();

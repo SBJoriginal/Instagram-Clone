@@ -1,5 +1,5 @@
-
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities;
 
@@ -22,9 +22,11 @@ public class Image
 
   public string Mentions { get; set; } = string.Empty;
 
-  public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+  [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+  public DateTime CreatedAt { get; set; }
 
-  // In a real app, this might be a link to cloud storage (S3/Azure Blob)
-  // For now, we'll store the local path or the relative URL
   public string FilePath { get; set; } = string.Empty;
+
+  [Required]
+  public string UserId { get; set; } = string.Empty;
 }

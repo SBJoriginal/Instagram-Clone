@@ -1,0 +1,34 @@
+# Stage 1: Build
+FROM node:20-slim AS build
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies (ignore prepare scripts like husky)
+RUN npm install --production=false --ignore-scripts
+
+# Copy source code
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# Stage 2: Runtime with nginx
+FROM nginx:alpine AS runtime
+WORKDIR /usr/share/nginx/html
+
+# Remove default nginx static assets
+RUN rm -rf ./*
+
+# Copy built Angular app from build stage
+COPY --from=build /app/dist/frontend/browser ./
+
+# Copy custom nginx configuration
+COPY --from=build /app/nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expose port 80
+EXPOSE 80
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]

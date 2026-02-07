@@ -1,4 +1,12 @@
-import { Component, output, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  output,
+  signal,
+  computed,
+  ChangeDetectionStrategy,
+  input,
+  OnInit,
+} from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,6 +16,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { HashtagPipe } from '../pipes/hashtag.pipe';
 import { MentionPipe } from '../pipes/mention.pipe';
 import { FileSizePipe } from '../pipes/file-size.pipe';
+import { ImageResponse } from '../services/image-upload.service';
+import { environment } from '../../environments/environment';
 
 export interface ImageUploadData {
   file: File;
@@ -30,9 +40,13 @@ export interface ImageUploadData {
   styleUrl: './image-upload.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ImageUploadComponent {
+export class ImageUploadComponent implements OnInit {
+  // Inputs
+  readonly editData = input<ImageResponse | null>(null);
+
   // Output event for upload data
   readonly uploadImage = output<ImageUploadData>();
+  readonly cancelEdit = output<void>();
 
   // Signals for state management
   protected readonly selectedFile = signal<File | null>(null);
@@ -177,16 +191,34 @@ export class ImageUploadComponent {
     }
   }
 
+  ngOnInit(): void {
+    const data = this.editData();
+    if (data) {
+      this.uploadForm.patchValue({
+        description: data.description || '',
+        hashtags: data.hashtags || '',
+        mentions: data.mentions || '',
+      });
+      // In edit mode, we don't necessarily have a File object, but we have a URL
+      if (data.filePath) {
+        const baseUrl = environment.apiUrl.replace('/api', '');
+        this.previewUrl.set(baseUrl + data.filePath);
+      }
+    }
+  }
+
   protected onSubmit(): void {
+    const isEditMode = !!this.editData();
     const file = this.selectedFile();
-    if (!file) {
+
+    if (!isEditMode && !file) {
       this.validationError.set('Please select an image file.');
       return;
     }
 
     const formValue = this.uploadForm.getRawValue();
     const uploadData: ImageUploadData = {
-      file,
+      file: file as File, // In edit mode, file might be null if not changed
       description: formValue.description,
       hashtags: formValue.hashtags,
       mentions: formValue.mentions,
