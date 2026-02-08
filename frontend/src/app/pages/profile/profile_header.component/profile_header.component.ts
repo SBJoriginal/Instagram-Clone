@@ -86,7 +86,6 @@ export class ProfileHeader implements OnInit {
     if (!path) return '/default-avatar.png';
     if (path.startsWith('http') || path.startsWith('data:')) return path;
     const cleanPath = path.replace(/\\/g, '/');
-    // Assuming backend is at localhost:8081
     return `http://localhost:8081/${cleanPath}`;
   }
 
@@ -106,7 +105,6 @@ export class ProfileHeader implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        // Mise à jour optimiste de l'interface (immédiate)
         this.user.update((current) => ({
           ...current,
           username: result.username,
@@ -125,10 +123,8 @@ export class ProfileHeader implements OnInit {
           phoneNumber: result.phone,
         };
 
-        // Note: Cette route POST nécessite une reconstruction Docker du Backend pour fonctionner.
         this.profileService.updateProfile(profileUpdate).subscribe({
           next: () => {
-            // Recharger le profil complet depuis le serveur pour confirmer les changements
             this.loadProfile();
           },
           error: (err) => {

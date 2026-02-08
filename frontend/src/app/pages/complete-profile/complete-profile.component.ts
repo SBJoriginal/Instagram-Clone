@@ -43,7 +43,7 @@ export class CompleteProfileComponent {
 
   protected onPhoneInput(event: Event): void {
     const input = event.target as HTMLInputElement;
-    let value = input.value.replace(/\D/g, ''); // Remove non-digits
+    let value = input.value.replace(/\D/g, '');
 
     if (value.length > 10) {
       value = value.substring(0, 10);
@@ -87,7 +87,6 @@ export class CompleteProfileComponent {
         },
         error: (error) => {
           this.isLoading.set(false);
-          // extraction du message d'erreur ProblemDetails (.detail) ou standard (.message)
           const errorMsg =
             error.error?.detail ||
             error.error?.message ||

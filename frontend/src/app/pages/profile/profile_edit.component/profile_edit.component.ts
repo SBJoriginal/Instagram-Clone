@@ -66,7 +66,7 @@ export class ProfileEditComponent {
 
   onPhoneInput(event: Event): void {
     const input = event.target as HTMLInputElement;
-    let value = input.value.replace(/\D/g, ''); // Remove non-digits
+    let value = input.value.replace(/\D/g, '');
 
     if (value.length > 10) {
       value = value.substring(0, 10);

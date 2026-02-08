@@ -27,7 +27,7 @@ namespace UGram.src.Application.Services
         await file.CopyToAsync(stream);
       }
 
-      // Retourner le chemin relatif pour l'accès statique
+      // Return relative path for static access
       var relativePath = $"/{folder}/{uniqueFileName}".Replace("\\", "/");
       return relativePath;
     }

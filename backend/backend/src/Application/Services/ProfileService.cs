@@ -52,10 +52,10 @@ namespace UGram.src.Application.Services
     {
       ApplicationUser user = await GetUserById(userId);
 
-      // Si le profil existe déjà, on le met à jour au lieu de bloquer avec un 409
+      // If profile already exists, update it instead of blocking with a 409
       var existingProfile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
 
-      // Mettre à jour le nom d'utilisateur dans Identity
+      // Update username in Identity
       if (!string.IsNullOrEmpty(userProfileDto.Username) && user.UserName != userProfileDto.Username)
       {
         user.UserName = userProfileDto.Username;
@@ -94,7 +94,7 @@ namespace UGram.src.Application.Services
       ApplicationUser user = await GetUserById(userId);
       UserProfile userProfile = GetUserProfile(userId);
 
-      // Mettre à jour le nom d'utilisateur dans Identity
+      // Update username in Identity
       if (!string.IsNullOrEmpty(userProfileDto.Username) && user.UserName != userProfileDto.Username)
       {
         user.UserName = userProfileDto.Username;
@@ -106,7 +106,7 @@ namespace UGram.src.Application.Services
         }
       }
 
-      // Mettre à jour l'email dans Identity
+      // Update email in Identity
       if (!string.IsNullOrEmpty(userProfileDto.Email) && user.Email != userProfileDto.Email)
       {
         user.Email = userProfileDto.Email;
@@ -118,7 +118,7 @@ namespace UGram.src.Application.Services
         }
       }
 
-      // Mettre à jour les autres champs dans UserProfile
+      // Update entries in UserProfile
       userProfile.FirstName = userProfileDto.FirstName;
       userProfile.LastName = userProfileDto.LastName;
       userProfile.Email = userProfileDto.Email ?? user.Email ?? string.Empty;
@@ -135,7 +135,7 @@ namespace UGram.src.Application.Services
       ValidateImageFile(file);
 
       // Save the new image
-      string imagePath = await _imageStorageService.SaveImageAsync(file, "images/profiles");
+      string imagePath = await _imageStorageService.SaveImageAsync(file, "images");
 
       // Delete old profile picture if it exists
       if (!string.IsNullOrEmpty(userProfile.ProfilePictureUrl))
@@ -186,7 +186,7 @@ namespace UGram.src.Application.Services
         throw new NotFoundException("Profile Picture", userId);
       }
 
-      // Récupérer l'image depuis la base de données
+      // Get image from database
       var image = await _context.Images
         .FirstOrDefaultAsync(i => i.FilePath == userProfile.ProfilePictureUrl && i.UserId == userId);
 
@@ -233,7 +233,7 @@ namespace UGram.src.Application.Services
     private void ValidateImageFile(IFormFile file)
     {
       const long maxFileSize = 5 * 1024 * 1024; // 5 MB
-      var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+      var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif" };
 
       if (file == null || file.Length == 0)
       {
