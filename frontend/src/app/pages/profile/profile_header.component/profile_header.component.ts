@@ -82,21 +82,6 @@ export class ProfileHeader implements OnInit {
     });
   }
 
-  protected loadProfilePicture(): void {
-    this.profileService.getProfilePicture().subscribe({
-      next: (response) => {
-        this.profilePictureUrl.set(this.formatImageUrl(response.profilePictureUrl));
-        this.user.update((current) => ({
-          ...current,
-          profilePictureUrl: this.formatImageUrl(response.profilePictureUrl),
-        }));
-      },
-      error: (error) => {
-        console.error('Failed to load profile picture:', error);
-      },
-    });
-  }
-
   private formatImageUrl(path: string): string {
     if (!path) return '/default-avatar.png';
     if (path.startsWith('http') || path.startsWith('data:')) return path;
@@ -136,6 +121,7 @@ export class ProfileHeader implements OnInit {
           username: result.username,
           firstName: result.firstName,
           lastName: result.lastName,
+          email: result.email,
           phoneNumber: result.phone,
         };
 

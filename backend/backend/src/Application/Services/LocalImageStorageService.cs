@@ -16,9 +16,8 @@ namespace UGram.src.Application.Services
       if (file == null || file.Length == 0)
         throw new ArgumentException("File is empty or null.", nameof(file));
 
-      var uploadsFolder = Path.Combine(_environment.WebRootPath ?? _environment.ContentRootPath, folder);
-      if (!Directory.Exists(uploadsFolder))
-        Directory.CreateDirectory(uploadsFolder);
+      var rootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
+      var uploadsFolder = Path.Combine(rootPath, folder);
 
       var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
       var filePath = Path.Combine(uploadsFolder, uniqueFileName);
@@ -28,7 +27,9 @@ namespace UGram.src.Application.Services
         await file.CopyToAsync(stream);
       }
 
-      return $"/{folder}/{uniqueFileName}";
+      // Retourner le chemin relatif pour l'accès statique
+      var relativePath = $"/{folder}/{uniqueFileName}".Replace("\\", "/");
+      return relativePath;
     }
 
     public async Task DeleteImageAsync(string filePath)

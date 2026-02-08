@@ -38,7 +38,7 @@ export class CompleteProfileComponent {
     username: ['', [Validators.required]],
     firstName: ['', [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)]],
     lastName: ['', [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)]],
-    phoneNumber: ['', [Validators.required]],
+    phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{3}-\d{3}-\d{4}$/)]],
   });
 
   protected onPhoneInput(event: Event): void {
@@ -62,6 +62,7 @@ export class CompleteProfileComponent {
 
     this.profileForm.controls.phoneNumber.setValue(formattedValue, { emitEvent: false });
     input.value = formattedValue;
+    this.profileForm.controls.phoneNumber.markAsTouched();
   }
 
   protected onSubmit(): void {
@@ -72,10 +73,11 @@ export class CompleteProfileComponent {
       this.errorMessage.set(null);
 
       const profileData: ProfileRequest = {
-        username: this.profileForm.value.username!,
-        firstName: this.profileForm.value.firstName!,
-        lastName: this.profileForm.value.lastName!,
-        phoneNumber: this.profileForm.value.phoneNumber!,
+        username: this.profileForm.getRawValue().username!,
+        firstName: this.profileForm.getRawValue().firstName!,
+        lastName: this.profileForm.getRawValue().lastName!,
+        phoneNumber: this.profileForm.getRawValue().phoneNumber!,
+        email: this.tokenService.getEmailFromToken() || '',
       };
 
       this.profileService.completeProfile(profileData).subscribe({
@@ -85,9 +87,12 @@ export class CompleteProfileComponent {
         },
         error: (error) => {
           this.isLoading.set(false);
-          this.errorMessage.set(
-            error.error?.message || 'Failed to complete profile. Please try again.',
-          );
+          // extraction du message d'erreur ProblemDetails (.detail) ou standard (.message)
+          const errorMsg =
+            error.error?.detail ||
+            error.error?.message ||
+            'Failed to complete profile. Please try again.';
+          this.errorMessage.set(errorMsg);
         },
       });
     }

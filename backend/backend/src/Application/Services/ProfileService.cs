@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UGram.src.Application.DTOs;
 using UGram.src.Application.Interfaces;
+using System.ComponentModel.DataAnnotations;
 using UGram.src.Domain.Exceptions;
 using UGram.src.Domain.Exceptions.Users;
 
@@ -30,17 +31,18 @@ namespace UGram.src.Application.Services
     public async Task<UserProfileResponseDto> GetUserProfileAsync(string userId)
     {
       ApplicationUser user = await GetUserById(userId);
-      UserProfile userProfile = GetUserProfile(userId);
+      UserProfile? userProfile = await _context.UserProfiles
+        .FirstOrDefaultAsync(p => p.UserId == userId);
 
       var userProfileDto = new UserProfileResponseDto
       {
         Username = user.UserName ?? string.Empty,
-        FirstName = userProfile.FirstName,
-        LastName = userProfile.LastName,
-        Email = userProfile.Email,
-        PhoneNumber = userProfile.PhoneNumber,
-        SignUpDate = userProfile.SignUpDate,
-        ProfilePictureUrl = userProfile.ProfilePictureUrl
+        FirstName = userProfile?.FirstName ?? string.Empty,
+        LastName = userProfile?.LastName ?? string.Empty,
+        Email = userProfile?.Email ?? user.Email ?? string.Empty,
+        PhoneNumber = userProfile?.PhoneNumber ?? string.Empty,
+        SignUpDate = userProfile?.SignUpDate ?? DateTime.MinValue,
+        ProfilePictureUrl = userProfile?.ProfilePictureUrl ?? string.Empty
       };
 
       return userProfileDto;
@@ -49,21 +51,40 @@ namespace UGram.src.Application.Services
     public async Task CompleteProfileAsync(string userId, UserProfileRequestDto userProfileDto)
     {
       ApplicationUser user = await GetUserById(userId);
-      await VerifyProfileDoesntExist(userId);
 
-      user.UserName = userProfileDto.Username;
-      await _userManager.UpdateAsync(user);
+      // Si le profil existe déjà, on le met à jour au lieu de bloquer avec un 409
+      var existingProfile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
 
-      var newProfile = new UserProfile
+      // Mettre à jour le nom d'utilisateur dans Identity
+      if (!string.IsNullOrEmpty(userProfileDto.Username) && user.UserName != userProfileDto.Username)
       {
-        UserId = userId,
-        FirstName = userProfileDto.FirstName,
-        LastName = userProfileDto.LastName,
-        Email = user.Email ?? string.Empty,
-        PhoneNumber = userProfileDto.PhoneNumber
-      };
+        user.UserName = userProfileDto.Username;
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+          var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+          throw new ValidationException($"Username error: {errors}");
+        }
+      }
 
-      _context.UserProfiles.Add(newProfile);
+      if (existingProfile != null)
+      {
+        existingProfile.FirstName = userProfileDto.FirstName;
+        existingProfile.LastName = userProfileDto.LastName;
+        existingProfile.PhoneNumber = userProfileDto.PhoneNumber;
+      }
+      else
+      {
+        var newProfile = new UserProfile
+        {
+          UserId = userId,
+          FirstName = userProfileDto.FirstName,
+          LastName = userProfileDto.LastName,
+          Email = !string.IsNullOrEmpty(userProfileDto.Email) ? userProfileDto.Email : (user.Email ?? string.Empty),
+          PhoneNumber = userProfileDto.PhoneNumber
+        };
+        _context.UserProfiles.Add(newProfile);
+      }
 
       await _context.SaveChangesAsync();
     }
@@ -80,13 +101,27 @@ namespace UGram.src.Application.Services
         var result = await _userManager.UpdateAsync(user);
         if (!result.Succeeded)
         {
-          throw new Exception($"Failed to update username: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+          var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+          throw new ValidationException($"Username error: {errors}");
+        }
+      }
+
+      // Mettre à jour l'email dans Identity
+      if (!string.IsNullOrEmpty(userProfileDto.Email) && user.Email != userProfileDto.Email)
+      {
+        user.Email = userProfileDto.Email;
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+          var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+          throw new ValidationException($"Email error: {errors}");
         }
       }
 
       // Mettre à jour les autres champs dans UserProfile
       userProfile.FirstName = userProfileDto.FirstName;
       userProfile.LastName = userProfileDto.LastName;
+      userProfile.Email = userProfileDto.Email ?? user.Email ?? string.Empty;
       userProfile.PhoneNumber = userProfileDto.PhoneNumber;
 
       await _context.SaveChangesAsync();
@@ -100,7 +135,7 @@ namespace UGram.src.Application.Services
       ValidateImageFile(file);
 
       // Save the new image
-      string imagePath = await _imageStorageService.SaveImageAsync(file, "profile-pictures");
+      string imagePath = await _imageStorageService.SaveImageAsync(file, "images/profiles");
 
       // Delete old profile picture if it exists
       if (!string.IsNullOrEmpty(userProfile.ProfilePictureUrl))

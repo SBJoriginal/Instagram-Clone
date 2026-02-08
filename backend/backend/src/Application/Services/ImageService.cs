@@ -23,7 +23,7 @@ namespace UGram.src.Application.Services
       if (file == null || file.Length == 0)
         throw new ArgumentException("No file uploaded.");
 
-      var filePath = await _imageStorageService.SaveImageAsync(file, "images");
+      var filePath = await _imageStorageService.SaveImageAsync(file, "images/feed");
 
       var image = new Image
       {
@@ -50,6 +50,7 @@ namespace UGram.src.Application.Services
     public async Task<IEnumerable<ImageResponseDto>> GetAllImagesAsync()
     {
       var images = await _context.Images
+        .Where(i => !i.FilePath.Contains("/images/profiles/"))
         .OrderByDescending(i => i.CreatedAt)
         .ToListAsync();
 

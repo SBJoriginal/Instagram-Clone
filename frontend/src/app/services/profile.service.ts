@@ -16,7 +16,7 @@ export class ProfileService {
   }
 
   updateProfile(profile: ProfileRequest): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/update-profile`, profile);
+    return this.http.put<void>(`${this.apiUrl}/update-profile`, profile);
   }
 
   completeProfile(profile: ProfileRequest): Observable<void> {
