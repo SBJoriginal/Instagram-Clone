@@ -31,9 +31,7 @@ export class ShellComponent {
   private breakpointObserver = inject(BreakpointObserver);
 
   constructor() {
-    this.breakpointObserver.observe([
-      '(max-width: 1350px)'
-    ]).subscribe(result => {
+    this.breakpointObserver.observe(['(max-width: 1350px)']).subscribe((result) => {
       this.isMobile.set(result.matches);
     });
   }
