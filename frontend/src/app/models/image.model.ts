@@ -1,6 +1,6 @@
 export interface ImagePost {
   id: number;
-  userId: number;
+  userId: string;
   imageUrl: string;
   description: string;
   hashtags: string[];

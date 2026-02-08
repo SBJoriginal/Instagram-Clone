@@ -25,7 +25,7 @@ export class UserProfileComponent {
   userImages$: Observable<ImagePost[]>;
 
   constructor() {
-    const id = Number(this.route.snapshot.params['id']);
+    const id = this.route.snapshot.params['id'];
     this.user$ = this.userService.getUserById(id);
     this.userImages$ = this.userService.getUserImages(id);
   }

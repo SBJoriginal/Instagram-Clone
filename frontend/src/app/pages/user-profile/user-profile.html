@@ -4,7 +4,7 @@
       <img
         mat-card-avatar
         class="large-avatar"
-        [src]="user.profilePictureUrl"
+        [src]="user.profilePictureUrl || 'assets/default-avatar.png'"
         [alt]="user.username"
       />
       <div class="header-text">

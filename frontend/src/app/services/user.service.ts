@@ -13,11 +13,11 @@ export class UserService {
     return this.http.get<User[]>(`${this.apiUrl}/users`);
   }
 
-  getUserById(id: number): Observable<User> {
+  getUserById(id: string): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/users/${id}`);
   }
 
-  getUserImages(id: number): Observable<ImagePost[]> {
+  getUserImages(id: string): Observable<ImagePost[]> {
     return this.http.get<ImagePost[]>(`${this.apiUrl}/users/${id}/images`);
   }
 }

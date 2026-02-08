@@ -4,7 +4,7 @@
       <img
         matListItemAvatar
         class="user-avatar"
-        [src]="user.profilePictureUrl"
+        [src]="user.profilePictureUrl || 'assets/default-avatar.png'"
         [alt]="user.username"
       />
       <span matListItemTitle>{{ user.firstName }} {{ user.lastName }}</span>
