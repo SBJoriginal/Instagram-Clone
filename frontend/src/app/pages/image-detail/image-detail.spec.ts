@@ -11,11 +11,7 @@ describe('ImageDetail', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ImageDetail],
-      providers: [
-        provideRouter([]), 
-        provideHttpClient(),
-        provideHttpClientTesting()
-      ]
+      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ImageDetail);
