@@ -14,9 +14,9 @@
       <div class="header-text" id="profile-info">
         <div class="user-titles">
           @if (user().username) {
-            <mat-card-title class="username-title" id="profile-username"
-              >@{{ user().username }}</mat-card-title
-            >
+            <mat-card-title class="username-title" id="profile-username">{{
+              user().username
+            }}</mat-card-title>
           }
           <mat-card-subtitle class="name-subtitle" id="profile-fullname">
             @if (user().firstName && user().lastName) {

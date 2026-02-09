@@ -33,7 +33,7 @@ export interface ProfileRequest {
 }
 
 export interface ProfileResponse {
-  username: string;
+  userName: string;
   firstName: string;
   lastName: string;
   email: string;

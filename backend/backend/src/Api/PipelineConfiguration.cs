@@ -1,6 +1,9 @@
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.AspNetCore.StaticFiles; // ← AJOUTEZ
+using Microsoft.Extensions.Options; // ← AJOUTEZ
+using UGram.src.Application.Configuration; // ← AJOUTEZ
 
 namespace UGram.src.Api
 {
@@ -20,8 +23,18 @@ namespace UGram.src.Api
         app.MigrateDatabase();
       }
 
-      app.UseHttpsRedirection();
-      app.UseStaticFiles();
+      var fileUploadSettings = app.Services.GetRequiredService<IOptions<FileUploadSettings>>().Value;
+      var provider = new FileExtensionContentTypeProvider();
+
+      foreach (var mimeType in fileUploadSettings.ImageMimeTypes)
+      {
+        provider.Mappings[mimeType.Key] = mimeType.Value;
+      }
+
+      app.UseStaticFiles(new StaticFileOptions
+      {
+        ContentTypeProvider = provider
+      });
       app.ConfigureUploadsFolder();
       app.UseCors("AllowAll");
       app.UseAuthentication();

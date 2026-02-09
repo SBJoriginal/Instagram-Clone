@@ -54,7 +54,7 @@ export class ProfileHeader implements OnInit {
     this.profileService.getProfile().subscribe({
       next: (profile: ProfileResponse) => {
         this.user.set({
-          username: profile.username || '',
+          username: profile.userName || '',
           firstName: profile.firstName || '',
           lastName: profile.lastName || '',
           email: profile.email,
@@ -65,7 +65,12 @@ export class ProfileHeader implements OnInit {
         this.isLoading.set(false);
       },
       error: (error) => {
-        console.error('Failed to load profile:', error);
+        // Ignorer silencieusement le 404 (profil pas encore créé)
+        if (error.status !== 404) {
+          console.error('Failed to load profile:', error);
+        }
+
+        // Dans tous les cas, afficher les données par défaut
         const email = this.tokenService.getEmailFromToken();
         this.user.set({
           username: '',

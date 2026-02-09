@@ -50,13 +50,6 @@ namespace backend.src.Api.Controllers
       return Ok(result);
     }
 
-    [HttpGet("profile-picture")]
-    public async Task<IActionResult> GetProfilePicture()
-    {
-      var userId = GetAuthenticatedUserId();
-      return Ok(await _userProfileService.GetProfilePictureAsync(userId));
-    }
-
     private string GetAuthenticatedUserId()
     {
       var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

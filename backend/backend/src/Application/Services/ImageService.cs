@@ -50,7 +50,6 @@ namespace UGram.src.Application.Services
     public async Task<IEnumerable<ImageResponseDto>> GetAllImagesAsync()
     {
       var images = await _context.Images
-        .Where(i => i.Description != "Profile Picture")
         .OrderByDescending(i => i.CreatedAt)
         .ToListAsync();
 

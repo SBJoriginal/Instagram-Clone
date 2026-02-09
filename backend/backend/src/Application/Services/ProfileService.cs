@@ -6,9 +6,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UGram.src.Application.DTOs;
 using UGram.src.Application.Interfaces;
-using System.ComponentModel.DataAnnotations;
 using UGram.src.Domain.Exceptions;
 using UGram.src.Domain.Exceptions.Users;
+using Microsoft.Extensions.Options;
+using UGram.src.Application.Configuration;
 
 namespace UGram.src.Application.Services
 {
@@ -17,32 +18,34 @@ namespace UGram.src.Application.Services
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly AppDbContext _context;
     private readonly IImageStorageService _imageStorageService;
+    private readonly FileUploadSettings _fileUploadSettings;
 
     public ProfileService(
       UserManager<ApplicationUser> userManager,
       AppDbContext context,
-      IImageStorageService imageStorageService)
+      IImageStorageService imageStorageService,
+      IOptions<FileUploadSettings> fileUploadSettings)
     {
       _userManager = userManager;
       _context = context;
       _imageStorageService = imageStorageService;
+      _fileUploadSettings = fileUploadSettings.Value;
     }
 
     public async Task<UserProfileResponseDto> GetUserProfileAsync(string userId)
     {
-      ApplicationUser user = await GetUserById(userId);
-      UserProfile? userProfile = await _context.UserProfiles
-        .FirstOrDefaultAsync(p => p.UserId == userId);
+      await VerifyUserExistence(userId);
+      UserProfile userProfile = GetUserProfile(userId);
 
       var userProfileDto = new UserProfileResponseDto
       {
-        Username = user.UserName ?? string.Empty,
-        FirstName = userProfile?.FirstName ?? string.Empty,
-        LastName = userProfile?.LastName ?? string.Empty,
-        Email = userProfile?.Email ?? user.Email ?? string.Empty,
-        PhoneNumber = userProfile?.PhoneNumber ?? string.Empty,
-        SignUpDate = userProfile?.SignUpDate ?? DateTime.MinValue,
-        ProfilePictureUrl = userProfile?.ProfilePictureUrl ?? string.Empty
+        UserName = userProfile.UserName,
+        FirstName = userProfile.FirstName,
+        LastName = userProfile.LastName,
+        Email = userProfile.Email,
+        PhoneNumber = userProfile.PhoneNumber,
+        SignUpDate = userProfile.SignUpDate,
+        ProfilePictureUrl = userProfile.ProfilePictureUrl
       };
 
       return userProfileDto;
@@ -51,78 +54,19 @@ namespace UGram.src.Application.Services
     public async Task CompleteProfileAsync(string userId, UserProfileRequestDto userProfileDto)
     {
       ApplicationUser user = await GetUserById(userId);
+      await VerifyProfileDoesntExist(userId);
 
-      // If profile already exists, update it instead of blocking with a 409
-      var existingProfile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
-
-      // Update username in Identity
-      if (!string.IsNullOrEmpty(userProfileDto.Username) && user.UserName != userProfileDto.Username)
+      var newProfile = new UserProfile
       {
-        user.UserName = userProfileDto.Username;
-        var result = await _userManager.UpdateAsync(user);
-        if (!result.Succeeded)
-        {
-          var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-          throw new ValidationException($"Username error: {errors}");
-        }
-      }
+        UserId = userId,
+        UserName = userProfileDto.UserName,
+        FirstName = userProfileDto.FirstName,
+        LastName = userProfileDto.LastName,
+        Email = user.Email ?? string.Empty,
+        PhoneNumber = userProfileDto.PhoneNumber
+      };
 
-      if (existingProfile != null)
-      {
-        existingProfile.FirstName = userProfileDto.FirstName;
-        existingProfile.LastName = userProfileDto.LastName;
-        existingProfile.PhoneNumber = userProfileDto.PhoneNumber;
-      }
-      else
-      {
-        var newProfile = new UserProfile
-        {
-          UserId = userId,
-          FirstName = userProfileDto.FirstName,
-          LastName = userProfileDto.LastName,
-          Email = !string.IsNullOrEmpty(userProfileDto.Email) ? userProfileDto.Email : (user.Email ?? string.Empty),
-          PhoneNumber = userProfileDto.PhoneNumber
-        };
-        _context.UserProfiles.Add(newProfile);
-      }
-
-      await _context.SaveChangesAsync();
-    }
-
-    public async Task UpdateProfileAsync(string userId, UserProfileRequestDto userProfileDto)
-    {
-      ApplicationUser user = await GetUserById(userId);
-      UserProfile userProfile = GetUserProfile(userId);
-
-      // Update username in Identity
-      if (!string.IsNullOrEmpty(userProfileDto.Username) && user.UserName != userProfileDto.Username)
-      {
-        user.UserName = userProfileDto.Username;
-        var result = await _userManager.UpdateAsync(user);
-        if (!result.Succeeded)
-        {
-          var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-          throw new ValidationException($"Username error: {errors}");
-        }
-      }
-
-      // Update email in Identity
-      if (!string.IsNullOrEmpty(userProfileDto.Email) && user.Email != userProfileDto.Email)
-      {
-        user.Email = userProfileDto.Email;
-        var result = await _userManager.UpdateAsync(user);
-        if (!result.Succeeded)
-        {
-          var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-          throw new ValidationException($"Email error: {errors}");
-        }
-      }
-
-      // Update entries in UserProfile
-      userProfile.FirstName = userProfileDto.FirstName;
-      userProfile.LastName = userProfileDto.LastName;
-      userProfile.Email = userProfileDto.Email ?? user.Email ?? string.Empty;
-      userProfile.PhoneNumber = userProfileDto.PhoneNumber;
+      _context.UserProfiles.Add(newProfile);
 
       await _context.SaveChangesAsync();
     }
@@ -166,38 +110,13 @@ namespace UGram.src.Application.Services
         UserId = userId,
         Description = "Profile Picture"
       };
+
       _context.Images.Add(image);
       await _context.SaveChangesAsync();
 
       return new ProfilePictureResponseDto
       {
         ProfilePictureUrl = imagePath,
-        ImageId = image.Id
-      };
-    }
-
-    public async Task<ProfilePictureResponseDto> GetProfilePictureAsync(string userId)
-    {
-      await VerifyUserExistence(userId);
-      UserProfile userProfile = GetUserProfile(userId);
-
-      if (string.IsNullOrEmpty(userProfile.ProfilePictureUrl))
-      {
-        throw new NotFoundException("Profile Picture", userId);
-      }
-
-      // Get image from database
-      var image = await _context.Images
-        .FirstOrDefaultAsync(i => i.FilePath == userProfile.ProfilePictureUrl && i.UserId == userId);
-
-      if (image == null)
-      {
-        throw new NotFoundException("Profile Picture", userId);
-      }
-
-      return new ProfilePictureResponseDto
-      {
-        ProfilePictureUrl = userProfile.ProfilePictureUrl,
         ImageId = image.Id
       };
     }
@@ -230,10 +149,24 @@ namespace UGram.src.Application.Services
       await _context.SaveChangesAsync();
     }
 
+    public async Task UpdateProfileAsync(string userId, UserProfileRequestDto userProfileDto)
+    {
+      await VerifyUserExistence(userId);
+      UserProfile userProfile = GetUserProfile(userId);
+
+      userProfile.UserName = userProfileDto.UserName;
+      userProfile.FirstName = userProfileDto.FirstName;
+      userProfile.LastName = userProfileDto.LastName;
+      userProfile.Email = userProfileDto.Email;
+      userProfile.PhoneNumber = userProfileDto.PhoneNumber;
+
+      await _context.SaveChangesAsync();
+    }
+
     private void ValidateImageFile(IFormFile file)
     {
-      const long maxFileSize = 5 * 1024 * 1024; // 5 MB
-      var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif" };
+      var maxFileSize = _fileUploadSettings.MaxFileSizeInMB * 1024 * 1024;
+      var allowedExtensions = _fileUploadSettings.AllowedImageExtensions;
 
       if (file == null || file.Length == 0)
       {
@@ -242,13 +175,17 @@ namespace UGram.src.Application.Services
 
       if (file.Length > maxFileSize)
       {
-        throw new ArgumentException($"File size exceeds maximum limit of {maxFileSize / (1024 * 1024)} MB.", nameof(file));
+        throw new ArgumentException(
+            $"File size exceeds maximum limit of {_fileUploadSettings.MaxFileSizeInMB} MB.",
+            nameof(file));
       }
 
       var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
       if (!allowedExtensions.Contains(fileExtension))
       {
-        throw new ArgumentException($"File type '{fileExtension}' is not allowed.", nameof(file));
+        throw new ArgumentException(
+            $"File type '{fileExtension}' is not allowed.",
+            nameof(file));
       }
     }
 
