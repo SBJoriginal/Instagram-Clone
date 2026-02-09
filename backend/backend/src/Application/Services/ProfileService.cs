@@ -10,6 +10,7 @@ using UGram.src.Domain.Exceptions;
 using UGram.src.Domain.Exceptions.Users;
 using Microsoft.Extensions.Options;
 using UGram.src.Application.Configuration;
+using System.ComponentModel.DataAnnotations;
 
 namespace UGram.src.Application.Services
 {
@@ -151,8 +152,20 @@ namespace UGram.src.Application.Services
 
     public async Task UpdateProfileAsync(string userId, UserProfileRequestDto userProfileDto)
     {
+      ApplicationUser user = await GetUserById(userId);
       await VerifyUserExistence(userId);
       UserProfile userProfile = GetUserProfile(userId);
+
+      if (!string.IsNullOrEmpty(userProfileDto.Email) && user.Email != userProfileDto.Email)
+      {
+        user.Email = userProfileDto.Email;
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+          var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+          throw new ValidationException($"Email error: {errors}");
+        }
+      }
 
       userProfile.UserName = userProfileDto.UserName;
       userProfile.FirstName = userProfileDto.FirstName;
