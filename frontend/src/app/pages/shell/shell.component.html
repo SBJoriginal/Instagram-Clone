@@ -1,8 +1,13 @@
 <mat-sidenav-container class="shell-container" autosize>
-  <mat-sidenav mode="side" opened="true">
+  <mat-sidenav #sidenav [mode]="isMobile() ? 'over' : 'side'" [opened]="!isMobile()">
     <app-navigation />
   </mat-sidenav>
   <mat-sidenav-content>
+    @if (isMobile()) {
+      <button mat-icon-button (click)="sidenav.toggle()" class="burger-btn">
+        <mat-icon>menu</mat-icon>
+      </button>
+    }
     <main class="main-content">
       <router-outlet />
     </main>

@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ProfileRequest } from '../../models/auth.models';
 import { ProfileService } from '../../services/profile.service';
 import { TokenService } from '../../services/token.service';
 import { BackArrowComponent } from '../../shared/ui/back-arrow/back-arrow.component';
@@ -34,10 +35,35 @@ export class CompleteProfileComponent {
   protected readonly errorMessage = signal<string | null>(null);
 
   protected readonly profileForm = this.fb.group({
-    firstName: ['', [Validators.required]],
-    lastName: ['', [Validators.required]],
-    phoneNumber: ['', [Validators.required, Validators.pattern(/^\+?[1-9]\d{1,14}$/)]],
+    username: ['', [Validators.required]],
+    firstName: ['', [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)]],
+    lastName: ['', [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)]],
+    phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{3}-\d{3}-\d{4}$/)]],
   });
+
+  protected onPhoneInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, '');
+
+    if (value.length > 10) {
+      value = value.substring(0, 10);
+    }
+
+    let formattedValue = '';
+    if (value.length > 0) {
+      formattedValue = value.substring(0, 3);
+      if (value.length > 3) {
+        formattedValue += '-' + value.substring(3, 6);
+      }
+      if (value.length > 6) {
+        formattedValue += '-' + value.substring(6, 10);
+      }
+    }
+
+    this.profileForm.controls.phoneNumber.setValue(formattedValue, { emitEvent: false });
+    input.value = formattedValue;
+    this.profileForm.controls.phoneNumber.markAsTouched();
+  }
 
   protected onSubmit(): void {
     if (this.profileForm.valid && !this.isLoading()) {
@@ -46,10 +72,12 @@ export class CompleteProfileComponent {
 
       this.errorMessage.set(null);
 
-      const profileData = {
-        firstName: this.profileForm.value.firstName!,
-        lastName: this.profileForm.value.lastName!,
-        phoneNumber: this.profileForm.value.phoneNumber!,
+      const profileData: ProfileRequest = {
+        username: this.profileForm.getRawValue().username!,
+        firstName: this.profileForm.getRawValue().firstName!,
+        lastName: this.profileForm.getRawValue().lastName!,
+        phoneNumber: this.profileForm.getRawValue().phoneNumber!,
+        email: this.tokenService.getEmailFromToken() || '',
       };
 
       this.profileService.completeProfile(profileData).subscribe({
@@ -59,9 +87,11 @@ export class CompleteProfileComponent {
         },
         error: (error) => {
           this.isLoading.set(false);
-          this.errorMessage.set(
-            error.error?.message || 'Failed to complete profile. Please try again.',
-          );
+          const errorMsg =
+            error.error?.detail ||
+            error.error?.message ||
+            'Failed to complete profile. Please try again.';
+          this.errorMessage.set(errorMsg);
         },
       });
     }

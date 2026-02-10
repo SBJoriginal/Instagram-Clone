@@ -10,5 +10,6 @@ namespace UGram.src.Application.Interfaces
     Task<UserProfileResponseDto> GetUserProfileAsync(string userId);
     Task<ProfilePictureResponseDto> UploadProfilePictureAsync(string userId, IFormFile file);
     Task DeleteProfilePictureAsync(string userId);
+    Task UpdateProfileAsync(string userId, UserProfileRequestDto userProfileDto);
   }
 }
