@@ -46,12 +46,19 @@ export class SignUpComponent {
 
   protected readonly signUpForm = this.fb.group(
     {
-      email: ['', [Validators.required, Validators.email]],
+      email: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
+        ],
+      ],
       password: [
         '',
         [
           Validators.required,
           PasswordValidators.minLength(6),
+          PasswordValidators.hasNumber(),
           PasswordValidators.hasUpperCase(),
           PasswordValidators.hasLowerCase(),
           PasswordValidators.hasSpecialCharacter(),

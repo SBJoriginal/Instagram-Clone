@@ -59,6 +59,30 @@ mat-card-title {
   transform: scale(1.2);
 }
 
+.password-requirements li.invalid mat-icon {
+  opacity: 1;
+}
+
+.user-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.username-title,
+.name-subtitle {
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  margin: 0 !important;
+  line-height: 1.2 !important;
+  color: #333 !important;
+}
+
+.name-subtitle {
+  color: #666 !important;
+  opacity: 0.9;
+}
+
 .settings-button mat-icon {
   color: #555;
 }

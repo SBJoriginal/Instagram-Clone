@@ -39,6 +39,15 @@ export class PasswordValidators {
     };
   }
 
+  static hasNumber(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null;
+      }
+      return /\d/.test(control.value) ? null : { hasNumber: true };
+    };
+  }
+
   static matchesField(fieldName: string): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
       if (!control.parent) {

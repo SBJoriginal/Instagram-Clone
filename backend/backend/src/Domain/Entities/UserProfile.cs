@@ -15,6 +15,7 @@ namespace backend.src.Domain.Entities
     [ForeignKey("UserId")]
     public ApplicationUser User { get; set; } = null!;
 
+    public string UserName { get; set; } = string.Empty;
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
