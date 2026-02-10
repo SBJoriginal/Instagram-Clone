@@ -8,10 +8,21 @@
   height: 100vh;
 }
 
+mat-sidenav {
+  width: 245px;
+}
+
 .main-content {
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+}
+
+.burger-btn {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 1000;
 }

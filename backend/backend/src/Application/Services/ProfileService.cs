@@ -8,6 +8,9 @@ using UGram.src.Application.DTOs;
 using UGram.src.Application.Interfaces;
 using UGram.src.Domain.Exceptions;
 using UGram.src.Domain.Exceptions.Users;
+using Microsoft.Extensions.Options;
+using UGram.src.Application.Configuration;
+using System.ComponentModel.DataAnnotations;
 
 namespace UGram.src.Application.Services
 {
@@ -16,15 +19,18 @@ namespace UGram.src.Application.Services
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly AppDbContext _context;
     private readonly IImageStorageService _imageStorageService;
+    private readonly FileUploadSettings _fileUploadSettings;
 
     public ProfileService(
       UserManager<ApplicationUser> userManager,
       AppDbContext context,
-      IImageStorageService imageStorageService)
+      IImageStorageService imageStorageService,
+      IOptions<FileUploadSettings> fileUploadSettings)
     {
       _userManager = userManager;
       _context = context;
       _imageStorageService = imageStorageService;
+      _fileUploadSettings = fileUploadSettings.Value;
     }
 
     public async Task<UserProfileResponseDto> GetUserProfileAsync(string userId)
@@ -34,6 +40,7 @@ namespace UGram.src.Application.Services
 
       var userProfileDto = new UserProfileResponseDto
       {
+        UserName = userProfile.UserName,
         FirstName = userProfile.FirstName,
         LastName = userProfile.LastName,
         Email = userProfile.Email,
@@ -53,6 +60,7 @@ namespace UGram.src.Application.Services
       var newProfile = new UserProfile
       {
         UserId = userId,
+        UserName = userProfileDto.UserName,
         FirstName = userProfileDto.FirstName,
         LastName = userProfileDto.LastName,
         Email = user.Email ?? string.Empty,
@@ -72,7 +80,7 @@ namespace UGram.src.Application.Services
       ValidateImageFile(file);
 
       // Save the new image
-      string imagePath = await _imageStorageService.SaveImageAsync(file, "profile-pictures");
+      string imagePath = await _imageStorageService.SaveImageAsync(file, "images");
 
       // Delete old profile picture if it exists
       if (!string.IsNullOrEmpty(userProfile.ProfilePictureUrl))
@@ -142,10 +150,36 @@ namespace UGram.src.Application.Services
       await _context.SaveChangesAsync();
     }
 
+    public async Task UpdateProfileAsync(string userId, UserProfileRequestDto userProfileDto)
+    {
+      ApplicationUser user = await GetUserById(userId);
+      await VerifyUserExistence(userId);
+      UserProfile userProfile = GetUserProfile(userId);
+
+      if (!string.IsNullOrEmpty(userProfileDto.Email) && user.Email != userProfileDto.Email)
+      {
+        user.Email = userProfileDto.Email;
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+          var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+          throw new ValidationException($"Email error: {errors}");
+        }
+      }
+
+      userProfile.UserName = userProfileDto.UserName;
+      userProfile.FirstName = userProfileDto.FirstName;
+      userProfile.LastName = userProfileDto.LastName;
+      userProfile.Email = userProfileDto.Email;
+      userProfile.PhoneNumber = userProfileDto.PhoneNumber;
+
+      await _context.SaveChangesAsync();
+    }
+
     private void ValidateImageFile(IFormFile file)
     {
-      const long maxFileSize = 5 * 1024 * 1024; // 5 MB
-      var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+      var maxFileSize = _fileUploadSettings.MaxFileSizeInMB * 1024 * 1024;
+      var allowedExtensions = _fileUploadSettings.AllowedImageExtensions;
 
       if (file == null || file.Length == 0)
       {
@@ -154,13 +188,17 @@ namespace UGram.src.Application.Services
 
       if (file.Length > maxFileSize)
       {
-        throw new ArgumentException($"File size exceeds maximum limit of {maxFileSize / (1024 * 1024)} MB.", nameof(file));
+        throw new ArgumentException(
+            $"File size exceeds maximum limit of {_fileUploadSettings.MaxFileSizeInMB} MB.",
+            nameof(file));
       }
 
       var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
       if (!allowedExtensions.Contains(fileExtension))
       {
-        throw new ArgumentException($"File type '{fileExtension}' is not allowed.", nameof(file));
+        throw new ArgumentException(
+            $"File type '{fileExtension}' is not allowed.",
+            nameof(file));
       }
     }
 

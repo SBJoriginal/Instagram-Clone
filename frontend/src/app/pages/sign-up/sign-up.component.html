@@ -10,10 +10,10 @@
       <mat-label>Email</mat-label>
       <input matInput type="email" formControlName="email" placeholder="Ex. pat@example.com" />
       @if (
-        signUpForm.controls['email'].hasError('email') &&
+        signUpForm.controls['email'].hasError('pattern') &&
         !signUpForm.controls['email'].hasError('required')
       ) {
-        <mat-error>Please enter a valid email address</mat-error>
+        <mat-error>Please enter a valid email address (e.g., .com, .ca)</mat-error>
       }
       @if (signUpForm.controls['email'].hasError('required')) {
         <mat-error>Please enter an email address</mat-error>
@@ -48,6 +48,15 @@
             isRequirementMet('minLength') ? 'check' : 'close'
           }}</mat-icon>
           At least 6 characters
+        </li>
+        <li
+          [class.valid]="isRequirementMet('hasNumber')"
+          [class.invalid]="!isRequirementMet('hasNumber')"
+        >
+          <mat-icon class="check-icon">{{
+            isRequirementMet('hasNumber') ? 'check' : 'close'
+          }}</mat-icon>
+          At least one number
         </li>
         <li
           [class.valid]="isRequirementMet('hasUpperCase')"
