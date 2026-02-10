@@ -11,6 +11,7 @@ namespace UGram.src.Application.DTOs
     public string Mentions { get; set; } = string.Empty;
     public string FilePath { get; set; } = string.Empty;
     public string UserId { get; set; } = string.Empty;
+    public string Username { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
   }
 }

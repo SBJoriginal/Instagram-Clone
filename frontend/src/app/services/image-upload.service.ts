@@ -12,6 +12,7 @@ export interface ImageResponse {
   hashtags: string;
   mentions: string;
   userId: string;
+  username?: string;
   createdAt: string;
   fileName?: string;
   contentType?: string;
