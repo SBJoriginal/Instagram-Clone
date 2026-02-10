@@ -1,4 +1,6 @@
 
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UGram.src.Application.DTOs;
 using UGram.src.Application.Interfaces;
@@ -23,16 +25,22 @@ namespace Api.Controllers
       _environment = environment;
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Upload([FromForm] ImageUploadRequestDto upload)
     {
       try
       {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+          return Unauthorized();
+
         var result = await _imageService.UploadImageAsync(
           upload.File,
           upload.Description ?? "",
           upload.Hashtags ?? "",
-          upload.Mentions ?? "");
+          upload.Mentions ?? "",
+          userId);
 
         return CreatedAtAction(nameof(GetImages), new { id = result.Id }, result);
       }

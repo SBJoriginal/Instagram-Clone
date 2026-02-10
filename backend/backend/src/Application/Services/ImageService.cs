@@ -18,7 +18,7 @@ namespace UGram.src.Application.Services
       _imageStorageService = imageStorageService;
     }
 
-    public async Task<ImageUploadResponseDto> UploadImageAsync(IFormFile file, string description, string hashtags, string mentions)
+    public async Task<ImageUploadResponseDto> UploadImageAsync(IFormFile file, string description, string hashtags, string mentions, string userId)
     {
       if (file == null || file.Length == 0)
         throw new ArgumentException("No file uploaded.");
@@ -33,7 +33,8 @@ namespace UGram.src.Application.Services
         Description = description ?? "",
         Hashtags = hashtags ?? "",
         Mentions = mentions ?? "",
-        FilePath = filePath
+        FilePath = filePath,
+        UserId = userId
       };
 
       _context.Images.Add(image);

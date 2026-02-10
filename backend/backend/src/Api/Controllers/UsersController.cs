@@ -81,7 +81,7 @@ public class UsersController : ControllerBase
         {
           Id = img.Id,
           UserId = img.UserId,
-          ImageUrl = $"/uploads/{img.FileName}",
+          ImageUrl = img.FilePath,
           Description = img.Description,
           Hashtags = string.IsNullOrEmpty(img.Hashtags)
               ? new List<string>()
