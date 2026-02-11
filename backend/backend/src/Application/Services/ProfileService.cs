@@ -40,6 +40,7 @@ namespace UGram.src.Application.Services
 
       var userProfileDto = new UserProfileResponseDto
       {
+        Id = userProfile.UserId,
         UserName = userProfile.UserName,
         FirstName = userProfile.FirstName,
         LastName = userProfile.LastName,

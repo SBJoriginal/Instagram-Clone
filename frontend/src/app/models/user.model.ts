@@ -1,10 +1,10 @@
 export interface User {
   id: string;
-  username: string;
+  userName: string;
   firstName: string;
   lastName: string;
   email: string;
   phoneNumber: string;
   profilePictureUrl: string;
-  registrationDate: string;
+  signUpDate: string;
 }

@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { UserService } from '../../services/user.service';
 import { User } from '../../models/user.model';
@@ -11,7 +11,7 @@ import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-user-profile',
-  imports: [ImageGalleryComponent, AsyncPipe, MatCardModule],
+  imports: [ImageGalleryComponent, AsyncPipe, DatePipe, MatCardModule],
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.css',
   host: {
@@ -33,7 +33,7 @@ export class UserProfileComponent {
       map((images) =>
         images.map((img) => ({
           ...img,
-          imageUrl: this.baseUrl + img.imageUrl,
+          filePath: this.baseUrl + img.filePath,
         })),
       ),
     );

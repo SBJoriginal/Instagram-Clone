@@ -5,14 +5,14 @@
         mat-card-avatar
         class="large-avatar"
         [src]="user.profilePictureUrl || 'assets/default-avatar.png'"
-        [alt]="user.username"
+        [alt]="user.userName"
       />
       <div class="header-text">
         <mat-card-title>{{ user.firstName }} {{ user.lastName }}</mat-card-title>
         <mat-card-subtitle class="user-details">
           <a [href]="'mailto:' + user.email" class="user-email">{{ user.email }}</a>
           <div>{{ user.phoneNumber }}</div>
-          <div>Membre depuis {{ user.registrationDate }}</div>
+          <div>Membre depuis {{ user.signUpDate | date: 'yyyy-MM-dd' }}</div>
         </mat-card-subtitle>
       </div>
     </mat-card-header>
