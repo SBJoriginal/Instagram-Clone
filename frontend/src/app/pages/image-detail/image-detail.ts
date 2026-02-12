@@ -4,7 +4,7 @@ import { ImageUploadService, ImageResponse } from '../../services/image-upload.s
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common'; // Ajoutez Location ici
 
 @Component({
   selector: 'app-image-detail',
@@ -17,6 +17,7 @@ export class ImageDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly imageService = inject(ImageUploadService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly location = inject(Location); // Injection du service Location
 
   image: ImageResponse | null = null;
   loading = true;
@@ -42,5 +43,9 @@ export class ImageDetail implements OnInit {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  goBack(): void {
+    this.location.back(); // Retourne a la page precedente avec le scroll intact
   }
 }

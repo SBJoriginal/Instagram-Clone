@@ -1,4 +1,8 @@
-<div class="page-container">
+<div class="image-detail-container">
+  <button class="close-btn" (click)="goBack()">
+    <mat-icon>close</mat-icon>
+  </button>
+
   @if (image) {
     <div class="image-detail-card">
       <div class="section user-header">
@@ -32,10 +36,10 @@
         {{ image.createdAt | date: 'longDate' }}
       </div>
     </div>
-  } @else {
+  } @else if (!loading) {
     <div class="error-container">
       <p>Image not found.</p>
-      <button mat-button color="primary" routerLink="/home/explore">Return to Explore</button>
+      <button mat-button color="primary" (click)="goBack()">Return</button>
     </div>
   }
 </div>
