@@ -28,7 +28,12 @@ export class UserProfileComponent {
 
   constructor() {
     const id = this.route.snapshot.params['id'];
-    this.user$ = this.userService.getUserById(id);
+    this.user$ = this.userService.getUserById(id).pipe(
+      map((user) => ({
+        ...user,
+        profilePictureUrl: user.profilePictureUrl ? this.baseUrl + user.profilePictureUrl : '',
+      })),
+    );
     this.userImages$ = this.userService.getUserImages(id).pipe(
       map((images) =>
         images.map((img) => ({

@@ -4,7 +4,8 @@ import { AsyncPipe } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
 import { UserService } from '../../services/user.service';
 import { User } from '../../models/user.model';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-user-list',
@@ -17,5 +18,14 @@ import { Observable } from 'rxjs';
 })
 export class UserListComponent {
   private userService = inject(UserService);
-  users$: Observable<User[]> = this.userService.getUsers();
+  private baseUrl = environment.apiUrl.replace('/api', '');
+
+  users$: Observable<User[]> = this.userService.getUsers().pipe(
+    map((users) =>
+      users.map((user) => ({
+        ...user,
+        profilePictureUrl: user.profilePictureUrl ? this.baseUrl + user.profilePictureUrl : '',
+      })),
+    ),
+  );
 }

@@ -53,6 +53,69 @@ namespace UGram.src.Application.Services
       return userProfileDto;
     }
 
+    public async Task<List<UserProfileResponseDto>> GetAllProfilesAsync()
+    {
+      var profiles = await _context.UserProfiles
+          .Select(p => new UserProfileResponseDto
+          {
+            Id = p.UserId,
+            UserName = p.UserName,
+            FirstName = p.FirstName,
+            LastName = p.LastName,
+            Email = p.Email,
+            PhoneNumber = p.PhoneNumber,
+            SignUpDate = p.SignUpDate,
+            ProfilePictureUrl = p.ProfilePictureUrl
+          })
+          .ToListAsync();
+
+      return profiles;
+    }
+
+    public async Task<UserProfileResponseDto?> GetProfileByIdAsync(string userId)
+    {
+      var profile = await _context.UserProfiles
+          .FirstOrDefaultAsync(p => p.UserId == userId);
+
+      if (profile == null)
+      {
+        return null;
+      }
+
+      return new UserProfileResponseDto
+      {
+        Id = profile.UserId,
+        UserName = profile.UserName,
+        FirstName = profile.FirstName,
+        LastName = profile.LastName,
+        Email = profile.Email,
+        PhoneNumber = profile.PhoneNumber,
+        SignUpDate = profile.SignUpDate,
+        ProfilePictureUrl = profile.ProfilePictureUrl
+      };
+    }
+
+    public async Task<List<ImageResponseDto>> GetProfileImagesAsync(string userId)
+    {
+      var images = await _context.Images
+          .Where(img => img.UserId == userId && img.Description != "Profile Picture")
+          .Select(img => new ImageResponseDto
+          {
+            Id = img.Id,
+            FileName = img.FileName,
+            ContentType = img.ContentType,
+            Size = img.Size,
+            Description = img.Description,
+            Hashtags = img.Hashtags,
+            Mentions = img.Mentions,
+            FilePath = img.FilePath,
+            CreatedAt = img.CreatedAt
+          })
+          .ToListAsync();
+
+      return images;
+    }
+
     public async Task CompleteProfileAsync(string userId, UserProfileRequestDto userProfileDto)
     {
       ApplicationUser user = await GetUserById(userId);
