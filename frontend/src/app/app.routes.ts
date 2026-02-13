@@ -2,8 +2,10 @@ import { Routes } from '@angular/router';
 import { LandingComponent } from './pages/landing/landing.component';
 import { ShellComponent } from './pages/shell/shell.component';
 import { Profile } from './pages/profile/profile';
+import { Explore } from './pages/explore/explore';
 import { authGuard } from './guards/auth.guard';
 import { profileGuard } from './guards/profile.guard';
+import { ImageDetail } from './pages/image-detail/image-detail';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent, data: { animation: 'LandingPage' } },
@@ -11,7 +13,11 @@ export const routes: Routes = [
     path: 'home',
     component: ShellComponent,
     canActivate: [authGuard, profileGuard],
-    children: [{ path: 'profile', component: Profile }],
+    children: [
+      { path: 'profile', component: Profile },
+      { path: 'explore', component: Explore },
+      { path: 'image/:id', component: ImageDetail },
+    ],
   },
   {
     path: 'sign-in',

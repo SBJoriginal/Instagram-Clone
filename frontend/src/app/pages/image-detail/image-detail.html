@@ -1,0 +1,45 @@
+<div class="image-detail-container">
+  <button class="close-btn" (click)="goBack()">
+    <mat-icon>close</mat-icon>
+  </button>
+
+  @if (image) {
+    <div class="image-detail-card">
+      <div class="section user-header">
+        <mat-icon>account_circle</mat-icon>
+        <span class="username">{{ image.username || 'User Not Found' }}</span>
+      </div>
+
+      <div class="section image-display">
+        <img [src]="'http://localhost:8081' + image.filePath" [alt]="image.description" />
+      </div>
+
+      <div class="section info-block">
+        <p class="description">
+          <span class="highlight">{{ image.description || 'No description' }}</span>
+        </p>
+      </div>
+
+      @if (image.hashtags) {
+        <div class="section info-block">
+          <span class="highlight">{{ image.hashtags }}</span>
+        </div>
+      }
+
+      @if (image.mentions) {
+        <div class="section info-block">
+          <span class="highlight">{{ image.mentions }}</span>
+        </div>
+      }
+
+      <div class="section date-footer">
+        {{ image.createdAt | date: 'longDate' }}
+      </div>
+    </div>
+  } @else if (!loading) {
+    <div class="error-container">
+      <p>Image not found.</p>
+      <button mat-button color="primary" (click)="goBack()">Return</button>
+    </div>
+  }
+</div>

@@ -1,0 +1,31 @@
+<app-explore-header></app-explore-header>
+
+<div class="explore-content">
+  <div class="image-grid">
+    @for (image of images(); track image.id) {
+      <button
+        type="button"
+        class="grid-item-button"
+        (click)="openImage(image)"
+        aria-label="View image details"
+      >
+        <div class="grid-item">
+          <img
+            [src]="'http://localhost:8081' + image.filePath"
+            [alt]="image.description"
+            loading="lazy"
+          />
+          <div class="overlay">
+            <mat-icon>visibility</mat-icon>
+          </div>
+        </div>
+      </button>
+    }
+  </div>
+
+  <div #sentinel class="loading-trigger">
+    @if (loading()) {
+      <mat-spinner diameter="40"></mat-spinner>
+    }
+  </div>
+</div>

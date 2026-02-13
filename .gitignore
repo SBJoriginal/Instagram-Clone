@@ -54,6 +54,10 @@ Thumbs.db
 .vs/
 *.csproj.user
 
+#User Uploads
+/backend/backend/wwwroot
+/backend/backend/uploads
+
 # Docker (Visual Studio generated files)
 **/obj/Docker/
 backend/**/docker-compose.dcproj

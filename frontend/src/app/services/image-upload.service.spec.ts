@@ -39,12 +39,15 @@ describe('ImageUploadService', () => {
       description: 'Test Description',
       hashtags: '#test',
       mentions: '@user',
+      userId: 'test-user',
+      createdAt: new Date().toISOString(),
     };
 
     service.uploadImage(mockData).subscribe((response) => {
       expect(response).toEqual(mockResponse);
     });
 
+    // L'upload ne contient pas de paramètres de pagination
     const req = httpMock.expectOne('http://localhost:8081/api/images');
     expect(req.request.method).toBe('POST');
     expect(req.request.body instanceof FormData).toBeTruthy();
@@ -53,8 +56,24 @@ describe('ImageUploadService', () => {
 
   it('should get all images', () => {
     const mockImages: ImageResponse[] = [
-      { id: 1, filePath: '/img1.png', description: 'desc1', hashtags: '', mentions: '' },
-      { id: 2, filePath: '/img2.png', description: 'desc2', hashtags: '', mentions: '' },
+      {
+        id: 1,
+        filePath: '/img1.png',
+        description: 'desc1',
+        hashtags: '',
+        mentions: '',
+        userId: 'user1',
+        createdAt: new Date().toISOString(),
+      },
+      {
+        id: 2,
+        filePath: '/img2.png',
+        description: 'desc2',
+        hashtags: '',
+        mentions: '',
+        userId: 'user2',
+        createdAt: new Date().toISOString(),
+      },
     ];
 
     service.getImages().subscribe((images) => {
@@ -62,7 +81,8 @@ describe('ImageUploadService', () => {
       expect(images).toEqual(mockImages);
     });
 
-    const req = httpMock.expectOne('http://localhost:8081/api/images');
+    // On ajoute ici les paramètres de pagination par défaut (1 et 15)
+    const req = httpMock.expectOne('http://localhost:8081/api/images?page=1&limit=15');
     expect(req.request.method).toBe('GET');
     req.flush(mockImages);
   });
@@ -79,6 +99,8 @@ describe('ImageUploadService', () => {
       description: 'Updated Desc',
       hashtags: '#updated',
       mentions: '@updated',
+      userId: 'test-user',
+      createdAt: new Date().toISOString(),
     };
 
     service.updateImage(1, updateData).subscribe((response) => {
@@ -93,7 +115,7 @@ describe('ImageUploadService', () => {
 
   it('should delete an image', () => {
     service.deleteImage(1).subscribe((response) => {
-      expect(response).toBeNull(); // Void return
+      expect(response).toBeNull();
     });
 
     const req = httpMock.expectOne('http://localhost:8081/api/images/1');
