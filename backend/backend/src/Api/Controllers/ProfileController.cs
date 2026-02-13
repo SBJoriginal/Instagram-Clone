@@ -67,6 +67,17 @@ namespace backend.src.Api.Controllers
       return Ok(profile);
     }
 
+    [HttpGet("username/{username}")]
+    public async Task<ActionResult<UserProfileResponseDto>> GetProfileByUsername(string username)
+    {
+      var profile = await _userProfileService.GetProfileByUsernameAsync(username);
+      if (profile == null)
+      {
+        return NotFound();
+      }
+      return Ok(profile);
+    }
+
     [HttpGet("{id}/images")]
     public async Task<ActionResult<List<ImageResponseDto>>> GetProfileImages(string id)
     {

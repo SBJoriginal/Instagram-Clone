@@ -7,7 +7,12 @@
     <div class="image-detail-card">
       <div class="section user-header">
         <mat-icon>account_circle</mat-icon>
-        <span class="username">{{ image.username || 'User Not Found' }}</span>
+        <span
+          class="username"
+          (click)="navigateToProfile(image.username)"
+          style="cursor: pointer; text-decoration: underline"
+          >{{ image.username || 'User Not Found' }}</span
+        >
       </div>
 
       <div class="section image-display">

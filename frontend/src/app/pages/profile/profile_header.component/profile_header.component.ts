@@ -29,7 +29,7 @@ import { ProfileRequest, ProfileResponse } from '../../../models/auth.models';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileHeader implements OnInit {
-  @Input() userId?: string | null;
+  @Input() username?: string | null;
 
   private readonly dialog = inject(MatDialog);
   private readonly profileService = inject(ProfileService);
@@ -54,45 +54,49 @@ export class ProfileHeader implements OnInit {
   }
 
   private loadProfile(): void {
-    const isOtherUser = !!this.userId;
-    this.isOtherUserProfile.set(isOtherUser);
+    const currentUsername = this.tokenService.getEmailFromToken(); // Using email as identifier
+    const currentUserProfile = this.profileService.getProfile();
 
-    const profileObservable = isOtherUser
-      ? this.profileService.getUserProfile(this.userId!)
-      : this.profileService.getProfile();
+    currentUserProfile.subscribe({
+      next: (profile) => {
+        const isOtherUser = !!this.username && this.username !== profile.userName;
+        this.isOtherUserProfile.set(isOtherUser);
 
-    profileObservable.subscribe({
-      next: (profile: ProfileResponse) => {
-        this.user.set({
-          username: profile.userName || '',
-          firstName: profile.firstName || '',
-          lastName: profile.lastName || '',
-          email: profile.email,
-          phone: profile.phoneNumber || '',
-          memberSince: new Date(profile.signUpDate).toLocaleDateString(),
-          profilePictureUrl: this.formatImageUrl(profile.profilePictureUrl || ''),
+        const profileObservable = isOtherUser
+          ? this.profileService.getUserProfileByUsername(this.username!)
+          : this.profileService.getProfile();
+
+        profileObservable.subscribe({
+          next: (profile: ProfileResponse) => {
+            this.user.set({
+              username: profile.userName || '',
+              firstName: profile.firstName || '',
+              lastName: profile.lastName || '',
+              email: profile.email,
+              phone: profile.phoneNumber || '',
+              memberSince: new Date(profile.signUpDate).toLocaleDateString(),
+              profilePictureUrl: this.formatImageUrl(profile.profilePictureUrl || ''),
+            });
+            this.isLoading.set(false);
+          },
+          error: (error) => {
+            if (error.status !== 404) {
+              console.error('Failed to load profile:', error);
+            }
+            const email = !isOtherUser ? this.tokenService.getEmailFromToken() : '';
+            this.user.set({
+              username: '',
+              firstName: '',
+              lastName: '',
+              email: email || '',
+              phone: '',
+              memberSince: '',
+              profilePictureUrl: '',
+            });
+            this.profilePictureUrl.set('');
+            this.isLoading.set(false);
+          },
         });
-        this.isLoading.set(false);
-      },
-      error: (error) => {
-        // Ignorer silencieusement le 404 (profil pas encore créé)
-        if (error.status !== 404) {
-          console.error('Failed to load profile:', error);
-        }
-
-        // Dans tous les cas, afficher les données par défaut
-        const email = !isOtherUser ? this.tokenService.getEmailFromToken() : '';
-        this.user.set({
-          username: '',
-          firstName: '',
-          lastName: '',
-          email: email || '',
-          phone: '',
-          memberSince: '',
-          profilePictureUrl: '',
-        });
-        this.profilePictureUrl.set('');
-        this.isLoading.set(false);
       },
     });
   }

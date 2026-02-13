@@ -95,6 +95,29 @@ namespace UGram.src.Application.Services
       };
     }
 
+    public async Task<UserProfileResponseDto?> GetProfileByUsernameAsync(string username)
+    {
+      var profile = await _context.UserProfiles
+          .FirstOrDefaultAsync(p => p.UserName == username);
+
+      if (profile == null)
+      {
+        return null;
+      }
+
+      return new UserProfileResponseDto
+      {
+        Id = profile.UserId,
+        UserName = profile.UserName,
+        FirstName = profile.FirstName,
+        LastName = profile.LastName,
+        Email = profile.Email,
+        PhoneNumber = profile.PhoneNumber,
+        SignUpDate = profile.SignUpDate,
+        ProfilePictureUrl = profile.ProfilePictureUrl
+      };
+    }
+
     public async Task<List<ImageResponseDto>> GetProfileImagesAsync(string userId)
     {
       var images = await _context.Images

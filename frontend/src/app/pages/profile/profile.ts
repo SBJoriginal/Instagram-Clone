@@ -1,4 +1,11 @@
-import { Component, inject, ChangeDetectionStrategy, signal, computed } from '@angular/core';
+import {
+  Component,
+  inject,
+  ChangeDetectionStrategy,
+  signal,
+  computed,
+  effect,
+} from '@angular/core';
 import { ProfileHeader } from './profile_header.component/profile_header.component';
 import { AsyncPipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
@@ -13,6 +20,8 @@ import {
   ImageUploadService,
   ImageUpdateData,
 } from '../../services/image-upload.service';
+import { ProfileService } from '../../services/profile.service';
+import { TokenService } from '../../services/token.service';
 import { BehaviorSubject, switchMap, merge } from 'rxjs';
 import { ImageEditDialog } from '../../image-edit-dialog/image-edit-dialog';
 
@@ -30,23 +39,41 @@ import { ImageEditDialog } from '../../image-edit-dialog/image-edit-dialog';
 export class Profile {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly tokenService = inject(TokenService);
+  private readonly profileService = inject(ProfileService);
   readonly dialog = inject(MatDialog);
   readonly imageUploadService = inject(ImageUploadService);
   protected readonly baseUrl = environment.apiUrl.replace('/api', '');
 
-  protected readonly userId = signal<string | null>(this.route.snapshot.paramMap.get('id'));
-  protected readonly isOwnProfile = computed(() => !this.userId());
+  protected readonly username = signal<string | null>(this.route.snapshot.paramMap.get('username'));
+  protected readonly currentUsername = signal<string | null>(null);
+  protected readonly isOwnProfile = computed(() => {
+    const routeUsername = this.username();
+    const currentUsername = this.currentUsername();
+    return !routeUsername || routeUsername === currentUsername;
+  });
 
   private readonly refresh$ = new BehaviorSubject<void>(void 0);
   protected readonly images = merge(this.refresh$, this.imageUploadService.imageCreated$).pipe(
     switchMap(() => {
-      const userId = this.userId();
-      if (userId) {
-        return this.imageUploadService.getImagesByUserId(userId);
+      const username = this.username();
+      if (username) {
+        return this.imageUploadService.getImagesByUsername(username);
       }
       return this.imageUploadService.getMyImages();
     }),
   );
+
+  constructor() {
+    this.profileService.getProfile().subscribe({
+      next: (profile) => {
+        this.currentUsername.set(profile.userName || null);
+      },
+      error: () => {
+        this.currentUsername.set(null);
+      },
+    });
+  }
 
   openImageDetail(image: ImageResponse): void {
     this.router.navigate(['/home/image', image.id]);
