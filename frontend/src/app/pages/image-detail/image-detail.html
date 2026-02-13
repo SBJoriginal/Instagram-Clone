@@ -1,5 +1,5 @@
 <div class="image-detail-container">
-  <button class="close-btn" (click)="goBack()">
+  <button class="close-btn" (click)="goBack()" aria-label="Close detail view">
     <mat-icon>close</mat-icon>
   </button>
 
@@ -7,12 +7,27 @@
     <div class="image-detail-card">
       <div class="section user-header">
         <mat-icon>account_circle</mat-icon>
-        <span
+        <button
+          type="button"
           class="username"
           (click)="navigateToProfile(image.username)"
-          style="cursor: pointer; text-decoration: underline"
-          >{{ image.username || 'User Not Found' }}</span
+          (keydown.enter)="navigateToProfile(image.username)"
+          (keydown.space)="navigateToProfile(image.username)"
+          style="
+            cursor: pointer;
+            text-decoration: underline;
+            background: none;
+            border: none;
+            padding: 0;
+            font: inherit;
+            color: inherit;
+            display: inline-flex;
+            align-items: center;
+            margin-left: 8px;
+          "
         >
+          {{ image.username || 'User Not Found' }}
+        </button>
       </div>
 
       <div class="section image-display">

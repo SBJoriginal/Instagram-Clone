@@ -1,11 +1,4 @@
-import {
-  Component,
-  inject,
-  ChangeDetectionStrategy,
-  signal,
-  computed,
-  effect,
-} from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, signal, computed } from '@angular/core';
 import { ProfileHeader } from './profile_header.component/profile_header.component';
 import { AsyncPipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';

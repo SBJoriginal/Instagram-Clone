@@ -54,7 +54,6 @@ export class ProfileHeader implements OnInit {
   }
 
   private loadProfile(): void {
-    const currentUsername = this.tokenService.getEmailFromToken(); // Using email as identifier
     const currentUserProfile = this.profileService.getProfile();
 
     currentUserProfile.subscribe({
