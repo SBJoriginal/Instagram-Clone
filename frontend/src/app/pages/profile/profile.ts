@@ -38,7 +38,7 @@ export class Profile {
   readonly imageUploadService = inject(ImageUploadService);
   protected readonly baseUrl = environment.apiUrl.replace('/api', '');
 
-  protected readonly username = signal<string | null>(this.route.snapshot.paramMap.get('username'));
+  protected readonly username = signal<string | null>(null);
   protected readonly currentUsername = signal<string | null>(null);
   protected readonly isOwnProfile = computed(() => {
     const routeUsername = this.username();
@@ -58,6 +58,12 @@ export class Profile {
   );
 
   constructor() {
+    this.route.paramMap.subscribe((params) => {
+      const uname = params.get('username');
+      this.username.set(uname);
+      this.refresh$.next();
+    });
+
     this.profileService.getProfile().subscribe({
       next: (profile) => {
         this.currentUsername.set(profile.userName || null);

@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal, ChangeDetectionStrategy, Input } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
@@ -34,6 +35,7 @@ export class ProfileHeader implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly profileService = inject(ProfileService);
   private readonly tokenService = inject(TokenService);
+  private readonly router = inject(Router);
 
   protected readonly user = signal({
     username: '',
@@ -132,7 +134,6 @@ export class ProfileHeader implements OnInit {
           profilePictureUrl: this.formatImageUrl(result.avatarUrl || current.profilePictureUrl),
         }));
 
-        // Map the result from the edit dialog to the ProfileRequest format
         const profileUpdate: ProfileRequest = {
           username: result.username,
           firstName: result.firstName,
@@ -144,6 +145,9 @@ export class ProfileHeader implements OnInit {
         this.profileService.updateProfile(profileUpdate).subscribe({
           next: () => {
             this.loadProfile();
+            if (!this.isOtherUserProfile()) {
+              this.router.navigate(['/home/profile', profileUpdate.username]);
+            }
           },
           error: (err) => {
             console.error('Failed to update profile info:', err);
