@@ -7,16 +7,18 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { environment } from '../../../environments/environment';
+import { Router } from '@angular/router';
 import {
   ImageResponse,
   ImageUploadService,
   ImageUpdateData,
 } from '../../services/image-upload.service';
-import { BehaviorSubject, switchMap } from 'rxjs';
+import { BehaviorSubject, switchMap, merge } from 'rxjs';
 import { ImageEditDialog } from '../../image-edit-dialog/image-edit-dialog';
 
 @Component({
   selector: 'app-profile',
+  standalone: true,
   imports: [ProfileHeader, AsyncPipe, MatCardModule, MatMenuModule, MatButtonModule, MatIconModule],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
@@ -26,15 +28,19 @@ import { ImageEditDialog } from '../../image-edit-dialog/image-edit-dialog';
   },
 })
 export class Profile {
+  private readonly router = inject(Router);
   readonly dialog = inject(MatDialog);
   readonly imageUploadService = inject(ImageUploadService);
   protected readonly baseUrl = environment.apiUrl.replace('/api', '');
 
-  // State
   private readonly refresh$ = new BehaviorSubject<void>(void 0);
-  protected readonly images = this.refresh$.pipe(
-    switchMap(() => this.imageUploadService.getImages()),
+  protected readonly images = merge(this.refresh$, this.imageUploadService.imageCreated$).pipe(
+    switchMap(() => this.imageUploadService.getMyImages()),
   );
+
+  openImageDetail(image: ImageResponse): void {
+    this.router.navigate(['/home/image', image.id]);
+  }
 
   openEditDialog(image: ImageResponse): void {
     const dialogRef = this.dialog.open(ImageEditDialog, {

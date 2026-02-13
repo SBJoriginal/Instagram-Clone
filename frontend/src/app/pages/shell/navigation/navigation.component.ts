@@ -7,7 +7,6 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ImageUploadDialog } from '../../../image-upload-dialog/image-upload-dialog';
 import { ImageUploadService, ImageResponse } from '../../../services/image-upload.service';
-import { ImageUploadData } from '../../../image-upload/image-upload';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
@@ -35,18 +34,9 @@ export class NavigationComponent {
   openCreateDialog() {
     const dialogRef = this.dialog.open(ImageUploadDialog);
 
-    dialogRef.afterClosed().subscribe((result: ImageUploadData | undefined) => {
+    dialogRef.afterClosed().subscribe((result: ImageResponse | undefined) => {
       if (result) {
-        this.uploadService.uploadImage(result).subscribe({
-          next: (response: ImageResponse) => {
-            alert(`Successfully uploaded!\nID: ${response.id}\nPath: ${response.filePath}`);
-          },
-          error: (err: unknown) => {
-            console.error('Upload failed', err);
-            const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-            alert('Upload failed: ' + errorMessage);
-          },
-        });
+        console.log('Upload déjà complété avec succès par le dialogue:', result);
       }
     });
   }

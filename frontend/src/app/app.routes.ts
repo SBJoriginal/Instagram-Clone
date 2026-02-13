@@ -4,8 +4,10 @@ import { ShellComponent } from './pages/shell/shell.component';
 import { UserListComponent } from './pages/user-list/user-list';
 import { UserProfileComponent } from './pages/user-profile/user-profile';
 import { Profile } from './pages/profile/profile';
+import { Explore } from './pages/explore/explore';
 import { authGuard } from './guards/auth.guard';
 import { profileGuard } from './guards/profile.guard';
+import { ImageDetail } from './pages/image-detail/image-detail';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent, data: { animation: 'LandingPage' } },
@@ -15,8 +17,11 @@ export const routes: Routes = [
     canActivate: [authGuard, profileGuard],
     children: [
       { path: 'users', component: UserListComponent },
-      { path: 'users/:id', component: UserProfileComponent },
+      { path: 'profile/:id', component: UserProfileComponent },
       { path: 'profile', component: Profile },
+      { path: 'profile', component: Profile },
+      { path: 'explore', component: Explore },
+      { path: 'image/:id', component: ImageDetail },
     ],
   },
   {

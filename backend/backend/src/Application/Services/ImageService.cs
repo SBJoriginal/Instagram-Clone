@@ -1,6 +1,5 @@
 using Domain.Entities;
 using Infrastructure.Persistence;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using UGram.src.Application.DTOs;
 using UGram.src.Application.Interfaces;
@@ -18,41 +17,57 @@ namespace UGram.src.Application.Services
       _imageStorageService = imageStorageService;
     }
 
-    public async Task<ImageUploadResponseDto> UploadImageAsync(IFormFile file, string description, string hashtags, string mentions, string userId)
+    public async Task<ImageUploadResponseDto> UploadImageAsync(ImageUploadRequestDto upload, string userId)
     {
-      if (file == null || file.Length == 0)
+
+      if (upload.File == null || upload.File.Length == 0)
         throw new ArgumentException("No file uploaded.");
 
-      var filePath = await _imageStorageService.SaveImageAsync(file, "images");
+      var filePath = await _imageStorageService.SaveImageAsync(upload.File, "images");
 
       var image = new Image
       {
-        FileName = Path.GetFileName(file.FileName),
-        ContentType = file.ContentType,
-        Size = file.Length,
-        Description = description ?? "",
-        Hashtags = hashtags ?? "",
-        Mentions = mentions ?? "",
+        Description = upload.Description ?? "",
+        Hashtags = upload.Hashtags ?? "",
+        Mentions = upload.Mentions ?? "",
         FilePath = filePath,
-        UserId = userId
+        UserId = userId,
+        CreatedAt = DateTime.UtcNow
       };
 
       _context.Images.Add(image);
       await _context.SaveChangesAsync();
 
+      var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
+
       return new ImageUploadResponseDto
       {
         Id = image.Id,
         FilePath = image.FilePath,
-        Description = image.Description
+        Description = image.Description,
+        UserId = image.UserId,
+        Username = profile?.UserName ?? string.Empty,
+        CreatedAt = image.CreatedAt
       };
     }
 
-    public async Task<IEnumerable<ImageResponseDto>> GetAllImagesAsync()
+    public async Task<IEnumerable<ImageResponseDto>> GetAllImagesAsync(string? userId = null)
     {
-      var images = await _context.Images
+      var query = _context.Images.AsQueryable();
+
+      if (!string.IsNullOrEmpty(userId))
+      {
+        query = query.Where(i => i.UserId == userId);
+      }
+
+      var images = await query
         .OrderByDescending(i => i.CreatedAt)
         .ToListAsync();
+
+      var userIds = images.Select(i => i.UserId).Distinct().ToList();
+      var profiles = await _context.UserProfiles
+        .Where(p => userIds.Contains(p.UserId))
+        .ToDictionaryAsync(p => p.UserId, p => p.UserName);
 
       return images.Select(i => new ImageResponseDto
       {
@@ -64,8 +79,33 @@ namespace UGram.src.Application.Services
         Hashtags = i.Hashtags,
         Mentions = i.Mentions,
         FilePath = i.FilePath,
+        UserId = i.UserId,
+        Username = profiles.ContainsKey(i.UserId) ? profiles[i.UserId] : string.Empty,
         CreatedAt = i.CreatedAt
       });
+    }
+
+    public async Task<ImageResponseDto?> GetImageByIdAsync(int id)
+    {
+      var image = await _context.Images.FindAsync(id);
+      if (image == null) return null;
+
+      var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == image.UserId);
+
+      return new ImageResponseDto
+      {
+        Id = image.Id,
+        FileName = image.FileName,
+        ContentType = image.ContentType,
+        Size = image.Size,
+        Description = image.Description,
+        Hashtags = image.Hashtags,
+        Mentions = image.Mentions,
+        FilePath = image.FilePath,
+        UserId = image.UserId,
+        Username = profile?.UserName ?? string.Empty,
+        CreatedAt = image.CreatedAt
+      };
     }
   }
 }
