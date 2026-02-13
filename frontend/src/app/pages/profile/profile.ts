@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, signal, computed } from '@angular/core';
 import { ProfileHeader } from './profile_header.component/profile_header.component';
 import { AsyncPipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { environment } from '../../../environments/environment';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import {
   ImageResponse,
   ImageUploadService,
@@ -29,13 +29,23 @@ import { ImageEditDialog } from '../../image-edit-dialog/image-edit-dialog';
 })
 export class Profile {
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   readonly dialog = inject(MatDialog);
   readonly imageUploadService = inject(ImageUploadService);
   protected readonly baseUrl = environment.apiUrl.replace('/api', '');
 
+  protected readonly userId = signal<string | null>(this.route.snapshot.paramMap.get('id'));
+  protected readonly isOwnProfile = computed(() => !this.userId());
+
   private readonly refresh$ = new BehaviorSubject<void>(void 0);
   protected readonly images = merge(this.refresh$, this.imageUploadService.imageCreated$).pipe(
-    switchMap(() => this.imageUploadService.getMyImages()),
+    switchMap(() => {
+      const userId = this.userId();
+      if (userId) {
+        return this.imageUploadService.getImagesByUserId(userId);
+      }
+      return this.imageUploadService.getMyImages();
+    }),
   );
 
   openImageDetail(image: ImageResponse): void {

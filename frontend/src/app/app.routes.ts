@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { LandingComponent } from './pages/landing/landing.component';
 import { ShellComponent } from './pages/shell/shell.component';
 import { UserListComponent } from './pages/user-list/user-list';
-import { UserProfileComponent } from './pages/user-profile/user-profile';
 import { Profile } from './pages/profile/profile';
 import { Explore } from './pages/explore/explore';
 import { authGuard } from './guards/auth.guard';
@@ -17,8 +16,7 @@ export const routes: Routes = [
     canActivate: [authGuard, profileGuard],
     children: [
       { path: 'users', component: UserListComponent },
-      { path: 'profile/:id', component: UserProfileComponent },
-      { path: 'profile', component: Profile },
+      { path: 'profile/:id', component: Profile },
       { path: 'profile', component: Profile },
       { path: 'explore', component: Explore },
       { path: 'image/:id', component: ImageDetail },

@@ -46,6 +46,7 @@
       (click)="openSettings()"
       aria-label="Settings"
       id="profile-settings-btn"
+      *ngIf="!isOtherUserProfile()"
     >
       <mat-icon>settings</mat-icon>
     </button>

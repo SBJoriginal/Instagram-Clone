@@ -64,6 +64,10 @@ export class ImageUploadService {
     return this.http.get<ImageResponse[]>(`${this.apiUrl}/my-images`);
   }
 
+  getImagesByUserId(userId: string): Observable<ImageResponse[]> {
+    return this.http.get<ImageResponse[]>(`${this.apiUrl}/user/${userId}`);
+  }
+
   getImageById(id: number): Observable<ImageResponse> {
     return this.http.get<ImageResponse>(`${this.apiUrl}/${id}`);
   }

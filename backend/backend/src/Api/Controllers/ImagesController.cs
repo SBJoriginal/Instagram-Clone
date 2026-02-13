@@ -62,6 +62,20 @@ namespace Api.Controllers
       return Ok(images);
     }
 
+    [HttpGet("user/{userId}")]
+    public async Task<IActionResult> GetImagesByUserId(string userId)
+    {
+      try
+      {
+        var images = await _imageService.GetAllImagesAsync(userId);
+        return Ok(images);
+      }
+      catch (Exception ex)
+      {
+        return StatusCode(StatusCodes.Status500InternalServerError, new { error = ex.Message });
+      }
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetImageById(int id)
     {

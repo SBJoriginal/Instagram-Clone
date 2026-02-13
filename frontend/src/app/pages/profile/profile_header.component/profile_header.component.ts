@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
@@ -29,6 +29,8 @@ import { ProfileRequest, ProfileResponse } from '../../../models/auth.models';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileHeader implements OnInit {
+  @Input() userId?: string | null;
+
   private readonly dialog = inject(MatDialog);
   private readonly profileService = inject(ProfileService);
   private readonly tokenService = inject(TokenService);
@@ -45,13 +47,21 @@ export class ProfileHeader implements OnInit {
 
   protected readonly profilePictureUrl = signal('');
   protected readonly isLoading = signal(true);
+  protected readonly isOtherUserProfile = signal(false);
 
   ngOnInit(): void {
     this.loadProfile();
   }
 
   private loadProfile(): void {
-    this.profileService.getProfile().subscribe({
+    const isOtherUser = !!this.userId;
+    this.isOtherUserProfile.set(isOtherUser);
+
+    const profileObservable = isOtherUser
+      ? this.profileService.getUserProfile(this.userId!)
+      : this.profileService.getProfile();
+
+    profileObservable.subscribe({
       next: (profile: ProfileResponse) => {
         this.user.set({
           username: profile.userName || '',
@@ -71,7 +81,7 @@ export class ProfileHeader implements OnInit {
         }
 
         // Dans tous les cas, afficher les données par défaut
-        const email = this.tokenService.getEmailFromToken();
+        const email = !isOtherUser ? this.tokenService.getEmailFromToken() : '';
         this.user.set({
           username: '',
           firstName: '',
