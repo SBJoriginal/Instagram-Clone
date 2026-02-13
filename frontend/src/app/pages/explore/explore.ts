@@ -40,7 +40,6 @@ export class Explore implements OnInit, AfterViewInit, OnDestroy {
   private uploadSubscription?: Subscription;
 
   readonly images = signal<ImageResponse[]>([]);
-  readonly loading = signal(false);
   readonly page = signal(1);
   readonly hasMore = signal(true);
 
@@ -68,7 +67,7 @@ export class Explore implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !this.loading() && this.hasMore()) {
+        if (entries[0].isIntersecting && this.hasMore()) {
           this.loadMore();
         }
       },
@@ -81,18 +80,15 @@ export class Explore implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadMore(): void {
-    if (this.loading() || !this.hasMore()) return;
+    if (!this.hasMore()) return;
 
-    this.loading.set(true);
     this.imageService.getImages(this.page(), 15).subscribe({
       next: (newImages) => {
         this.images.update((current) => [...current, ...newImages]);
         this.hasMore.set(newImages.length === 15);
         this.page.update((p) => p + 1);
-        this.loading.set(false);
       },
       error: () => {
-        this.loading.set(false);
         this.hasMore.set(false);
       },
     });

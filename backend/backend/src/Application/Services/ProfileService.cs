@@ -121,7 +121,7 @@ namespace UGram.src.Application.Services
     public async Task<List<ImageResponseDto>> GetProfileImagesAsync(string userId)
     {
       var images = await _context.Images
-          .Where(img => img.UserId == userId && img.Description != "Profile Picture")
+          .Where(img => img.UserId == userId && img.Description.EndsWith("has changed their profile picture"))
           .Select(img => new ImageResponseDto
           {
             Id = img.Id,
@@ -196,7 +196,7 @@ namespace UGram.src.Application.Services
         FilePath = imagePath,
         CreatedAt = DateTime.UtcNow,
         UserId = userId,
-        Description = "Profile Picture"
+        Description = $"{userProfile.UserName} has changed their profile picture"
       };
 
       _context.Images.Add(image);
