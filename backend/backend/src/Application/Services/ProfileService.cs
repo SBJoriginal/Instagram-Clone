@@ -121,7 +121,7 @@ namespace UGram.src.Application.Services
     public async Task<List<ImageResponseDto>> GetProfileImagesAsync(string userId)
     {
       var images = await _context.Images
-          .Where(img => img.UserId == userId && img.Description.EndsWith("has changed their profile picture"))
+          .Where(img => img.UserId == userId && !img.Description.EndsWith("has changed their profile picture"))
           .Select(img => new ImageResponseDto
           {
             Id = img.Id,
@@ -166,15 +166,12 @@ namespace UGram.src.Application.Services
 
       ValidateImageFile(file);
 
-      // Save the new image
       string imagePath = await _imageStorageService.SaveImageAsync(file, "images");
 
-      // Delete old profile picture if it exists
       if (!string.IsNullOrEmpty(userProfile.ProfilePictureUrl))
       {
         await _imageStorageService.DeleteImageAsync(userProfile.ProfilePictureUrl);
 
-        // Delete old image record from database if it exists
         var oldImage = await _context.Images
           .FirstOrDefaultAsync(i => i.FilePath == userProfile.ProfilePictureUrl && i.UserId == userId);
 
@@ -184,10 +181,8 @@ namespace UGram.src.Application.Services
         }
       }
 
-      // Update profile picture URL
       userProfile.ProfilePictureUrl = imagePath;
 
-      // Create image record and associate with user
       var image = new Image
       {
         FileName = Path.GetFileName(imagePath),
@@ -219,10 +214,8 @@ namespace UGram.src.Application.Services
         throw new NotFoundException("Profile Picture", userId);
       }
 
-      // Delete the image file
       await _imageStorageService.DeleteImageAsync(userProfile.ProfilePictureUrl);
 
-      // Delete image record from database
       var image = await _context.Images
         .FirstOrDefaultAsync(i => i.FilePath == userProfile.ProfilePictureUrl && i.UserId == userId);
 
@@ -231,7 +224,6 @@ namespace UGram.src.Application.Services
         _context.Images.Remove(image);
       }
 
-      // Clear profile picture URL
       userProfile.ProfilePictureUrl = null;
 
       await _context.SaveChangesAsync();

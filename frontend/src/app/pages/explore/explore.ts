@@ -42,6 +42,7 @@ export class Explore implements OnInit, AfterViewInit, OnDestroy {
   readonly images = signal<ImageResponse[]>([]);
   readonly page = signal(1);
   readonly hasMore = signal(true);
+  readonly isLoading = signal(false);
 
   @ViewChild('sentinel') sentinel!: ElementRef;
 
@@ -67,7 +68,7 @@ export class Explore implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && this.hasMore()) {
+        if (entries[0].isIntersecting && this.hasMore() && !this.isLoading()) {
           this.loadMore();
         }
       },
@@ -80,16 +81,20 @@ export class Explore implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadMore(): void {
-    if (!this.hasMore()) return;
+    if (!this.hasMore() || this.isLoading()) return;
+
+    this.isLoading.set(true);
 
     this.imageService.getImages(this.page(), 15).subscribe({
       next: (newImages) => {
         this.images.update((current) => [...current, ...newImages]);
         this.hasMore.set(newImages.length === 15);
         this.page.update((p) => p + 1);
+        this.isLoading.set(false);
       },
       error: () => {
         this.hasMore.set(false);
+        this.isLoading.set(false);
       },
     });
   }
