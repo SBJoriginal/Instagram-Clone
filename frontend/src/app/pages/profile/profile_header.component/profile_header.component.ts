@@ -104,6 +104,7 @@ export class ProfileHeader implements OnInit {
 
   private formatImageUrl(path: string): string {
     if (!path) return '/default-avatar.png';
+    if (path === '/default-avatar.png') return path; // ← AJOUTEZ
     if (path.startsWith('http') || path.startsWith('data:')) return path;
     const cleanPath = path.replace(/\\/g, '/');
     return `http://localhost:8081/${cleanPath}`;

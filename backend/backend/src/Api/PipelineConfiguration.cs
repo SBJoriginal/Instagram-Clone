@@ -1,9 +1,9 @@
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.AspNetCore.StaticFiles; // ← AJOUTEZ
-using Microsoft.Extensions.Options; // ← AJOUTEZ
-using UGram.src.Application.Configuration; // ← AJOUTEZ
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Options;
+using UGram.src.Application.Configuration;
 
 namespace UGram.src.Api
 {

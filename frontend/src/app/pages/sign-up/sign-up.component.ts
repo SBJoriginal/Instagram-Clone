@@ -91,7 +91,18 @@ export class SignUpComponent {
         },
         error: (error) => {
           this.isLoading.set(false);
-          this.errorMessage.set(error.error?.message || 'Registration failed. Please try again.');
+
+          if (error.status === 409) {
+            this.errorMessage.set(
+              'This email is already registered. Please sign in or use a different email.',
+            );
+          } else {
+            this.errorMessage.set(
+              error.error?.message ||
+                error.error?.detail ||
+                'Registration failed. Please try again.',
+            );
+          }
         },
       });
     }
