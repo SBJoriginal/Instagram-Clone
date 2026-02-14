@@ -11,8 +11,6 @@
           type="button"
           class="username"
           (click)="navigateToProfile(image.username)"
-          (keydown.enter)="navigateToProfile(image.username)"
-          (keydown.space)="navigateToProfile(image.username)"
           style="
             cursor: pointer;
             text-decoration: underline;
@@ -47,8 +45,25 @@
       }
 
       @if (image.mentions) {
-        <div class="section info-block">
-          <span class="highlight">{{ image.mentions }}</span>
+        <div class="section info-block" style="display: flex; flex-wrap: wrap; gap: 4px">
+          @for (mention of image.mentions | mention; track mention) {
+            <button
+              type="button"
+              class="highlight"
+              (click)="navigateToProfile(mention)"
+              style="
+                cursor: pointer;
+                text-decoration: underline;
+                background: none;
+                border: none;
+                padding: 0;
+                font: inherit;
+                color: inherit;
+              "
+            >
+              {{ mention }}
+            </button>
+          }
         </div>
       }
 
