@@ -124,8 +124,17 @@
         id="mentions"
         formControlName="mentions"
         placeholder="@username @friend"
+        [matAutocomplete]="auto"
         (blur)="onMentionsBlur()"
       />
+      <mat-autocomplete
+        #auto="matAutocomplete"
+        (optionSelected)="onUserSelected($event.option.value)"
+      >
+        @for (username of filteredUsers$ | async; track username) {
+          <mat-option [value]="username"> @{{ username }} </mat-option>
+        }
+      </mat-autocomplete>
       <mat-hint>Mention other users (e.g., @username @friend)</mat-hint>
     </mat-form-field>
 
