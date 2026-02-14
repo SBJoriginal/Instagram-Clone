@@ -96,7 +96,7 @@ export class ImageUploadComponent implements OnInit {
   // Helper method to centralize mention addition logic
   private _executeMentionAddition(username: string): void {
     if (username && !this.selectedMentions().includes(username)) {
-      this.selectedMentions.update(prev => [...prev, username]);
+      this.selectedMentions.update((prev) => [...prev, username]);
       this.syncMentionsToForm();
     }
     this.mentionInputControl.setValue('');
@@ -126,9 +126,9 @@ export class ImageUploadComponent implements OnInit {
 
     if (value) {
       const lowerValue = value.toLowerCase();
-      
+
       if (this.existingUsernames.has(lowerValue)) {
-        const originalName = this.allUsernames().find(n => n.toLowerCase() === lowerValue);
+        const originalName = this.allUsernames().find((n) => n.toLowerCase() === lowerValue);
         this._executeMentionAddition(originalName || value);
       } else {
         this.validationError.set(`The user @${value} does not exist.`);
@@ -172,7 +172,6 @@ export class ImageUploadComponent implements OnInit {
     'image/webp',
   ];
 
-  
   ngOnInit(): void {
     const data = this.editData();
     if (data) {
