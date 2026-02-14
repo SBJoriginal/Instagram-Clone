@@ -1,14 +1,31 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ImageUploadComponent } from './image-upload';
 import { ReactiveFormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
+import { UserService } from '../services/user.service';
+import { of } from 'rxjs';
 
 describe('ImageUploadComponent', () => {
   let component: ImageUploadComponent;
   let fixture: ComponentFixture<ImageUploadComponent>;
+  let mockUserService: any;
 
   beforeEach(async () => {
+    mockUserService = {
+      getUsers: () => of([{ userName: 'user' }, { userName: 'friend' }])
+    };
+
     await TestBed.configureTestingModule({
-      imports: [ImageUploadComponent, ReactiveFormsModule],
+      imports: [
+        ImageUploadComponent, 
+        ReactiveFormsModule, 
+        BrowserAnimationsModule
+      ],
+      providers: [
+        { provide: UserService, useValue: mockUserService },
+        provideHttpClient()
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ImageUploadComponent);
@@ -27,26 +44,30 @@ describe('ImageUploadComponent', () => {
 
   it('should auto-format hashtags on blur', () => {
     const hashtagsInput = fixture.nativeElement.querySelector('input[formControlName="hashtags"]');
-
-    // Simulate user typing
     hashtagsInput.value = 'test value';
     hashtagsInput.dispatchEvent(new Event('input'));
-
-    // Simulate blur event
     hashtagsInput.dispatchEvent(new Event('blur'));
+    fixture.detectChanges();
 
-    // Check input value (logic should have updated it)
     expect(hashtagsInput.value).toBe('#test #value');
   });
 
-  it('should auto-format mentions on blur', () => {
-    const mentionsInput = fixture.nativeElement.querySelector('input[formControlName="mentions"]');
-
-    mentionsInput.value = 'user friend';
+  it('should add mentions as chips and update the hidden form control', () => {
+    const mentionsInput = fixture.nativeElement.querySelector('input[placeholder="Type @ to mention..."]');
+    
+    mentionsInput.value = 'user';
     mentionsInput.dispatchEvent(new Event('input'));
+    
+    const event = new KeyboardEvent('keydown', {
+      key: 'Enter'
+    });
+    mentionsInput.dispatchEvent(event);
+    
+    fixture.detectChanges();
 
-    mentionsInput.dispatchEvent(new Event('blur'));
+    expect(component['selectedMentions']()).toContain('user');
 
-    expect(mentionsInput.value).toBe('@user @friend');
+    const hiddenControlValue = component['uploadForm'].controls.mentions.value;
+    expect(hiddenControlValue).toBe('@user');
   });
 });
