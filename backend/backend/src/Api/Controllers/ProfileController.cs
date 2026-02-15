@@ -49,6 +49,47 @@ namespace backend.src.Api.Controllers
       return Ok(result);
     }
 
+    [HttpGet("all")]
+    public async Task<ActionResult<List<UserProfileResponseDto>>> GetAllProfiles()
+    {
+      var profiles = await _userProfileService.GetAllProfilesAsync();
+      return Ok(profiles);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<UserProfileResponseDto>> GetProfileById(string id)
+    {
+      var profile = await _userProfileService.GetProfileByIdAsync(id);
+      if (profile == null)
+      {
+        return NotFound();
+      }
+      return Ok(profile);
+    }
+
+    [HttpGet("username/{username}")]
+    public async Task<ActionResult<UserProfileResponseDto>> GetProfileByUsername(string username)
+    {
+      var profile = await _userProfileService.GetProfileByUsernameAsync(username);
+      if (profile == null)
+      {
+        return NotFound();
+      }
+      return Ok(profile);
+    }
+
+    [HttpGet("{id}/images")]
+    public async Task<ActionResult<List<ImageResponseDto>>> GetProfileImages(string id)
+    {
+      var profile = await _userProfileService.GetProfileByIdAsync(id);
+      if (profile == null)
+      {
+        return NotFound();
+      }
+      var images = await _userProfileService.GetProfileImagesAsync(id);
+      return Ok(images);
+    }
+
     private string GetAuthenticatedUserId()
     {
       var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

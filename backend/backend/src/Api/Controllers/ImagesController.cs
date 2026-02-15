@@ -1,10 +1,11 @@
 
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using UGram.src.Application.DTOs;
 using UGram.src.Application.Interfaces;
 using Infrastructure.Persistence;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 
 namespace Api.Controllers
 {
@@ -58,6 +59,42 @@ namespace Api.Controllers
 
       var images = await _imageService.GetAllImagesAsync(userId);
       return Ok(images);
+    }
+
+    [HttpGet("user/{userId}")]
+    public async Task<IActionResult> GetImagesByUserId(string userId)
+    {
+      try
+      {
+        var images = await _imageService.GetAllImagesAsync(userId);
+        return Ok(images);
+      }
+      catch (Exception ex)
+      {
+        return StatusCode(StatusCodes.Status500InternalServerError, new { error = ex.Message });
+      }
+    }
+
+    [HttpGet("username/{username}")]
+    public async Task<IActionResult> GetImagesByUsername(string username)
+    {
+      try
+      {
+        var user = await _context.UserProfiles
+          .FirstOrDefaultAsync(p => p.UserName == username);
+
+        if (user == null)
+        {
+          return NotFound(new { error = "User not found" });
+        }
+
+        var images = await _imageService.GetAllImagesAsync(user.UserId);
+        return Ok(images);
+      }
+      catch (Exception ex)
+      {
+        return StatusCode(StatusCodes.Status500InternalServerError, new { error = ex.Message });
+      }
     }
 
     [HttpGet("{id}")]

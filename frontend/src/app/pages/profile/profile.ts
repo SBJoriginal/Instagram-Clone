@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, signal, computed } from '@angular/core';
 import { ProfileHeader } from './profile_header.component/profile_header.component';
 import { AsyncPipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
@@ -7,12 +7,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { environment } from '../../../environments/environment';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import {
   ImageResponse,
   ImageUploadService,
   ImageUpdateData,
 } from '../../services/image-upload.service';
+import { ProfileService } from '../../services/profile.service';
+import { TokenService } from '../../services/token.service';
 import { BehaviorSubject, switchMap, merge } from 'rxjs';
 import { ImageEditDialog } from '../../image-edit-dialog/image-edit-dialog';
 
@@ -29,14 +31,48 @@ import { ImageEditDialog } from '../../image-edit-dialog/image-edit-dialog';
 })
 export class Profile {
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly tokenService = inject(TokenService);
+  private readonly profileService = inject(ProfileService);
   readonly dialog = inject(MatDialog);
   readonly imageUploadService = inject(ImageUploadService);
   protected readonly baseUrl = environment.apiUrl.replace('/api', '');
 
+  protected readonly username = signal<string | null>(null);
+  protected readonly currentUsername = signal<string | null>(null);
+  protected readonly isOwnProfile = computed(() => {
+    const routeUsername = this.username();
+    const currentUsername = this.currentUsername();
+    return !routeUsername || routeUsername === currentUsername;
+  });
+
   private readonly refresh$ = new BehaviorSubject<void>(void 0);
   protected readonly images = merge(this.refresh$, this.imageUploadService.imageCreated$).pipe(
-    switchMap(() => this.imageUploadService.getMyImages()),
+    switchMap(() => {
+      const username = this.username();
+      if (username) {
+        return this.imageUploadService.getImagesByUsername(username);
+      }
+      return this.imageUploadService.getMyImages();
+    }),
   );
+
+  constructor() {
+    this.route.paramMap.subscribe((params) => {
+      const uname = params.get('username');
+      this.username.set(uname);
+      this.refresh$.next();
+    });
+
+    this.profileService.getProfile().subscribe({
+      next: (profile) => {
+        this.currentUsername.set(profile.userName || null);
+      },
+      error: () => {
+        this.currentUsername.set(null);
+      },
+    });
+  }
 
   openImageDetail(image: ImageResponse): void {
     this.router.navigate(['/home/image', image.id]);

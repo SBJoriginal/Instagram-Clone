@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy, Input } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
@@ -29,9 +30,12 @@ import { ProfileRequest, ProfileResponse } from '../../../models/auth.models';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileHeader implements OnInit {
+  @Input() username?: string | null;
+
   private readonly dialog = inject(MatDialog);
   private readonly profileService = inject(ProfileService);
   private readonly tokenService = inject(TokenService);
+  private readonly router = inject(Router);
 
   protected readonly user = signal({
     username: '',
@@ -45,50 +49,62 @@ export class ProfileHeader implements OnInit {
 
   protected readonly profilePictureUrl = signal('');
   protected readonly isLoading = signal(true);
+  protected readonly isOtherUserProfile = signal(false);
 
   ngOnInit(): void {
     this.loadProfile();
   }
 
   private loadProfile(): void {
-    this.profileService.getProfile().subscribe({
-      next: (profile: ProfileResponse) => {
-        this.user.set({
-          username: profile.userName || '',
-          firstName: profile.firstName || '',
-          lastName: profile.lastName || '',
-          email: profile.email,
-          phone: profile.phoneNumber || '',
-          memberSince: new Date(profile.signUpDate).toLocaleDateString(),
-          profilePictureUrl: this.formatImageUrl(profile.profilePictureUrl || ''),
-        });
-        this.isLoading.set(false);
-      },
-      error: (error) => {
-        // Ignorer silencieusement le 404 (profil pas encore créé)
-        if (error.status !== 404) {
-          console.error('Failed to load profile:', error);
-        }
+    const currentUserProfile = this.profileService.getProfile();
 
-        // Dans tous les cas, afficher les données par défaut
-        const email = this.tokenService.getEmailFromToken();
-        this.user.set({
-          username: '',
-          firstName: '',
-          lastName: '',
-          email: email || '',
-          phone: '',
-          memberSince: '',
-          profilePictureUrl: '',
+    currentUserProfile.subscribe({
+      next: (profile) => {
+        const isOtherUser = !!this.username && this.username !== profile.userName;
+        this.isOtherUserProfile.set(isOtherUser);
+
+        const profileObservable = isOtherUser
+          ? this.profileService.getUserProfileByUsername(this.username!)
+          : this.profileService.getProfile();
+
+        profileObservable.subscribe({
+          next: (profile: ProfileResponse) => {
+            this.user.set({
+              username: profile.userName || '',
+              firstName: profile.firstName || '',
+              lastName: profile.lastName || '',
+              email: profile.email,
+              phone: profile.phoneNumber || '',
+              memberSince: new Date(profile.signUpDate).toLocaleDateString(),
+              profilePictureUrl: this.formatImageUrl(profile.profilePictureUrl || ''),
+            });
+            this.isLoading.set(false);
+          },
+          error: (error) => {
+            if (error.status !== 404) {
+              console.error('Failed to load profile:', error);
+            }
+            const email = !isOtherUser ? this.tokenService.getEmailFromToken() : '';
+            this.user.set({
+              username: '',
+              firstName: '',
+              lastName: '',
+              email: email || '',
+              phone: '',
+              memberSince: '',
+              profilePictureUrl: '',
+            });
+            this.profilePictureUrl.set('');
+            this.isLoading.set(false);
+          },
         });
-        this.profilePictureUrl.set('');
-        this.isLoading.set(false);
       },
     });
   }
 
   private formatImageUrl(path: string): string {
     if (!path) return '/default-avatar.png';
+    if (path === '/default-avatar.png') return path; // ← AJOUTEZ
     if (path.startsWith('http') || path.startsWith('data:')) return path;
     const cleanPath = path.replace(/\\/g, '/');
     return `http://localhost:8081/${cleanPath}`;
@@ -119,7 +135,6 @@ export class ProfileHeader implements OnInit {
           profilePictureUrl: this.formatImageUrl(result.avatarUrl || current.profilePictureUrl),
         }));
 
-        // Map the result from the edit dialog to the ProfileRequest format
         const profileUpdate: ProfileRequest = {
           username: result.username,
           firstName: result.firstName,
@@ -131,6 +146,9 @@ export class ProfileHeader implements OnInit {
         this.profileService.updateProfile(profileUpdate).subscribe({
           next: () => {
             this.loadProfile();
+            if (!this.isOtherUserProfile()) {
+              this.router.navigate(['/home/profile', profileUpdate.username]);
+            }
           },
           error: (err) => {
             console.error('Failed to update profile info:', err);

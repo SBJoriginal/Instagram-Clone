@@ -1,14 +1,29 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ImageUploadComponent } from './image-upload';
 import { ReactiveFormsModule } from '@angular/forms';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
+import { UserService } from '../services/user.service';
+import { of } from 'rxjs';
+import { User } from '../models/user.model';
+import { MatChipInputEvent } from '@angular/material/chips';
 
 describe('ImageUploadComponent', () => {
   let component: ImageUploadComponent;
   let fixture: ComponentFixture<ImageUploadComponent>;
 
+  const mockUserService: Partial<UserService> = {
+    getUsers: () => of([{ userName: 'user' }, { userName: 'friend' }] as User[]),
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ImageUploadComponent, ReactiveFormsModule],
+      providers: [
+        { provide: UserService, useValue: mockUserService },
+        provideHttpClient(),
+        provideAnimations(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ImageUploadComponent);
@@ -26,27 +41,44 @@ describe('ImageUploadComponent', () => {
   });
 
   it('should auto-format hashtags on blur', () => {
-    const hashtagsInput = fixture.nativeElement.querySelector('input[formControlName="hashtags"]');
-
-    // Simulate user typing
+    const hashtagsInput = fixture.nativeElement.querySelector(
+      'input[formControlName="hashtags"]',
+    ) as HTMLInputElement;
     hashtagsInput.value = 'test value';
     hashtagsInput.dispatchEvent(new Event('input'));
-
-    // Simulate blur event
     hashtagsInput.dispatchEvent(new Event('blur'));
+    fixture.detectChanges();
 
-    // Check input value (logic should have updated it)
     expect(hashtagsInput.value).toBe('#test #value');
   });
 
-  it('should auto-format mentions on blur', () => {
-    const mentionsInput = fixture.nativeElement.querySelector('input[formControlName="mentions"]');
+  it('should add mentions as chips and update the hidden form control', () => {
+    const mentionsInput = fixture.nativeElement.querySelector(
+      'input[placeholder="Type @ to mention..."]',
+    ) as HTMLInputElement;
 
-    mentionsInput.value = 'user friend';
+    expect(mentionsInput).toBeTruthy();
+
+    mentionsInput.value = 'user';
     mentionsInput.dispatchEvent(new Event('input'));
 
-    mentionsInput.dispatchEvent(new Event('blur'));
+    const chipInputEvent = {
+      value: 'user',
+      input: mentionsInput,
+      chipInput: {
+        clear: () => {
+          mentionsInput.value = '';
+        },
+      },
+    } as MatChipInputEvent;
 
-    expect(mentionsInput.value).toBe('@user @friend');
+    component['onChipInputEnd'](chipInputEvent);
+
+    fixture.detectChanges();
+
+    expect(component['selectedMentions']()).toContain('user');
+
+    const hiddenControlValue = component['uploadForm'].controls.mentions.value;
+    expect(hiddenControlValue).toBe('@user');
   });
 });

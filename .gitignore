@@ -62,3 +62,7 @@ Thumbs.db
 **/obj/Docker/
 backend/**/docker-compose.dcproj
 docker-compose.vs.*.yml
+
+# Uploaded images
+backend/backend/wwwroot/images/*
+backend/backend/wwwroot/uploads/*

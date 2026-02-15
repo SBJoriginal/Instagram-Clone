@@ -1,7 +1,6 @@
 <div class="upload-container">
   <h2>{{ editData() ? 'Edit Image' : 'Upload Image' }}</h2>
 
-  <!-- File Upload Area -->
   @if (!editData() || selectedFile()) {
     <div
       class="upload-area"
@@ -41,7 +40,6 @@
           <p class="upload-hint">JPG, PNG, GIF, or WebP - Max 5MB</p>
         </div>
       } @else {
-        <!-- Image Preview -->
         <div class="preview-container">
           <img
             [src]="previewUrl()"
@@ -68,20 +66,17 @@
       }
     </div>
   } @else {
-    <!-- Current Image View in Edit Mode -->
     <div class="preview-container edit-preview">
       <img [src]="previewUrl()" alt="Current image" class="preview-image" />
     </div>
   }
 
-  <!-- Validation Error -->
   @if (validationError()) {
     <div class="error-message" role="alert" aria-live="polite">
       {{ validationError() }}
     </div>
   }
 
-  <!-- Upload Form -->
   <form [formGroup]="uploadForm" (ngSubmit)="onSubmit()" class="upload-form">
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Description</mat-label>
@@ -118,14 +113,29 @@
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Mentions</mat-label>
-      <input
-        matInput
-        type="text"
-        id="mentions"
-        formControlName="mentions"
-        placeholder="@username @friend"
-        (blur)="onMentionsBlur()"
-      />
+      <mat-chip-grid #chipGrid aria-label="Mention selection">
+        @for (user of selectedMentions(); track user) {
+          <mat-chip-row (removed)="removeMention(user)">
+            @{{ user }}
+            <button matChipRemove><mat-icon>cancel</mat-icon></button>
+          </mat-chip-row>
+        }
+        <input
+          #mentionInput
+          placeholder="Type @ to mention..."
+          [formControl]="mentionInputControl"
+          [matChipInputFor]="chipGrid"
+          [matAutocomplete]="auto"
+          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+          (matChipInputTokenEnd)="onChipInputEnd($event)"
+        />
+      </mat-chip-grid>
+
+      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="addMention($event, mentionInput)">
+        @for (username of filteredUsers$ | async; track username) {
+          <mat-option [value]="username">@{{ username }}</mat-option>
+        }
+      </mat-autocomplete>
       <mat-hint>Mention other users (e.g., @username @friend)</mat-hint>
     </mat-form-field>
 

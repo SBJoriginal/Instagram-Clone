@@ -16,21 +16,6 @@ builder.Services.AddApplication()
 
 var app = builder.Build();
 
-// Apply database migrations automatically on startup
-using (var scope = app.Services.CreateScope())
-{
-  var services = scope.ServiceProvider;
-  try
-  {
-    var context = services.GetRequiredService<AppDbContext>();
-    context.Database.Migrate();
-    Console.WriteLine("Database migrations applied successfully.");
-  }
-  catch (Exception ex)
-  {
-    Console.WriteLine($"An error occurred while migrating the database: {ex.Message}");
-  }
-}
-
 app.ConfigurePipeline();
+
 app.Run();

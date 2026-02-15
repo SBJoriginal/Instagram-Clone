@@ -40,14 +40,16 @@
       </div>
     </mat-card-header>
 
-    <button
-      mat-icon-button
-      class="settings-button"
-      (click)="openSettings()"
-      aria-label="Settings"
-      id="profile-settings-btn"
-    >
-      <mat-icon>settings</mat-icon>
-    </button>
+    @if (!isOtherUserProfile()) {
+      <button
+        mat-icon-button
+        class="settings-button"
+        (click)="openSettings()"
+        aria-label="Settings"
+        id="profile-settings-btn"
+      >
+        <mat-icon>settings</mat-icon>
+      </button>
+    }
   }
 </mat-card>

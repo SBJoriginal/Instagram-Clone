@@ -1,23 +1,25 @@
 import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ImageUploadService, ImageResponse } from '../../services/image-upload.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
-import { CommonModule, Location } from '@angular/common'; // Ajoutez Location ici
+import { CommonModule, Location } from '@angular/common';
+import { MentionPipe } from '../../pipes/mention.pipe';
 
 @Component({
   selector: 'app-image-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatProgressSpinnerModule, MatIconModule],
+  imports: [CommonModule, RouterModule, MatProgressSpinnerModule, MatIconModule, MentionPipe],
   templateUrl: './image-detail.html',
   styleUrl: './image-detail.css',
 })
 export class ImageDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly imageService = inject(ImageUploadService);
   private readonly cdr = inject(ChangeDetectorRef);
-  private readonly location = inject(Location); // Injection du service Location
+  private readonly location = inject(Location);
 
   image: ImageResponse | null = null;
   loading = true;
@@ -46,6 +48,14 @@ export class ImageDetail implements OnInit {
   }
 
   goBack(): void {
-    this.location.back(); // Retourne a la page precedente avec le scroll intact
+    this.location.back();
+  }
+
+  navigateToProfile(username: string | undefined | null): void {
+    if (username) {
+      // Clean @ if present
+      const cleanName = username.startsWith('@') ? username.substring(1) : username;
+      this.router.navigate(['/home/profile', cleanName.trim()]);
+    }
   }
 }
