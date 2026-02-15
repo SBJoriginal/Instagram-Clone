@@ -5,11 +5,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 import { CommonModule, Location } from '@angular/common';
+import { MentionPipe } from '../../pipes/mention.pipe';
 
 @Component({
   selector: 'app-image-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatProgressSpinnerModule, MatIconModule],
+  imports: [CommonModule, RouterModule, MatProgressSpinnerModule, MatIconModule, MentionPipe],
   templateUrl: './image-detail.html',
   styleUrl: './image-detail.css',
 })
@@ -52,7 +53,9 @@ export class ImageDetail implements OnInit {
 
   navigateToProfile(username: string | undefined | null): void {
     if (username) {
-      this.router.navigate(['/home/profile', username]);
+      // Clean @ if present
+      const cleanName = username.startsWith('@') ? username.substring(1) : username;
+      this.router.navigate(['/home/profile', cleanName.trim()]);
     }
   }
 }

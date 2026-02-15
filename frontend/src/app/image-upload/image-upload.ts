@@ -6,6 +6,7 @@ import {
   ChangeDetectionStrategy,
   input,
   OnInit,
+  inject,
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -13,11 +14,17 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatChipsModule, MatChipInputEvent } from '@angular/material/chips';
+import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
+import { startWith, map } from 'rxjs/operators';
 import { HashtagPipe } from '../pipes/hashtag.pipe';
 import { MentionPipe } from '../pipes/mention.pipe';
 import { FileSizePipe } from '../pipes/file-size.pipe';
 import { ImageResponse } from '../services/image-upload.service';
+import { UserService } from '../services/user.service';
 import { environment } from '../../environments/environment';
+import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 
 export interface ImageUploadData {
   file: File;
@@ -28,6 +35,7 @@ export interface ImageUploadData {
 
 @Component({
   selector: 'app-image-upload',
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -35,6 +43,8 @@ export interface ImageUploadData {
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
+    MatAutocompleteModule,
+    MatChipsModule,
   ],
   templateUrl: './image-upload.html',
   styleUrl: './image-upload.css',
@@ -52,8 +62,82 @@ export class ImageUploadComponent implements OnInit {
   protected readonly selectedFile = signal<File | null>(null);
   protected readonly previewUrl = signal<string | null>(null);
   protected readonly validationError = signal<string | null>(null);
+  protected readonly allUsernames = signal<string[]>([]);
 
-  // Computed signal for file info display
+  protected readonly selectedMentions = signal<string[]>([]);
+
+  protected readonly separatorKeysCodes = [ENTER, COMMA, SPACE];
+
+  private readonly userService = inject(UserService);
+  private existingUsernames = new Set<string>();
+
+  // Reactive form
+  protected readonly uploadForm = new FormGroup({
+    description: new FormControl('', { nonNullable: true }),
+    hashtags: new FormControl('', { nonNullable: true }),
+    mentions: new FormControl('', { nonNullable: true }),
+  });
+
+  protected readonly mentionInputControl = new FormControl('');
+
+  protected readonly filteredUsers$ = this.mentionInputControl.valueChanges.pipe(
+    startWith(''),
+    map((value) => this._filter(value || '')),
+  );
+
+  // Private method to filter usernames based on input
+  private _filter(value: string): string[] {
+    const filterValue = value.replace('@', '').toLowerCase();
+    return this.allUsernames().filter(
+      (user) => user.toLowerCase().includes(filterValue) && !this.selectedMentions().includes(user),
+    );
+  }
+
+  // Helper method to centralize mention addition logic
+  private _executeMentionAddition(username: string): void {
+    if (username && !this.selectedMentions().includes(username)) {
+      this.selectedMentions.update((prev) => [...prev, username]);
+      this.syncMentionsToForm();
+    }
+    this.mentionInputControl.setValue('');
+    this.validationError.set(null);
+  }
+
+  // Method to add a mention when an autocomplete option is selected
+  protected addMention(event: MatAutocompleteSelectedEvent, input: HTMLInputElement): void {
+    this._executeMentionAddition(event.option.value);
+    input.value = '';
+  }
+
+  protected removeMention(username: string): void {
+    this.selectedMentions.update((prev) => prev.filter((u) => u !== username));
+    this.syncMentionsToForm();
+  }
+
+  private syncMentionsToForm(): void {
+    const mentionsString = this.selectedMentions()
+      .map((u) => `@${u}`)
+      .join(' ');
+    this.uploadForm.controls.mentions.setValue(mentionsString);
+  }
+
+  protected onChipInputEnd(event: MatChipInputEvent): void {
+    const value = (event.value || '').trim().replace('@', '');
+
+    if (value) {
+      const lowerValue = value.toLowerCase();
+
+      if (this.existingUsernames.has(lowerValue)) {
+        const originalName = this.allUsernames().find((n) => n.toLowerCase() === lowerValue);
+        this._executeMentionAddition(originalName || value);
+      } else {
+        this.validationError.set(`The user @${value} does not exist.`);
+      }
+    }
+
+    event.chipInput!.clear();
+  }
+
   protected readonly fileInfo = computed(() => {
     const file = this.selectedFile();
     if (!file) return null;
@@ -78,13 +162,6 @@ export class ImageUploadComponent implements OnInit {
     return mentionPipe.transform(mentions);
   });
 
-  // Reactive form
-  protected readonly uploadForm = new FormGroup({
-    description: new FormControl('', { nonNullable: true }),
-    hashtags: new FormControl('', { nonNullable: true }),
-    mentions: new FormControl('', { nonNullable: true }),
-  });
-
   // File validation constants
   private readonly MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
   private readonly ALLOWED_TYPES = [
@@ -94,6 +171,42 @@ export class ImageUploadComponent implements OnInit {
     'image/gif',
     'image/webp',
   ];
+
+  ngOnInit(): void {
+    const data = this.editData();
+    if (data) {
+      this.uploadForm.patchValue({
+        description: data.description || '',
+        hashtags: data.hashtags || '',
+        mentions: data.mentions || '',
+      });
+
+      if (data.mentions) {
+        const names = data.mentions
+          .split(/\s+/)
+          .filter((m) => m.startsWith('@'))
+          .map((m) => m.substring(1));
+        this.selectedMentions.set(names);
+      }
+
+      if (data.filePath) {
+        const baseUrl = environment.apiUrl.replace('/api', '');
+        this.previewUrl.set(baseUrl + data.filePath);
+      }
+    }
+
+    this.userService.getUsers().subscribe({
+      next: (users) => {
+        const names = users.map((u) => u.userName || '');
+        this.allUsernames.set(names);
+        this.existingUsernames = new Set(names.map((n) => n.toLowerCase()));
+      },
+      error: () => {
+        this.existingUsernames = new Set<string>();
+        this.allUsernames.set([]);
+      },
+    });
+  }
 
   protected onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -171,39 +284,8 @@ export class ImageUploadComponent implements OnInit {
 
   protected onHashtagsBlur(): void {
     const control = this.uploadForm.controls.hashtags;
-    const value = control.value;
-    if (!value) return;
-
-    const formatted = new HashtagPipe().transform(value).join(' ');
-    if (formatted !== value) {
-      control.setValue(formatted);
-    }
-  }
-
-  protected onMentionsBlur(): void {
-    const control = this.uploadForm.controls.mentions;
-    const value = control.value;
-    if (!value) return;
-
-    const formatted = new MentionPipe().transform(value).join(' ');
-    if (formatted !== value) {
-      control.setValue(formatted);
-    }
-  }
-
-  ngOnInit(): void {
-    const data = this.editData();
-    if (data) {
-      this.uploadForm.patchValue({
-        description: data.description || '',
-        hashtags: data.hashtags || '',
-        mentions: data.mentions || '',
-      });
-      // In edit mode, we don't necessarily have a File object, but we have a URL
-      if (data.filePath) {
-        const baseUrl = environment.apiUrl.replace('/api', '');
-        this.previewUrl.set(baseUrl + data.filePath);
-      }
+    if (control.value) {
+      control.setValue(new HashtagPipe().transform(control.value).join(' '));
     }
   }
 
@@ -216,14 +298,62 @@ export class ImageUploadComponent implements OnInit {
       return;
     }
 
+    // Check if there's pending text in the mention input that hasn't been added as a chip
+    const pendingMentionText = this.mentionInputControl.value?.trim();
+    if (pendingMentionText) {
+      const cleanedPending = pendingMentionText.replace(/^@/, '').toLowerCase();
+      if (!this.existingUsernames.has(cleanedPending)) {
+        this.validationError.set(
+          `The user @${pendingMentionText.replace(/^@/, '')} does not exist.`,
+        );
+      } else {
+        this.validationError.set(
+          `Please complete adding the mention "${pendingMentionText}" by pressing Space, Enter, or Comma, or remove it before submitting.`,
+        );
+      }
+      return;
+    }
+
+    // Validate that all selected mentions exist
+    const invalidMentions = this.selectedMentions().filter(
+      (username) => !this.existingUsernames.has(username.toLowerCase()),
+    );
+
+    if (invalidMentions.length > 0) {
+      this.validationError.set(
+        `The following mentioned users do not exist: ${invalidMentions.map((m) => '@' + m).join(', ')}`,
+      );
+      return;
+    }
+
     const formValue = this.uploadForm.getRawValue();
+
+    // Also validate the form value in case it was manually edited
+    const missingFromForm = this.validateMentionsString(formValue.mentions);
+    if (missingFromForm.length > 0) {
+      this.validationError.set(
+        `The following mentioned users do not exist: ${missingFromForm.map((m) => '@' + m).join(', ')}`,
+      );
+      return;
+    }
+
+    // Only create and emit upload data if all validations pass
     const uploadData: ImageUploadData = {
-      file: file as File, // In edit mode, file might be null if not changed
+      file: file as File,
       description: formValue.description,
       hashtags: formValue.hashtags,
       mentions: formValue.mentions,
     };
 
+    this.validationError.set(null);
     this.uploadImage.emit(uploadData);
+  }
+
+  private validateMentionsString(value: string): string[] {
+    if (!value) return [];
+    return new MentionPipe()
+      .transform(value)
+      .map((m) => m.replace(/^@/, '').toLowerCase())
+      .filter((m) => !this.existingUsernames.has(m));
   }
 }
