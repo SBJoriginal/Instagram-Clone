@@ -298,22 +298,52 @@ export class ImageUploadComponent implements OnInit {
       return;
     }
 
+    // Check if there's pending text in the mention input that hasn't been added as a chip
+    const pendingMentionText = this.mentionInputControl.value?.trim();
+    if (pendingMentionText) {
+      const cleanedPending = pendingMentionText.replace(/^@/, '').toLowerCase();
+      if (!this.existingUsernames.has(cleanedPending)) {
+        this.validationError.set(
+          `The user @${pendingMentionText.replace(/^@/, '')} does not exist.`,
+        );
+      } else {
+        this.validationError.set(
+          `Please complete adding the mention "${pendingMentionText}" by pressing Space, Enter, or Comma, or remove it before submitting.`,
+        );
+      }
+      return;
+    }
+
+    // Validate that all selected mentions exist
+    const invalidMentions = this.selectedMentions().filter(
+      (username) => !this.existingUsernames.has(username.toLowerCase()),
+    );
+
+    if (invalidMentions.length > 0) {
+      this.validationError.set(
+        `The following mentioned users do not exist: ${invalidMentions.map((m) => '@' + m).join(', ')}`,
+      );
+      return;
+    }
+
     const formValue = this.uploadForm.getRawValue();
+
+    // Also validate the form value in case it was manually edited
+    const missingFromForm = this.validateMentionsString(formValue.mentions);
+    if (missingFromForm.length > 0) {
+      this.validationError.set(
+        `The following mentioned users do not exist: ${missingFromForm.map((m) => '@' + m).join(', ')}`,
+      );
+      return;
+    }
+
+    // Only create and emit upload data if all validations pass
     const uploadData: ImageUploadData = {
       file: file as File,
       description: formValue.description,
       hashtags: formValue.hashtags,
       mentions: formValue.mentions,
     };
-
-    // Validate mentions against existing users
-    const missing = this.validateMentionsString(uploadData.mentions);
-    if (missing.length > 0) {
-      this.validationError.set(
-        `The following mentioned users do not exist: ${missing.map((m) => '@' + m).join(', ')}`,
-      );
-      return;
-    }
 
     this.validationError.set(null);
     this.uploadImage.emit(uploadData);
