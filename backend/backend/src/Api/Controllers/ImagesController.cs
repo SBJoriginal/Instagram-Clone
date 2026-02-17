@@ -107,11 +107,20 @@ namespace Api.Controllers
       return Ok(result);
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] ImageUpdateDto update)
     {
+
+      var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
       var image = await _context.Images.FindAsync(id);
       if (image == null) return NotFound();
+
+      if (image.UserId != currentUserId)
+      {
+        return Forbid();
+      }
 
       image.Description = update.Description ?? "";
       image.Hashtags = update.Hashtags ?? "";
@@ -120,6 +129,7 @@ namespace Api.Controllers
       await _context.SaveChangesAsync();
       return Ok(image);
     }
+
     [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
