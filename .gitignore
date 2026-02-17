@@ -66,3 +66,6 @@ docker-compose.vs.*.yml
 # Uploaded images
 backend/backend/wwwroot/images/*
 backend/backend/wwwroot/uploads/*
+
+#authentification
+Security_vulnerabilities.md
