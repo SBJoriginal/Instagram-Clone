@@ -8,7 +8,7 @@ import {
   OnInit,
   inject,
 } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -73,9 +73,21 @@ export class ImageUploadComponent implements OnInit {
 
   // Reactive form
   protected readonly uploadForm = new FormGroup({
-    description: new FormControl('', { nonNullable: true }),
-    hashtags: new FormControl('', { nonNullable: true }),
-    mentions: new FormControl('', { nonNullable: true }),
+    description: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.pattern(/^[^<>]*$/)], // Prevent angle brackets to avoid HTML injection
+    }),
+    hashtags: new FormControl('', {
+      nonNullable: true,
+      validators: [
+        Validators.pattern(/^[a-zA-Z0-9#\s]*$/), // Only allow alpha-numeric, space, and #
+      ],
+    }),
+    mentions: new FormControl('', {
+      nonNullable: true,
+      // Mentions are already controlled so this is a "fail-safe"
+      validators: [Validators.pattern(/^(@[a-zA-Z0-9_]+\s*)*$/)],
+    }),
   });
 
   protected readonly mentionInputControl = new FormControl('');
@@ -292,6 +304,11 @@ export class ImageUploadComponent implements OnInit {
   protected onSubmit(): void {
     const isEditMode = !!this.editData();
     const file = this.selectedFile();
+
+    if (this.uploadForm.invalid) {
+      this.validationError.set('Please fix the errors in the form before saving.');
+      return;
+    }
 
     if (!isEditMode && !file) {
       this.validationError.set('Please select an image file.');

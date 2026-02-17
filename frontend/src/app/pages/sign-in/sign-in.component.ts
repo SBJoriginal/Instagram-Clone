@@ -35,7 +35,14 @@ export class SignInComponent {
   protected readonly errorMessage = signal<string | null>(null);
 
   protected readonly signInForm = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
+    email: [
+      '',
+      [
+        Validators.required,
+        Validators.email,
+        Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
+      ],
+    ],
     password: ['', [Validators.required]],
   });
 
