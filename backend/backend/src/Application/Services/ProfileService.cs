@@ -139,8 +139,13 @@ namespace UGram.src.Application.Services
       return images;
     }
 
-    public async Task CompleteProfileAsync(string userId, UserProfileRequestDto userProfileDto)
+    public async Task CompleteProfileAsync(string userId, UserProfileRequestDto userProfileDto, string requesterUserId)
     {
+      if (userId != requesterUserId)
+      {
+        throw new UnauthorizedAccessException("Broken Access Control: Unauthorized attempt to complete profile.");
+      }
+
       ApplicationUser user = await GetUserById(userId);
       await VerifyProfileDoesntExist(userId);
 
@@ -159,8 +164,13 @@ namespace UGram.src.Application.Services
       await _context.SaveChangesAsync();
     }
 
-    public async Task<ProfilePictureResponseDto> UploadProfilePictureAsync(string userId, IFormFile file)
+    public async Task<ProfilePictureResponseDto> UploadProfilePictureAsync(string userId, IFormFile file, string requesterUserId)
     {
+
+      if (userId != requesterUserId)
+      {
+        throw new UnauthorizedAccessException("Broken Access Control: Unauthorized attempt to change profile picture.");
+      }
       await VerifyUserExistence(userId);
       UserProfile userProfile = GetUserProfile(userId);
 
@@ -204,8 +214,13 @@ namespace UGram.src.Application.Services
       };
     }
 
-    public async Task DeleteProfilePictureAsync(string userId)
+    public async Task DeleteProfilePictureAsync(string userId, string requesterUserId)
     {
+      if (userId != requesterUserId)
+      {
+        throw new UnauthorizedAccessException("Broken Access Control: Unauthorized attempt to delete profile picture.");
+      }
+
       await VerifyUserExistence(userId);
       UserProfile userProfile = GetUserProfile(userId);
 
@@ -229,11 +244,17 @@ namespace UGram.src.Application.Services
       await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateProfileAsync(string userId, UserProfileRequestDto userProfileDto)
+    public async Task UpdateProfileAsync(string userIdToUpdate, UserProfileRequestDto userProfileDto, string requesterUserId)
     {
-      ApplicationUser user = await GetUserById(userId);
-      await VerifyUserExistence(userId);
-      UserProfile userProfile = GetUserProfile(userId);
+
+      if (userIdToUpdate != requesterUserId)
+      {
+        throw new UnauthorizedAccessException("Broken Access Control: You are not authorized to update this profile.");
+      }
+
+      ApplicationUser user = await GetUserById(userIdToUpdate);
+      await VerifyUserExistence(userIdToUpdate);
+      UserProfile userProfile = GetUserProfile(userIdToUpdate);
 
       if (!string.IsNullOrEmpty(userProfileDto.Email) && user.Email != userProfileDto.Email)
       {
