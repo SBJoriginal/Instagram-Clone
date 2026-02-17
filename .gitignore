@@ -67,5 +67,6 @@ docker-compose.vs.*.yml
 backend/backend/wwwroot/images/*
 backend/backend/wwwroot/uploads/*
 
-#authentification
+#Secrets and environment variables
 Security_vulnerabilities.md
+.env
