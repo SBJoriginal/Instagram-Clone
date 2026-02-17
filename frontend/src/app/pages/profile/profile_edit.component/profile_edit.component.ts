@@ -36,11 +36,7 @@ export class ProfileEditComponent {
   editForm = this.fb.group({
     username: [
       this.data.username,
-      [
-        Validators.required,
-        Validators.minLength(3),
-        Validators.pattern(/^[a-zA-Z0-9_]+$/),
-      ],
+      [Validators.required, Validators.minLength(3), Validators.pattern(/^[a-zA-Z0-9_]+$/)],
     ],
     firstName: [
       this.data.firstName,
