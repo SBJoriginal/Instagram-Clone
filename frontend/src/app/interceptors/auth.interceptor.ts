@@ -9,19 +9,23 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
 
   // Don't add token to auth endpoints
-  if (req.url.includes('/api/auth/login') || req.url.includes('/api/auth/register')) {
+  if (req.url.includes('/api/auth/login') ||
+    req.url.includes('/api/auth/register') ||
+    req.url.includes('/api/Profile/username-exists') ||
+    req.url.includes('/api/Profile/email-exists')) {
     return next(req);
   }
+
 
   const token = tokenService.getAccessToken();
 
   // Clone request and add Authorization header if token exists
   const authReq = token
     ? req.clone({
-        setHeaders: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      setHeaders: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
     : req;
 
   return next(authReq).pipe(

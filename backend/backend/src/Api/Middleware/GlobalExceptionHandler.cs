@@ -48,6 +48,14 @@ namespace UGram.src.Api.Middleware
           problemDetails.Type = "https://httpstatuses.com/401";
           _logger.LogWarning("Unauthorized Access: {Message}", unauthorizedAccessException.Message);
           break;
+        case ArgumentException argumentException:
+          httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+          problemDetails.Status = StatusCodes.Status400BadRequest;
+          problemDetails.Title = "Invalid Argument";
+          problemDetails.Detail = argumentException.Message;
+          problemDetails.Type = "https://httpstatuses.com/400";
+          _logger.LogWarning("Argument Exception: {Message}", argumentException.Message);
+          break;
         default:
           httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
           problemDetails.Status = StatusCodes.Status500InternalServerError;

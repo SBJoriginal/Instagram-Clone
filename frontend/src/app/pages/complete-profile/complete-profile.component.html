@@ -9,14 +9,17 @@
 
   <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="auth-form">
     @if (errorMessage()) {
-      <div class="error-message">{{ errorMessage() }}</div>
+    <div class="error-message">{{ errorMessage() }}</div>
     }
 
-    <mat-form-field appearance="outline">
+    <mat-form-field>
       <mat-label>Username</mat-label>
-      <input matInput formControlName="username" placeholder="Choose a username" />
-      @if (profileForm.controls.username.hasError('required')) {
-        <mat-error>Username is required</mat-error>
+      <input matInput formControlName="username">
+      @if (profileForm.get('username')?.hasError('taken')) {
+      <mat-error>This username is already taken</mat-error>
+      }
+      @if (profileForm.get('username')?.hasError('required')) {
+      <mat-error>Username is required</mat-error>
       }
     </mat-form-field>
 
@@ -24,10 +27,10 @@
       <mat-label>First Name</mat-label>
       <input matInput formControlName="firstName" placeholder="John" />
       @if (profileForm.controls.firstName.hasError('required')) {
-        <mat-error>First name is required</mat-error>
+      <mat-error>First name is required</mat-error>
       }
       @if (profileForm.controls.firstName.hasError('pattern')) {
-        <mat-error>First name and last name must only contain characters</mat-error>
+      <mat-error>First name and last name must only contain characters</mat-error>
       }
     </mat-form-field>
 
@@ -35,39 +38,29 @@
       <mat-label>Last Name</mat-label>
       <input matInput formControlName="lastName" placeholder="Doe" />
       @if (profileForm.controls.lastName.hasError('required')) {
-        <mat-error>Last name is required</mat-error>
+      <mat-error>Last name is required</mat-error>
       }
       @if (profileForm.controls.lastName.hasError('pattern')) {
-        <mat-error>First name and last name must only contain characters</mat-error>
+      <mat-error>First name and last name must only contain characters</mat-error>
       }
     </mat-form-field>
 
     <mat-form-field appearance="outline">
       <mat-label>Phone Number</mat-label>
-      <input
-        matInput
-        formControlName="phoneNumber"
-        placeholder="XXX-XXX-XXXX"
-        (input)="onPhoneInput($event)"
-      />
+      <input matInput formControlName="phoneNumber" placeholder="XXX-XXX-XXXX" (input)="onPhoneInput($event)" />
       @if (profileForm.controls.phoneNumber.hasError('required')) {
-        <mat-error>Phone number is required</mat-error>
+      <mat-error>Phone number is required</mat-error>
       }
       @if (profileForm.controls.phoneNumber.hasError('pattern')) {
-        <mat-error>Phone number format must be XXX-XXX-XXXX</mat-error>
+      <mat-error>Phone number format must be XXX-XXX-XXXX</mat-error>
       }
     </mat-form-field>
 
-    <button
-      mat-flat-button
-      color="primary"
-      type="submit"
-      [disabled]="profileForm.invalid || isLoading()"
-    >
+    <button mat-flat-button color="primary" type="submit" [disabled]="profileForm.invalid || isLoading()">
       @if (isLoading()) {
-        <mat-spinner diameter="20"></mat-spinner>
+      <mat-spinner diameter="20"></mat-spinner>
       } @else {
-        Complete Profile
+      Complete Profile
       }
     </button>
   </form>

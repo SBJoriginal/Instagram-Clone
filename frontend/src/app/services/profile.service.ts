@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ProfileRequest, ProfileResponse } from '../models/auth.models';
 import { environment } from '../../environments/environment';
+import { AbstractControl } from '@angular/forms';
 
 @Injectable({
   providedIn: 'root',
@@ -49,4 +50,49 @@ export class ProfileService {
   deleteProfilePicture(): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/profile-picture`);
   }
+
+  checkUsernameExists(username: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiUrl}/username-exists/${username}`);
+  }
+
+  checkEmailExists(email: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiUrl}/email-exists/${email}`);
+  }
+
+  checkUsernameAvailability(control: AbstractControl, currentUsername?: string): void {
+    this.checkAvailability(control, (val) => this.checkUsernameExists(val), currentUsername);
+  }
+
+  checkEmailAvailability(control: AbstractControl, currentEmail?: string): void {
+    this.checkAvailability(control, (val) => this.checkEmailExists(val), currentEmail);
+  }
+
+  private checkAvailability(
+    control: AbstractControl,
+    checkFn: (val: string) => Observable<boolean>,
+    currentValue?: string
+  ): void {
+    const value = control.value;
+    if (!value || value === currentValue) return;
+
+    checkFn(value).subscribe({
+      next: (exists) => {
+        if (exists) {
+          control.setErrors({ ...control.errors, taken: true });
+          control.markAsTouched();
+        } else {
+          this.removeError(control, 'taken');
+        }
+      },
+    });
+  }
+
+  private removeError(control: AbstractControl, errorKey: string): void {
+    const errors = control.errors;
+    if (errors?.[errorKey]) {
+      delete errors[errorKey];
+      control.setErrors(Object.keys(errors).length ? errors : null);
+    }
+  }
 }
+

@@ -80,7 +80,7 @@ namespace Api.Controllers
     {
       try
       {
-        var user = await _context.UserProfiles
+        var user = await _context.Users
           .FirstOrDefaultAsync(p => p.UserName == username);
 
         if (user == null)
@@ -88,7 +88,7 @@ namespace Api.Controllers
           return NotFound(new { error = "User not found" });
         }
 
-        var images = await _imageService.GetAllImagesAsync(user.UserId);
+        var images = await _imageService.GetAllImagesAsync(user.Id);
         return Ok(images);
       }
       catch (Exception ex)

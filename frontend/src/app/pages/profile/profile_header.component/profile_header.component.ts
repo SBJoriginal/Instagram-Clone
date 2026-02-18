@@ -125,35 +125,16 @@ export class ProfileHeader implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.user.update((current) => ({
-          ...current,
-          username: result.username,
-          firstName: result.firstName,
-          lastName: result.lastName,
-          phone: result.phone,
-          profilePictureUrl: this.formatImageUrl(result.avatarUrl || current.profilePictureUrl),
-        }));
+      if (result?.success) {
+        this.loadProfile();
 
-        const profileUpdate: ProfileRequest = {
-          username: result.username,
-          firstName: result.firstName,
-          lastName: result.lastName,
-          email: result.email,
-          phoneNumber: result.phone,
-        };
-
-        this.profileService.updateProfile(profileUpdate).subscribe({
-          next: () => {
-            this.loadProfile();
-            if (!this.isOtherUserProfile()) {
-              this.router.navigate(['/home/profile', profileUpdate.username]);
-            }
-          },
-          error: (err) => {
-            console.error('Failed to update profile info:', err);
-          },
-        });
+        // ✅ Naviguer seulement si le username a changé ET on est sur notre propre profil
+        if (!this.isOtherUserProfile() && result.newUsername) {
+          // Attendre que loadProfile finisse
+          setTimeout(() => {
+            this.router.navigate(['/home/profile', result.newUsername]);
+          }, 100);
+        }
       }
     });
   }

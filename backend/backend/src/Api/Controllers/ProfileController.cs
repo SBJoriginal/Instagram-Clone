@@ -99,5 +99,23 @@ namespace backend.src.Api.Controllers
       }
       return userId;
     }
+
+    [AllowAnonymous]
+    [HttpGet("username-exists/{username}")]
+
+    public async Task<ActionResult<bool>> CheckUsernameExists(string username)
+    {
+      var exists = await _userProfileService.UsernameExistsAsync(username);
+      return Ok(exists);
+    }
+
+    [AllowAnonymous]
+    [HttpGet("email-exists/{email}")]
+
+    public async Task<ActionResult<bool>> CheckEmailExists(string email)
+    {
+      var exists = await _userProfileService.EmailExistsAsync(email);
+      return Ok(exists);
+    }
   }
 }
