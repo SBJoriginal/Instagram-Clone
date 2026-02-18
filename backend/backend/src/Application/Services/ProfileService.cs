@@ -300,8 +300,41 @@ namespace UGram.src.Application.Services
             $"File type '{fileExtension}' is not allowed.",
             nameof(file));
       }
+
+      if (!VerifyMagicBytes(file, fileExtension))
+      {
+        throw new ArgumentException("File content does not match the expected format.", nameof(file));
+      }
     }
 
+    private bool VerifyMagicBytes(IFormFile file, string fileExtension)
+    {
+      var magicBytesDict = new Dictionary<string, byte[]>
+      {
+        { ".jpg", new byte[] { 0xFF, 0xD8, 0xFF } },
+        { ".jpeg", new byte[] { 0xFF, 0xD8, 0xFF } },
+        { ".png", new byte[] { 0x89, 0x50, 0x4E, 0x47 } },
+        { ".gif", new byte[] { 0x47, 0x49, 0x46, 0x38 } },
+        {".webp", new byte[] { 0x52, 0x49, 0x46, 0x46 } }
+      };
+
+      if (!magicBytesDict.TryGetValue(fileExtension.ToLower(), out var expectedMagicBytes))
+      {
+        return false;
+      }
+
+      using var stream = file.OpenReadStream();
+      using var reader = new BinaryReader(stream);
+
+      var fileMagicBytes = reader.ReadBytes(expectedMagicBytes.Length);
+
+      if (stream.CanSeek)
+      {
+        stream.Seek(0, SeekOrigin.Begin);
+      }
+
+      return fileMagicBytes.SequenceEqual(expectedMagicBytes);
+    }
     private async Task VerifyUserExistence(string userId)
     {
       var user = await _userManager.FindByIdAsync(userId);

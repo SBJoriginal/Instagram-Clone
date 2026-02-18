@@ -23,6 +23,12 @@ namespace UGram.src.Application.Services
       if (upload.File == null || upload.File.Length == 0)
         throw new ArgumentException("No file uploaded.");
 
+      var extension = Path.GetExtension(upload.File.FileName).ToLowerInvariant();
+      if (!VerifyMagicBytes(upload.File, extension))
+      {
+        throw new ArgumentException("File content does not match the expected image format.", nameof(upload.File));
+      }
+
       var filePath = await _imageStorageService.SaveImageAsync(upload.File, "images");
 
       var image = new Image
@@ -51,6 +57,35 @@ namespace UGram.src.Application.Services
       };
     }
 
+
+    private bool VerifyMagicBytes(IFormFile file, string fileExtension)
+    {
+      var magicBytesDict = new Dictionary<string, byte[]>
+      {
+        { ".jpg", new byte[] { 0xFF, 0xD8, 0xFF } },
+        { ".jpeg", new byte[] { 0xFF, 0xD8, 0xFF } },
+        { ".png", new byte[] { 0x89, 0x50, 0x4E, 0x47 } },
+        { ".gif", new byte[] { 0x47, 0x49, 0x46, 0x38 } },
+        { ".webp", new byte[] { 0x52, 0x49, 0x46, 0x46 } }
+      };
+
+      if (!magicBytesDict.TryGetValue(fileExtension, out var expectedMagicBytes))
+      {
+        return false;
+      }
+
+      using var stream = file.OpenReadStream();
+      using var reader = new BinaryReader(stream);
+
+      var fileMagicBytes = reader.ReadBytes(expectedMagicBytes.Length);
+
+      if (stream.CanSeek)
+      {
+        stream.Seek(0, SeekOrigin.Begin);
+      }
+
+      return fileMagicBytes.SequenceEqual(expectedMagicBytes);
+    }
     public async Task<IEnumerable<ImageResponseDto>> GetAllImagesAsync(string? userId = null)
     {
       var query = _context.Images.AsQueryable();
