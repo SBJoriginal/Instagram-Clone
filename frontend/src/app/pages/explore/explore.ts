@@ -14,7 +14,12 @@ import { RouterModule, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ImageUploadService, ImageResponse } from '../../services/image-upload.service';
-import { ExploreHeaderComponent } from './explore-header.component/explore-header.component';
+import {
+  ExploreHeaderComponent,
+  SearchType,
+  ImageFilter,
+} from './explore-header.component/explore-header.component';
+import { UserListComponent } from '../user-list/user-list';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -26,6 +31,7 @@ import { Subscription } from 'rxjs';
     MatProgressSpinnerModule,
     MatIconModule,
     ExploreHeaderComponent,
+    UserListComponent,
   ],
   templateUrl: './explore.html',
   styleUrl: './explore.css',
@@ -38,6 +44,9 @@ export class Explore implements OnInit, AfterViewInit, OnDestroy {
   private readonly imageService = inject(ImageUploadService);
   private readonly router = inject(Router);
   private uploadSubscription?: Subscription;
+
+  readonly currentSearchType = signal<SearchType>('images');
+  readonly currentImageFilter = signal<ImageFilter>('description');
 
   readonly images = signal<ImageResponse[]>([]);
   readonly page = signal(1);
@@ -54,6 +63,18 @@ export class Explore implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  onSearchTypeChange(type: SearchType): void {
+    this.currentSearchType.set(type);
+    if (type === 'images' && this.images().length === 0) {
+      this.refreshGrid();
+    }
+  }
+
+  onImageFilterChange(filter: ImageFilter): void {
+    this.currentImageFilter.set(filter);
+    this.refreshGrid();
+  }
+
   private refreshGrid(): void {
     this.images.set([]);
     this.page.set(1);
@@ -68,7 +89,12 @@ export class Explore implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && this.hasMore() && !this.isLoading()) {
+        if (
+          entries[0].isIntersecting &&
+          this.hasMore() &&
+          !this.isLoading() &&
+          this.currentSearchType() === 'images'
+        ) {
           this.loadMore();
         }
       },
