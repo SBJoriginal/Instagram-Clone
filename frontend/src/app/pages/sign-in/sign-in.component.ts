@@ -33,6 +33,7 @@ export class SignInComponent {
 
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
+  protected readonly countdown = signal<number>(0);
 
   protected readonly signInForm = this.fb.group({
     email: [
@@ -47,6 +48,8 @@ export class SignInComponent {
   });
 
   protected onSignIn(): void {
+    if (this.countdown() > 0) return;
+
     if (this.signInForm.valid && !this.isLoading()) {
       this.isLoading.set(true);
       this.errorMessage.set(null);
@@ -60,11 +63,30 @@ export class SignInComponent {
         },
         error: (error) => {
           this.isLoading.set(false);
-          this.errorMessage.set(
-            error.error?.message || 'Login failed. Please check your credentials.',
-          );
+          if (error.status === 503 || error.status === 429) {
+            this.startCountdown(60);
+            this.errorMessage.set(
+              'Too many login attempts. Please wait 60 seconds before trying again.',
+            );
+          } else {
+            this.errorMessage.set(
+              error.error?.message || 'Login failed. Please check your credentials.',
+            );
+          }
         },
       });
     }
+  }
+
+  private startCountdown(seconds: number): void {
+    this.countdown.set(seconds);
+    const interval = setInterval(() => {
+      const current = this.countdown();
+      if (current > 0) {
+        this.countdown.set(current - 1);
+      } else {
+        clearInterval(interval);
+      }
+    }, 1000);
   }
 }
