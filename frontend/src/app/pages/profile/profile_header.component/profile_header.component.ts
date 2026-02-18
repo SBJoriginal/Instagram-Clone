@@ -9,7 +9,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ProfileEditComponent } from '../profile_edit.component/profile_edit.component';
 import { ProfileService } from '../../../services/profile.service';
 import { TokenService } from '../../../services/token.service';
-import { ProfileRequest, ProfileResponse } from '../../../models/auth.models';
+import { ProfileResponse } from '../../../models/auth.models';
 
 @Component({
   selector: 'app-profile-header',

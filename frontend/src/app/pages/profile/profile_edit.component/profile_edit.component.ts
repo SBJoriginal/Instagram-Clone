@@ -54,25 +54,22 @@ export class ProfileEditComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.editForm.get('username')?.valueChanges.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-    ).subscribe(() => {
-      this.profileService.checkUsernameAvailability(
-        this.editForm.get('username')!,
-        this.data.username
-      );
-    });
+    this.editForm
+      .get('username')
+      ?.valueChanges.pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(() => {
+        this.profileService.checkUsernameAvailability(
+          this.editForm.get('username')!,
+          this.data.username,
+        );
+      });
 
-    this.editForm.get('email')?.valueChanges.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-    ).subscribe(() => {
-      this.profileService.checkEmailAvailability(
-        this.editForm.get('email')!,
-        this.data.email
-      );
-    });
+    this.editForm
+      .get('email')
+      ?.valueChanges.pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(() => {
+        this.profileService.checkEmailAvailability(this.editForm.get('email')!, this.data.email);
+      });
   }
 
   onFileSelected(event: Event) {
@@ -135,11 +132,11 @@ export class ProfileEditComponent implements OnInit {
           const file = this.selectedFile();
           if (file) {
             this.profileService.uploadProfilePicture(file).subscribe({
-              next: (response) => {
+              next: () => {
                 this.isSaving.set(false);
                 this.dialogRef.close({ success: true });
               },
-              error: (err) => {
+              error: () => {
                 this.isSaving.set(false);
                 this.generalError.set('Failed to upload image');
               },
@@ -178,9 +175,8 @@ export class ProfileEditComponent implements OnInit {
     const control = this.editForm.get(fieldName);
     const currentValue = control?.value;
     if (control?.hasError('taken')) {
-      control.statusChanges.pipe(
-        take(1)
-      ).subscribe(() => {
+      control.statusChanges.pipe(take(1)).subscribe(() => {
+        // Trigger status change recalculation
       });
     }
 
