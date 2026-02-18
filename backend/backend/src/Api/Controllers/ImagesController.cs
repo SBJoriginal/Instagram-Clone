@@ -43,7 +43,6 @@ namespace Api.Controllers
     [HttpGet]
     public async Task<IActionResult> GetImages([FromQuery] int page = 1, [FromQuery] int limit = 15)
     {
-      throw new Exception("CRITICAL_DATABASE_PASSWORD_12345");
       var images = await _imageService.GetAllImagesAsync();
       return Ok(images);
     }
