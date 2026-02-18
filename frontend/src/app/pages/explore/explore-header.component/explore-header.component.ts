@@ -1,28 +1,22 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+
+export type SearchType = 'images' | 'users';
+export type ImageFilter = 'description' | 'hashtag';
 
 @Component({
   selector: 'app-explore-header',
   standalone: true,
-  template: `
-    <header class="explore-header">
-      <h1>Explore</h1>
-    </header>
-  `,
-  styles: [
-    `
-      .explore-header {
-        padding: 20px;
-        border-bottom: 1px solid #dbdbdb;
-        text-align: center;
-        background: white;
-      }
-      h1 {
-        margin: 0;
-        font-size: 1.5rem;
-        font-weight: 600;
-      }
-    `,
-  ],
+  imports: [CommonModule, MatButtonToggleModule, MatInputModule, MatFormFieldModule, MatIconModule],
+  templateUrl: './explore-header.component.html',
+  styleUrl: './explore-header.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExploreHeaderComponent {}
+export class ExploreHeaderComponent {
+  searchTypeChange = output<SearchType>();
+  imageFilterChange = output<ImageFilter>();
+}

@@ -1,1 +1,32 @@
-<h1>Explore</h1>
+<header class="explore-header">
+  <div class="search-container">
+    <mat-form-field appearance="outline" class="search-bar">
+      <mat-icon matPrefix>search</mat-icon>
+      <mat-label>Search ugram</mat-label>
+      <input matInput placeholder="Explore something new..." />
+    </mat-form-field>
+
+    <div class="controls">
+      <mat-button-toggle-group
+        #searchGroup="matButtonToggleGroup"
+        value="images"
+        (change)="searchTypeChange.emit(searchGroup.value)"
+      >
+        <mat-button-toggle value="images">Images</mat-button-toggle>
+        <mat-button-toggle value="users">Users</mat-button-toggle>
+      </mat-button-toggle-group>
+
+      @if (searchGroup.value === 'images') {
+        <mat-button-toggle-group
+          #filterGroup="matButtonToggleGroup"
+          value="description"
+          (change)="imageFilterChange.emit(filterGroup.value)"
+          class="filter-group"
+        >
+          <mat-button-toggle value="description">Description</mat-button-toggle>
+          <mat-button-toggle value="hashtag">#Hashtag</mat-button-toggle>
+        </mat-button-toggle-group>
+      }
+    </div>
+  </div>
+</header>
