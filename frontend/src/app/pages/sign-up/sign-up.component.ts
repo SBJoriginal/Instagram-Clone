@@ -73,15 +73,15 @@ export class SignUpComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    this.signUpForm.get('email')?.valueChanges.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-    ).subscribe(() => {
-      const emailControl = this.signUpForm.get('email')!;
-      if (emailControl.value && emailControl.valid) {
-        this.profileService.checkEmailAvailability(emailControl);
-      }
-    });
+    this.signUpForm
+      .get('email')
+      ?.valueChanges.pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(() => {
+        const emailControl = this.signUpForm.get('email')!;
+        if (emailControl.value && emailControl.valid) {
+          this.profileService.checkEmailAvailability(emailControl);
+        }
+      });
   }
 
   protected isRequirementMet(errorName: string): boolean {
@@ -114,8 +114,8 @@ export class SignUpComponent implements OnInit {
           } else {
             this.errorMessage.set(
               error.error?.message ||
-              error.error?.detail ||
-              'Registration failed. Please try again.',
+                error.error?.detail ||
+                'Registration failed. Please try again.',
             );
           }
         },

@@ -70,7 +70,7 @@ export class ProfileService {
   private checkAvailability(
     control: AbstractControl,
     checkFn: (val: string) => Observable<boolean>,
-    currentValue?: string
+    currentValue?: string,
   ): void {
     const value = control.value;
     if (!value || value === currentValue) return;
@@ -95,4 +95,3 @@ export class ProfileService {
     }
   }
 }
-

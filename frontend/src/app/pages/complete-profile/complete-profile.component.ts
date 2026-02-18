@@ -43,15 +43,15 @@ export class CompleteProfileComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.profileForm.get('username')?.valueChanges.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-    ).subscribe(() => {
-      const usernameControl = this.profileForm.get('username')!;
-      if (usernameControl.value) {
-        this.profileService.checkUsernameAvailability(usernameControl);
-      }
-    });
+    this.profileForm
+      .get('username')
+      ?.valueChanges.pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(() => {
+        const usernameControl = this.profileForm.get('username')!;
+        if (usernameControl.value) {
+          this.profileService.checkUsernameAvailability(usernameControl);
+        }
+      });
   }
 
   protected onPhoneInput(event: Event): void {
@@ -103,7 +103,6 @@ export class CompleteProfileComponent implements OnInit {
           if (error.status === 400 && error.error?.message?.includes('Username')) {
             this.errorMessage.set('This username is already taken. Please choose another one.');
           } else {
-
             const errorMsg =
               error.error?.detail ||
               error.error?.message ||
