@@ -27,3 +27,25 @@
   object-fit: contain;
   display: block;
 }
+
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #999;
+}
+
+.no-results mat-icon {
+  font-size: 80px;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.no-results p {
+  font-size: 1.2em;
+  margin: 0;
+}

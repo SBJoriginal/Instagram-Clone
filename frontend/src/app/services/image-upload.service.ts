@@ -60,6 +60,22 @@ export class ImageUploadService {
     });
   }
 
+  searchImages(
+    filterType: 'description' | 'hashtag',
+    query: string,
+    page: number,
+    pageSize: number,
+  ): Observable<ImageResponse[]> {
+    return this.http.get<ImageResponse[]>(`${this.apiUrl}/search`, {
+      params: {
+        filterType: filterType,
+        query: query,
+        page: page.toString(),
+        pageSize: pageSize.toString(),
+      },
+    });
+  }
+
   getMyImages(): Observable<ImageResponse[]> {
     return this.http.get<ImageResponse[]>(`${this.apiUrl}/my-images`);
   }
