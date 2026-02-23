@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { AfterViewInit, Component, inject, signal } from '@angular/core';
 import {
   FormBuilder,
   Validators,
@@ -16,6 +16,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../services/auth.service';
 import { PasswordValidators } from '../../validators/password.validators';
+import { environment } from '../../../environments/environment';
+
+declare const google: any;
 
 @Component({
   selector: 'app-sign-up',
@@ -35,7 +38,7 @@ import { PasswordValidators } from '../../validators/password.validators';
   templateUrl: './sign-up.component.html',
   styleUrl: './sign-up.component.css',
 })
-export class SignUpComponent {
+export class SignUpComponent implements AfterViewInit {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
@@ -69,6 +72,41 @@ export class SignUpComponent {
     { validators: this.passwordMatchValidator },
   );
 
+  ngAfterViewInit(): void {
+    if (typeof google !== 'undefined') {
+      google.accounts.id.initialize({
+        client_id: environment.googleClientId,
+        callback: this.handleGoogleResponse.bind(this),
+      });
+
+      google.accounts.id.renderButton(document.getElementById('google-btn-signup'), {
+        theme: 'outline',
+        size: 'large',
+        width: '100%',
+      });
+    }
+  }
+
+  private handleGoogleResponse(response: any): void {
+    if (response.credential) {
+      this.isLoading.set(true);
+      this.errorMessage.set(null);
+
+      this.authService.loginWithGoogle(response.credential).subscribe({
+        next: () => {
+          this.isLoading.set(false);
+          this.router.navigate(['/complete-profile']);
+        },
+        error: (error) => {
+          this.isLoading.set(false);
+          this.errorMessage.set(
+            error.error?.message || 'Google login failed. Please try again.',
+          );
+        },
+      });
+    }
+  }
+
   protected isRequirementMet(errorName: string): boolean {
     const passwordControl = this.signUpForm.controls.password;
     if (passwordControl.hasError('required')) {
@@ -99,8 +137,8 @@ export class SignUpComponent {
           } else {
             this.errorMessage.set(
               error.error?.message ||
-                error.error?.detail ||
-                'Registration failed. Please try again.',
+              error.error?.detail ||
+              'Registration failed. Please try again.',
             );
           }
         },

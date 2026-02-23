@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,6 +8,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LogoComponent } from '../../shared/ui/logo/logo.component';
 import { BackArrowComponent } from '../../shared/ui/back-arrow/back-arrow.component';
 import { AuthService } from '../../services/auth.service';
+import { environment } from '../../../environments/environment';
+
+declare const google: any;
 
 @Component({
   selector: 'app-sign-in',
@@ -26,7 +29,7 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './sign-in.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SignInComponent {
+export class SignInComponent implements AfterViewInit {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
@@ -38,6 +41,41 @@ export class SignInComponent {
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]],
   });
+
+  ngAfterViewInit(): void {
+    if (typeof google !== 'undefined') {
+      google.accounts.id.initialize({
+        client_id: environment.googleClientId,
+        callback: this.handleGoogleResponse.bind(this),
+      });
+
+      google.accounts.id.renderButton(document.getElementById('google-btn'), {
+        theme: 'outline',
+        size: 'large',
+        width: '100%',
+      });
+    }
+  }
+
+  private handleGoogleResponse(response: any): void {
+    if (response.credential) {
+      this.isLoading.set(true);
+      this.errorMessage.set(null);
+
+      this.authService.loginWithGoogle(response.credential).subscribe({
+        next: () => {
+          this.isLoading.set(false);
+          this.router.navigate(['/home']);
+        },
+        error: (error) => {
+          this.isLoading.set(false);
+          this.errorMessage.set(
+            error.error?.message || 'Google login failed. Please try again.',
+          );
+        },
+      });
+    }
+  }
 
   protected onSignIn(): void {
     if (this.signInForm.valid && !this.isLoading()) {
