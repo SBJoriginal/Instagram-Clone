@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -85,13 +86,19 @@ export class CompleteProfileComponent {
           this.isLoading.set(false);
           this.router.navigate(['/home']);
         },
-        error: (error) => {
+        error: (error: HttpErrorResponse) => {
           this.isLoading.set(false);
-          const errorMsg =
-            error.error?.detail ||
-            error.error?.message ||
-            'Failed to complete profile. Please try again.';
-          this.errorMessage.set(errorMsg);
+          if (error.status === 409) {
+            this.errorMessage.set(
+              'A profile already exists for your account. Please sign in instead.',
+            );
+          } else if (error.status === 400) {
+            this.errorMessage.set(
+              error.error?.message || 'Invalid profile data. Please check your inputs.',
+            );
+          } else {
+            this.errorMessage.set('Failed to complete profile. Please try again.');
+          }
         },
       });
     }

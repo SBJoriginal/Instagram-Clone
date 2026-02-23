@@ -6,7 +6,7 @@ import { environment } from '../../environments/environment';
 interface GoogleButtonOptions {
   theme: string;
   size: string;
-  width: string;
+  width: number;
 }
 
 interface GoogleIdConfig {
@@ -47,7 +47,7 @@ export class GoogleAuthService {
     google.accounts.id.renderButton(document.getElementById(elementId), {
       theme: 'outline',
       size: 'large',
-      width: '100%',
+      width: 300,
     });
   }
 
