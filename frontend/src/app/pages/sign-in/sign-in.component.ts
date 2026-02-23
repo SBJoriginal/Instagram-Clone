@@ -4,17 +4,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LogoComponent } from '../../shared/ui/logo/logo.component';
 import { BackArrowComponent } from '../../shared/ui/back-arrow/back-arrow.component';
 import { AuthService } from '../../services/auth.service';
-import { environment } from '../../../environments/environment';
-
-declare const google: any;
+import { GoogleAuthService } from '../../services/google-auth.service';
 
 @Component({
   selector: 'app-sign-in',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -33,6 +31,7 @@ export class SignInComponent implements AfterViewInit {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly googleAuth = inject(GoogleAuthService);
 
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
@@ -43,38 +42,7 @@ export class SignInComponent implements AfterViewInit {
   });
 
   ngAfterViewInit(): void {
-    if (typeof google !== 'undefined') {
-      google.accounts.id.initialize({
-        client_id: environment.googleClientId,
-        callback: this.handleGoogleResponse.bind(this),
-      });
-
-      google.accounts.id.renderButton(document.getElementById('google-btn'), {
-        theme: 'outline',
-        size: 'large',
-        width: '100%',
-      });
-    }
-  }
-
-  private handleGoogleResponse(response: any): void {
-    if (response.credential) {
-      this.isLoading.set(true);
-      this.errorMessage.set(null);
-
-      this.authService.loginWithGoogle(response.credential).subscribe({
-        next: () => {
-          this.isLoading.set(false);
-          this.router.navigate(['/home']);
-        },
-        error: (error) => {
-          this.isLoading.set(false);
-          this.errorMessage.set(
-            error.error?.message || 'Google login failed. Please try again.',
-          );
-        },
-      });
-    }
+    this.googleAuth.initialize('google-btn', '/home', this.errorMessage);
   }
 
   protected onSignIn(): void {
@@ -89,7 +57,7 @@ export class SignInComponent implements AfterViewInit {
           this.isLoading.set(false);
           this.router.navigate(['/home']);
         },
-        error: (error) => {
+        error: (error: HttpErrorResponse) => {
           this.isLoading.set(false);
           this.errorMessage.set(
             error.error?.message || 'Login failed. Please check your credentials.',

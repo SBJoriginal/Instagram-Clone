@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import {
   FormBuilder,
   Validators,
@@ -10,15 +10,14 @@ import { BackArrowComponent } from '../../shared/ui/back-arrow/back-arrow.compon
 import { LogoComponent } from '../../shared/ui/logo/logo.component';
 import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
 import { Router, RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../services/auth.service';
 import { PasswordValidators } from '../../validators/password.validators';
-import { environment } from '../../../environments/environment';
-
-declare const google: any;
+import { GoogleAuthService } from '../../services/google-auth.service';
 
 @Component({
   selector: 'app-sign-up',
@@ -37,11 +36,13 @@ declare const google: any;
   ],
   templateUrl: './sign-up.component.html',
   styleUrl: './sign-up.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SignUpComponent implements AfterViewInit {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly googleAuth = inject(GoogleAuthService);
 
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
@@ -73,38 +74,7 @@ export class SignUpComponent implements AfterViewInit {
   );
 
   ngAfterViewInit(): void {
-    if (typeof google !== 'undefined') {
-      google.accounts.id.initialize({
-        client_id: environment.googleClientId,
-        callback: this.handleGoogleResponse.bind(this),
-      });
-
-      google.accounts.id.renderButton(document.getElementById('google-btn-signup'), {
-        theme: 'outline',
-        size: 'large',
-        width: '100%',
-      });
-    }
-  }
-
-  private handleGoogleResponse(response: any): void {
-    if (response.credential) {
-      this.isLoading.set(true);
-      this.errorMessage.set(null);
-
-      this.authService.loginWithGoogle(response.credential).subscribe({
-        next: () => {
-          this.isLoading.set(false);
-          this.router.navigate(['/complete-profile']);
-        },
-        error: (error) => {
-          this.isLoading.set(false);
-          this.errorMessage.set(
-            error.error?.message || 'Google login failed. Please try again.',
-          );
-        },
-      });
-    }
+    this.googleAuth.initialize('google-btn-signup', '/complete-profile', this.errorMessage);
   }
 
   protected isRequirementMet(errorName: string): boolean {
@@ -127,7 +97,7 @@ export class SignUpComponent implements AfterViewInit {
           this.isLoading.set(false);
           this.router.navigate(['/complete-profile']);
         },
-        error: (error) => {
+        error: (error: HttpErrorResponse) => {
           this.isLoading.set(false);
 
           if (error.status === 409) {
@@ -137,8 +107,8 @@ export class SignUpComponent implements AfterViewInit {
           } else {
             this.errorMessage.set(
               error.error?.message ||
-              error.error?.detail ||
-              'Registration failed. Please try again.',
+                error.error?.detail ||
+                'Registration failed. Please try again.',
             );
           }
         },
