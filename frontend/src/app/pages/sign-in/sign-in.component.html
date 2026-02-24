@@ -33,10 +33,12 @@
       mat-flat-button
       color="primary"
       type="submit"
-      [disabled]="signInForm.invalid || isLoading()"
+      [disabled]="signInForm.invalid || isLoading() || countdown() > 0"
     >
       @if (isLoading()) {
         <mat-spinner diameter="20"></mat-spinner>
+      } @else if (countdown() > 0) {
+        Wait {{ countdown() }}s
       } @else {
         Sign In
       }

@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using backend.src.Domain.Entities;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Logging;
 
 namespace UGram.src.Application.Services
 {
@@ -18,10 +19,12 @@ namespace UGram.src.Application.Services
   public class JwtTokenService : ITokenService
   {
     private readonly IConfiguration _configuration;
+    private readonly ILogger<JwtTokenService> _logger;
 
-    public JwtTokenService(IConfiguration configuration)
+    public JwtTokenService(IConfiguration configuration, ILogger<JwtTokenService> logger)
     {
       _configuration = configuration;
+      _logger = logger;
     }
 
     public string GenerateToken(ApplicationUser user)
@@ -105,8 +108,13 @@ namespace UGram.src.Application.Services
 
         return principal;
       }
-      catch
+      catch (SecurityTokenException)
       {
+        return null;
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError(ex, "JWT validation error");
         return null;
       }
     }

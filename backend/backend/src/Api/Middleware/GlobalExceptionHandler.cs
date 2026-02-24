@@ -17,9 +17,12 @@ namespace UGram.src.Api.Middleware
 
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
+      var traceId = httpContext.TraceIdentifier;
+
       var problemDetails = new ProblemDetails
       {
         Instance = httpContext.Request.Path,
+        Extensions = { ["traceId"] = traceId }
       };
 
       switch (exception)
@@ -30,7 +33,7 @@ namespace UGram.src.Api.Middleware
           problemDetails.Title = apiException.Title;
           problemDetails.Detail = apiException.Message;
           problemDetails.Type = $"https://httpstatuses.com/{apiException.StatusCode}";
-          _logger.LogWarning("API Exception: {Message}", apiException.Message);
+          _logger.LogWarning("API Exception: {Message} [TraceId: {TraceId}]", apiException.Message, traceId);
           break;
         case ValidationException validationException:
           httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
@@ -38,7 +41,7 @@ namespace UGram.src.Api.Middleware
           problemDetails.Title = "Validation Error";
           problemDetails.Detail = validationException.Message;
           problemDetails.Type = "https://httpstatuses.com/400";
-          _logger.LogWarning("Validation Exception: {Message}", validationException.Message);
+          _logger.LogWarning("Validation Exception: {Message} [TraceId: {TraceId}]", validationException.Message, traceId);
           break;
         case UnauthorizedAccessException unauthorizedAccessException:
           httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
@@ -46,7 +49,15 @@ namespace UGram.src.Api.Middleware
           problemDetails.Title = "Unauthorized";
           problemDetails.Detail = unauthorizedAccessException.Message;
           problemDetails.Type = "https://httpstatuses.com/401";
-          _logger.LogWarning("Unauthorized Access: {Message}", unauthorizedAccessException.Message);
+          _logger.LogWarning("Unauthorized Access: {Message} [TraceId: {TraceId}]", unauthorizedAccessException.Message, traceId);
+          break;
+        case ArgumentException argEx:
+          httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+          problemDetails.Status = StatusCodes.Status400BadRequest;
+          problemDetails.Title = "Bad Request";
+          problemDetails.Detail = argEx.Message;
+          problemDetails.Type = "https://httpstatuses.com/400";
+          _logger.LogWarning("Invalid Argument: {Message} [TraceId: {TraceId}]", argEx.Message, traceId);
           break;
         default:
           httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
@@ -54,7 +65,7 @@ namespace UGram.src.Api.Middleware
           problemDetails.Title = "Internal Server Error";
           problemDetails.Detail = "An unexpected error occurred.";
           problemDetails.Type = "https://httpstatuses.com/500";
-          _logger.LogError(exception, "Unhandled Exception: {Message}", exception.Message);
+          _logger.LogError(exception, "Unhandled Exception: {Message} [TraceId: {TraceId}]", exception.Message, traceId);
           break;
       }
 

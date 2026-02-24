@@ -151,7 +151,7 @@ export class ProfileHeader implements OnInit {
             }
           },
           error: (err) => {
-            console.error('Failed to update profile info:', err);
+            console.error('Failed to update profile:', err);
           },
         });
       }
