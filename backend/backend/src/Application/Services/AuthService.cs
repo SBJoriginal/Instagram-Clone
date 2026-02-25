@@ -1,8 +1,9 @@
+using System.Security.Claims;
 using backend.src.Application.DTOs;
 using backend.src.Domain.Entities;
 using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
-using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 using UGram.src.Application.DTOs;
 using UGram.src.Application.Interfaces;
 using UGram.src.Domain.Exceptions.Users;
@@ -13,11 +14,20 @@ namespace UGram.src.Application.Services
   {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ITokenService _tokenService;
+    private readonly AppDbContext _context;
+    private readonly IImageStorageService _imageStorageService;
 
-    public AuthService(UserManager<ApplicationUser> userManager, ITokenService tokenService)
+    public AuthService(
+      UserManager<ApplicationUser> userManager,
+      ITokenService tokenService,
+      AppDbContext context,
+      IImageStorageService imageStorageService
+    )
     {
       _userManager = userManager;
       _tokenService = tokenService;
+      _context = context;
+      _imageStorageService = imageStorageService;
     }
 
     public async Task<RegisterResponseDto> RegisterAsync(RegisterDto registerDto)
@@ -29,11 +39,7 @@ namespace UGram.src.Application.Services
         throw new UserAlreadyExistsException(registerDto.Email);
       }
 
-      var newUser = new ApplicationUser
-      {
-        UserName = registerDto.Email,
-        Email = registerDto.Email,
-      };
+      var newUser = new ApplicationUser { UserName = registerDto.Email, Email = registerDto.Email };
 
       await RegisterUserAsync(registerDto, newUser);
 
@@ -45,7 +51,7 @@ namespace UGram.src.Application.Services
         Id = newUser.Id,
         Email = newUser.Email,
         Token = token,
-        RefreshToken = refreshToken
+        RefreshToken = refreshToken,
       };
       return userDto;
     }
@@ -67,7 +73,7 @@ namespace UGram.src.Application.Services
         Id = user.Id,
         Email = user.Email ?? string.Empty,
         Token = token,
-        RefreshToken = refreshToken
+        RefreshToken = refreshToken,
       };
     }
 
@@ -94,7 +100,7 @@ namespace UGram.src.Application.Services
         Id = userId,
         Email = principal.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
         Token = newAccessToken,
-        RefreshToken = newRefreshToken
+        RefreshToken = newRefreshToken,
       };
     }
 
@@ -106,6 +112,48 @@ namespace UGram.src.Application.Services
       {
         var errors = string.Join(", ", result.Errors.Select(e => e.Description));
         throw new Exception($"User registration failed: {errors}");
+      }
+    }
+
+    public async Task DeleteAccountAsync(string userId)
+    {
+      var user = await _userManager.FindByIdAsync(userId);
+      if (user == null)
+        throw new Exception("User not found.");
+
+      var userImages = await _context.Images.Where(i => i.UserId == userId).ToListAsync();
+
+      foreach (var image in userImages)
+      {
+        await _imageStorageService.DeleteImageAsync(image.FilePath);
+      }
+
+      _context.Images.RemoveRange(userImages);
+
+      var username =
+        user.UserProfile?.UserName
+        ?? (await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId))?.UserName;
+
+      if (!string.IsNullOrEmpty(username))
+      {
+        var mentionTag = $"@{username}";
+        var imagesWithMention = await _context
+          .Images.Where(i => i.Mentions.Contains(mentionTag))
+          .ToListAsync();
+
+        foreach (var image in imagesWithMention)
+        {
+          image.Mentions = image.Mentions.Replace(mentionTag, "").Trim();
+        }
+      }
+
+      await _context.SaveChangesAsync();
+
+      var result = await _userManager.DeleteAsync(user);
+      if (!result.Succeeded)
+      {
+        var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+        throw new Exception($"Failed to delete user account: {errors}");
       }
     }
   }

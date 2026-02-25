@@ -69,6 +69,15 @@ export class AuthService {
     this.router.navigate(['/']);
   }
 
+  deleteAccount(): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/delete-account`).pipe(
+      tap(() => {
+        this.tokenService.clearTokens();
+        this.router.navigate(['/sign-in']);
+      }),
+    );
+  }
+
   isAuthenticated(): boolean {
     const token = this.tokenService.getAccessToken();
     if (!token) {
