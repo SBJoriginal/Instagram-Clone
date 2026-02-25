@@ -113,7 +113,7 @@ namespace UGram.src.Application.Services
       return new UserProfileResponseDto
       {
         Id = profile.UserId,
-        UserName = user.UserName,
+        UserName = user.UserName!,
         FirstName = profile.FirstName,
         LastName = profile.LastName,
         Email = profile.Email,
@@ -163,7 +163,7 @@ namespace UGram.src.Application.Services
         UserName = userProfileDto.UserName,
         FirstName = userProfileDto.FirstName,
         LastName = userProfileDto.LastName,
-        Email = user.Email ?? string.Empty,
+        Email = user.Email!,
         PhoneNumber = userProfileDto.PhoneNumber
       };
 
