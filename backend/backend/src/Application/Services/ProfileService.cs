@@ -97,8 +97,13 @@ namespace UGram.src.Application.Services
 
     public async Task<UserProfileResponseDto?> GetProfileByUsernameAsync(string username)
     {
+      var user = await _userManager.Users
+        .FirstOrDefaultAsync(u => u.UserName == username);
+
+      if (user == null) return null;
+
       var profile = await _context.UserProfiles
-          .FirstOrDefaultAsync(p => p.UserName == username);
+          .FirstOrDefaultAsync(p => p.UserId == user.Id);
 
       if (profile == null)
       {
@@ -108,7 +113,7 @@ namespace UGram.src.Application.Services
       return new UserProfileResponseDto
       {
         Id = profile.UserId,
-        UserName = profile.UserName,
+        UserName = user.UserName!,
         FirstName = profile.FirstName,
         LastName = profile.LastName,
         Email = profile.Email,
@@ -149,13 +154,21 @@ namespace UGram.src.Application.Services
       ApplicationUser user = await GetUserById(userId);
       await VerifyProfileDoesntExist(userId);
 
+      user.UserName = userProfileDto.UserName;
+      var result = await _userManager.UpdateAsync(user);
+      if (!result.Succeeded)
+      {
+        var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+        throw new ValidationException($"Username error: {errors}");
+      }
+
       var newProfile = new UserProfile
       {
         UserId = userId,
         UserName = userProfileDto.UserName,
         FirstName = userProfileDto.FirstName,
         LastName = userProfileDto.LastName,
-        Email = user.Email ?? string.Empty,
+        Email = user.Email!,
         PhoneNumber = userProfileDto.PhoneNumber
       };
 
@@ -256,8 +269,25 @@ namespace UGram.src.Application.Services
       await VerifyUserExistence(userIdToUpdate);
       UserProfile userProfile = GetUserProfile(userIdToUpdate);
 
+      if (!string.IsNullOrEmpty(userProfileDto.UserName) && user.UserName != userProfileDto.UserName)
+      {
+        user.UserName = userProfileDto.UserName;
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+          var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+          throw new ValidationException($"Username error: {errors}");
+        }
+      }
+
       if (!string.IsNullOrEmpty(userProfileDto.Email) && user.Email != userProfileDto.Email)
       {
+        var existingUser = await _userManager.FindByEmailAsync(userProfileDto.Email);
+        if (existingUser != null && existingUser.Id != userIdToUpdate)
+        {
+          throw new ValidationException($"Email error: Email '{userProfileDto.Email}' is already taken.");
+        }
+
         user.Email = userProfileDto.Email;
         var result = await _userManager.UpdateAsync(user);
         if (!result.Succeeded)
@@ -274,6 +304,18 @@ namespace UGram.src.Application.Services
       userProfile.PhoneNumber = userProfileDto.PhoneNumber;
 
       await _context.SaveChangesAsync();
+    }
+
+    public async Task<bool> UsernameExistsAsync(string username)
+    {
+      return await _userManager.Users
+          .AnyAsync(u => u.NormalizedUserName == username.ToUpper());
+    }
+
+    public async Task<bool> EmailExistsAsync(string email)
+    {
+      return await _userManager.Users
+          .AnyAsync(u => u.NormalizedEmail == email.ToUpper());
     }
 
     private void ValidateImageFile(IFormFile file)
