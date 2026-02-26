@@ -37,7 +37,10 @@ export class ProfileEditComponent implements OnInit {
   selectedFile = signal<File | null>(null);
 
   editForm = this.fb.group({
-    username: [this.data.username, [Validators.required]],
+    username: [
+      this.data.username,
+      [Validators.required, Validators.minLength(3), Validators.pattern(/^[a-zA-Z0-9_]+$/)],
+    ],
     firstName: [
       this.data.firstName,
       [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)],
@@ -45,7 +48,11 @@ export class ProfileEditComponent implements OnInit {
     lastName: [this.data.lastName, [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)]],
     email: [
       this.data.email,
-      [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)],
+      [
+        Validators.required,
+        Validators.email,
+        Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
+      ],
     ],
     phone: [
       this.data.phone?.includes('X') ? '' : this.data.phone,
@@ -76,6 +83,13 @@ export class ProfileEditComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
+
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        console.error('Invalid file type');
+        return;
+      }
+
       this.selectedFile.set(file);
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -173,7 +187,7 @@ export class ProfileEditComponent implements OnInit {
 
   onFieldFocus(fieldName: string): void {
     const control = this.editForm.get(fieldName);
-    const currentValue = control?.value;
+    const currentValue = control?.value?.toString().trim();
     if (control?.hasError('taken')) {
       control.statusChanges.pipe(take(1)).subscribe(() => {
         // Trigger status change recalculation

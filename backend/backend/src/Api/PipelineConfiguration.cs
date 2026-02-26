@@ -37,6 +37,8 @@ namespace UGram.src.Api
       });
       app.ConfigureUploadsFolder();
       app.UseCors("AllowAll");
+      app.UseRouting();
+      app.UseRateLimiter();
       app.UseAuthentication();
       app.UseAuthorization();
       app.MapControllers();

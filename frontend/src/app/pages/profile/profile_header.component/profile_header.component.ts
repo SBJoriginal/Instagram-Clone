@@ -128,9 +128,7 @@ export class ProfileHeader implements OnInit {
       if (result?.success) {
         this.loadProfile();
 
-        // ✅ Naviguer seulement si le username a changé ET on est sur notre propre profil
         if (!this.isOtherUserProfile() && result.newUsername) {
-          // Attendre que loadProfile finisse
           setTimeout(() => {
             this.router.navigate(['/home/profile', result.newUsername]);
           }, 100);

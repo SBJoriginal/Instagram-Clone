@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UGram.src.Application.DTOs;
 using UGram.src.Application.Interfaces;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace backend.src.Api.Controllers
 {
@@ -24,6 +25,7 @@ namespace backend.src.Api.Controllers
       return CreatedAtAction(nameof(Register), new { id = createdUser.Id }, createdUser);
     }
 
+    [EnableRateLimiting("login")]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
     {

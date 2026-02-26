@@ -53,6 +53,7 @@ export class SignUpComponent implements OnInit {
         '',
         [
           Validators.required,
+          Validators.email,
           Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
         ],
       ],
@@ -97,7 +98,7 @@ export class SignUpComponent implements OnInit {
       this.isLoading.set(true);
       this.errorMessage.set(null);
 
-      const { email, password } = this.signUpForm.value;
+      const { email, password } = this.signUpForm.getRawValue();
 
       this.authService.register(email!, password!).subscribe({
         next: () => {
