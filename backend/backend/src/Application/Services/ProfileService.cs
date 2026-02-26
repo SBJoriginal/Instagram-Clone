@@ -282,9 +282,8 @@ namespace UGram.src.Application.Services
 
       if (!string.IsNullOrEmpty(userProfileDto.Email) && user.Email != userProfileDto.Email)
       {
-        // ✅ AJOUTEZ: Vérifier si l'email existe déjà
         var existingUser = await _userManager.FindByEmailAsync(userProfileDto.Email);
-        if (existingUser != null && existingUser.Id != userId)
+        if (existingUser != null && existingUser.Id != userIdToUpdate)
         {
           throw new ValidationException($"Email error: Email '{userProfileDto.Email}' is already taken.");
         }
