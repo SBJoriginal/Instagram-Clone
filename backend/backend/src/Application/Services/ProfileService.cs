@@ -47,7 +47,7 @@ namespace UGram.src.Application.Services
         Email = userProfile.Email,
         PhoneNumber = userProfile.PhoneNumber,
         SignUpDate = userProfile.SignUpDate,
-        ProfilePictureUrl = userProfile.ProfilePictureUrl
+        ProfilePictureUrl = _imageStorageService.GetImageUrl(userProfile.ProfilePictureUrl)
       };
 
       return userProfileDto;
@@ -55,7 +55,8 @@ namespace UGram.src.Application.Services
 
     public async Task<List<UserProfileResponseDto>> GetAllProfilesAsync()
     {
-      var profiles = await _context.UserProfiles
+      var dbProfiles = await _context.UserProfiles.ToListAsync();
+      var profiles = dbProfiles
           .Select(p => new UserProfileResponseDto
           {
             Id = p.UserId,
@@ -65,9 +66,9 @@ namespace UGram.src.Application.Services
             Email = p.Email,
             PhoneNumber = p.PhoneNumber,
             SignUpDate = p.SignUpDate,
-            ProfilePictureUrl = p.ProfilePictureUrl
+            ProfilePictureUrl = _imageStorageService.GetImageUrl(p.ProfilePictureUrl)
           })
-          .ToListAsync();
+          .ToList();
 
       return profiles;
     }
@@ -91,7 +92,7 @@ namespace UGram.src.Application.Services
         Email = profile.Email,
         PhoneNumber = profile.PhoneNumber,
         SignUpDate = profile.SignUpDate,
-        ProfilePictureUrl = profile.ProfilePictureUrl
+        ProfilePictureUrl = _imageStorageService.GetImageUrl(profile.ProfilePictureUrl)
       };
     }
 
@@ -114,15 +115,17 @@ namespace UGram.src.Application.Services
         Email = profile.Email,
         PhoneNumber = profile.PhoneNumber,
         SignUpDate = profile.SignUpDate,
-        ProfilePictureUrl = profile.ProfilePictureUrl
+        ProfilePictureUrl = _imageStorageService.GetImageUrl(profile.ProfilePictureUrl)
       };
     }
 
     public async Task<List<ImageResponseDto>> GetProfileImagesAsync(string userId)
     {
-      var images = await _context.Images
+      var dbImages = await _context.Images
           .Where(img => img.UserId == userId && !img.Description.EndsWith("has changed their profile picture"))
-          .Select(img => new ImageResponseDto
+          .ToListAsync();
+
+      var images = dbImages.Select(img => new ImageResponseDto
           {
             Id = img.Id,
             FileName = img.FileName,
@@ -131,10 +134,10 @@ namespace UGram.src.Application.Services
             Description = img.Description,
             Hashtags = img.Hashtags,
             Mentions = img.Mentions,
-            FilePath = img.FilePath,
+            FilePath = _imageStorageService.GetImageUrl(img.FilePath),
             CreatedAt = img.CreatedAt
           })
-          .ToListAsync();
+          .ToList();
 
       return images;
     }
@@ -209,7 +212,7 @@ namespace UGram.src.Application.Services
 
       return new ProfilePictureResponseDto
       {
-        ProfilePictureUrl = imagePath,
+        ProfilePictureUrl = _imageStorageService.GetImageUrl(imagePath),
         ImageId = image.Id
       };
     }

@@ -54,7 +54,7 @@ namespace UGram.src.Api
           Type = SecuritySchemeType.Http,
           Scheme = "Bearer",
           BearerFormat = "JWT",
-          Description = "Enter your JWT token in the format: Bearer {token}"
+          Description = "Enter your JWT token in the format: {token}"
         });
 
         options.AddSecurityRequirement(new OpenApiSecurityRequirement

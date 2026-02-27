@@ -31,18 +31,14 @@ namespace UGram.src.Infrastructure
     {
       var environment = configuration["ASPNETCORE_ENVIRONMENT"] ?? "Development";
 
-      if (environment == "Production" || environment == "Staging")
+      if (environment != "Docker")
       {
-        // AWS S3 service commented out until properly configured
-        //services.AddAWSService<IAmazonS3>();
-        //services.AddScoped<IImageStorageService, S3ImageStorageService>();
-
-        // Fallback to local storage if S3 not configured
-        services.AddScoped<IImageStorageService, LocalImageStorageService>();
+        services.AddAWSService<IAmazonS3>();
+        services.AddScoped<IImageStorageService, S3ImageStorageService>();
       }
       else
       {
-        // Use local storage for development
+        // Use local storage for Docker
         services.AddScoped<IImageStorageService, LocalImageStorageService>();
       }
     }
