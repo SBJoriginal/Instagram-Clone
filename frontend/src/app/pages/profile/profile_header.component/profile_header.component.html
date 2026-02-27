@@ -1,55 +1,48 @@
 <mat-card class="profile-card" id="profile-container">
   @if (isLoading()) {
-    <div class="loading" id="profile-loading">Loading profile...</div>
-  } @else {
-    <mat-card-header id="profile-header">
-      <img
-        mat-card-avatar
-        class="large-avatar"
-        [src]="user().profilePictureUrl || '/default-avatar.png'"
-        alt="User avatar"
-        id="profile-avatar"
-        (error)="$event.target.src = '/default-avatar.png'"
-      />
-      <div class="header-text" id="profile-info">
-        <div class="user-titles">
-          @if (user().username) {
-            <mat-card-title class="username-title" id="profile-username">{{
-              user().username
-            }}</mat-card-title>
-          }
-          <mat-card-subtitle class="name-subtitle" id="profile-fullname">
-            @if (user().firstName && user().lastName) {
-              {{ user().firstName }} {{ user().lastName }}
-            } @else {
-              Profile Not Complete
-            }
-          </mat-card-subtitle>
-        </div>
-        <mat-card-subtitle class="user-details">
-          <a [href]="'mailto:' + user().email" class="user-email" id="profile-email">{{
-            user().email
-          }}</a>
-          @if (user().phone) {
-            <div id="profile-phone">{{ user().phone }}</div>
-          }
-          @if (user().memberSince) {
-            <div id="profile-member-since">Member since {{ user().memberSince }}</div>
+  <div class="loading" id="profile-loading">Loading profile...</div>
+  } @else if (isDeletedAccount()) { <div class="deleted-account">
+    <mat-icon>person_off</mat-icon>
+    <h2>This account has been deleted</h2>
+    <p>This user's profile is no longer available.</p>
+  </div>} @else {
+  <mat-card-header id="profile-header">
+    <img mat-card-avatar class="large-avatar" [src]="user().profilePictureUrl || '/default-avatar.png'"
+      alt="User avatar" id="profile-avatar" (error)="$event.target.src = '/default-avatar.png'" />
+    <div class="header-text" id="profile-info">
+      <div class="user-titles">
+        @if (user().username) {
+        <mat-card-title class="username-title" id="profile-username">{{
+          user().username
+          }}</mat-card-title>
+        }
+        <mat-card-subtitle class="name-subtitle" id="profile-fullname">
+          @if (user().firstName && user().lastName) {
+          {{ user().firstName }} {{ user().lastName }}
+          } @else {
+          Profile Not Complete
           }
         </mat-card-subtitle>
       </div>
-    </mat-card-header>
+      <mat-card-subtitle class="user-details">
+        <a [href]="'mailto:' + user().email" class="user-email" id="profile-email">{{
+          user().email
+          }}</a>
+        @if (user().phone) {
+        <div id="profile-phone">{{ user().phone }}</div>
+        }
+        @if (user().memberSince) {
+        <div id="profile-member-since">Member since {{ user().memberSince }}</div>
+        }
+      </mat-card-subtitle>
+    </div>
+  </mat-card-header>
 
-    @if (!isOtherUserProfile()) {
-      <button
-        mat-icon-button
-        class="settings-button"
-        (click)="openSettings()"
-        aria-label="Settings"
-        id="profile-settings-btn"
-      >
-        <mat-icon>settings</mat-icon>
-      </button>
-    }
+  @if (!isOtherUserProfile()) {
+  <button mat-icon-button class="settings-button" (click)="openSettings()" aria-label="Settings"
+    id="profile-settings-btn">
+    <mat-icon>settings</mat-icon>
+  </button>
+  }
   }
 </mat-card>

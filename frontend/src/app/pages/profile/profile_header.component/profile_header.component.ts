@@ -50,6 +50,8 @@ export class ProfileHeader implements OnInit {
   protected readonly profilePictureUrl = signal('');
   protected readonly isLoading = signal(true);
   protected readonly isOtherUserProfile = signal(false);
+  protected readonly isDeletedAccount = signal(false);
+
 
   ngOnInit(): void {
     this.loadProfile();
@@ -83,6 +85,9 @@ export class ProfileHeader implements OnInit {
           error: (error) => {
             if (error.status !== 404) {
               console.error('Failed to load profile:', error);
+            }
+            if (error.status === 404 && isOtherUser) {
+              this.isDeletedAccount.set(true);
             }
             const email = !isOtherUser ? this.tokenService.getEmailFromToken() : '';
             this.user.set({
