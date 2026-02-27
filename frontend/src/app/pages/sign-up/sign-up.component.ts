@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import {
   FormBuilder,
   Validators,
@@ -16,6 +16,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../services/auth.service';
 import { PasswordValidators } from '../../validators/password.validators';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { ProfileService } from '../../services/profile.service';
 
 @Component({
   selector: 'app-sign-up',
@@ -35,10 +37,11 @@ import { PasswordValidators } from '../../validators/password.validators';
   templateUrl: './sign-up.component.html',
   styleUrl: './sign-up.component.css',
 })
-export class SignUpComponent {
+export class SignUpComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly profileService = inject(ProfileService);
 
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
@@ -69,6 +72,18 @@ export class SignUpComponent {
     },
     { validators: this.passwordMatchValidator },
   );
+
+  ngOnInit(): void {
+    this.signUpForm
+      .get('email')
+      ?.valueChanges.pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(() => {
+        const emailControl = this.signUpForm.get('email')!;
+        if (emailControl.value && emailControl.valid) {
+          this.profileService.checkEmailAvailability(emailControl);
+        }
+      });
+  }
 
   protected isRequirementMet(errorName: string): boolean {
     const passwordControl = this.signUpForm.controls.password;

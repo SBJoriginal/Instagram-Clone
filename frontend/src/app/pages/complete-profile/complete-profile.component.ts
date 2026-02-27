@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,6 +10,7 @@ import { ProfileService } from '../../services/profile.service';
 import { TokenService } from '../../services/token.service';
 import { BackArrowComponent } from '../../shared/ui/back-arrow/back-arrow.component';
 import { LogoComponent } from '../../shared/ui/logo/logo.component';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-complete-profile',
@@ -25,7 +26,7 @@ import { LogoComponent } from '../../shared/ui/logo/logo.component';
   templateUrl: './complete-profile.component.html',
   styleUrl: './complete-profile.component.css',
 })
-export class CompleteProfileComponent {
+export class CompleteProfileComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly profileService = inject(ProfileService);
@@ -40,6 +41,18 @@ export class CompleteProfileComponent {
     lastName: ['', [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)]],
     phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{3}-\d{3}-\d{4}$/)]],
   });
+
+  ngOnInit(): void {
+    this.profileForm
+      .get('username')
+      ?.valueChanges.pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(() => {
+        const usernameControl = this.profileForm.get('username')!;
+        if (usernameControl.value) {
+          this.profileService.checkUsernameAvailability(usernameControl);
+        }
+      });
+  }
 
   protected onPhoneInput(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -87,11 +100,15 @@ export class CompleteProfileComponent {
         },
         error: (error) => {
           this.isLoading.set(false);
-          const errorMsg =
-            error.error?.detail ||
-            error.error?.message ||
-            'Failed to complete profile. Please try again.';
-          this.errorMessage.set(errorMsg);
+          if (error.status === 400 && error.error?.message?.includes('Username')) {
+            this.errorMessage.set('This username is already taken. Please choose another one.');
+          } else {
+            const errorMsg =
+              error.error?.detail ||
+              error.error?.message ||
+              'Failed to complete profile. Please try again.';
+            this.errorMessage.set(errorMsg);
+          }
         },
       });
     }
