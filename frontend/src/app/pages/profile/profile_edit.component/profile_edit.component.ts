@@ -1,6 +1,6 @@
 import { Component, inject, ChangeDetectionStrategy, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,6 +9,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ProfileEditData } from '../profile.model';
 import { ProfileService } from '../../../services/profile.service';
 import { debounceTime, distinctUntilChanged, take } from 'rxjs';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-profile-edit',
@@ -32,6 +33,8 @@ export class ProfileEditComponent implements OnInit {
   private profileService = inject(ProfileService);
   protected readonly generalError = signal<string | null>(null);
   protected readonly isSaving = signal(false);
+  private dialog = inject(MatDialog);
+  private authService = inject(AuthService);
 
   tempAvatarUrl = signal<string | null>(this.data.avatarUrl);
   selectedFile = signal<File | null>(null);
@@ -207,4 +210,42 @@ export class ProfileEditComponent implements OnInit {
       control?.setValue(this.originalValues[fieldName as keyof typeof this.originalValues]);
     }
   }
+
+  onDeleteAccount(): void {
+    const confirmRef = this.dialog.open(ConfirmDeleteDialogComponent);
+
+    confirmRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.authService.deleteAccount().subscribe({
+          next: () => {
+            this.dialogRef.close();
+          },
+          error: (err: unknown) => {
+            console.error('Failed to delete account:', err);
+          },
+        });
+      }
+    });
+  }
 }
+
+@Component({
+  selector: 'app-confirm-delete-dialog',
+  imports: [MatDialogModule, MatButtonModule],
+  template: `
+    <h2 mat-dialog-title>Delete Account</h2>
+    <mat-dialog-content>
+      Are you sure you want to delete your account? This action is irreversible.
+      All your images and profile data will be permanently deleted.
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button [mat-dialog-close]="false">Cancel</button>
+      <button mat-flat-button color="warn" [mat-dialog-close]="true">
+        Delete
+      </button>
+    </mat-dialog-actions>
+  `,
+})
+export class ConfirmDeleteDialogComponent { }
+
+
