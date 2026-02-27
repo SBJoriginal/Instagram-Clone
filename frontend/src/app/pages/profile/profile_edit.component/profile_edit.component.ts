@@ -10,6 +10,8 @@ import { ProfileEditData } from '../profile.model';
 import { ProfileService } from '../../../services/profile.service';
 import { debounceTime, distinctUntilChanged, take } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
+import { ConfirmDeleteDialogComponent } from './confirm_delete_dialog.component';
+
 
 @Component({
   selector: 'app-profile-edit',
@@ -212,14 +214,18 @@ export class ProfileEditComponent implements OnInit {
   }
 
   onDeleteAccount(): void {
-    const confirmRef = this.dialog.open(ConfirmDeleteDialogComponent);
+    this.dialogRef.close();
+
+    const confirmRef = this.dialog.open(ConfirmDeleteDialogComponent, {
+      width: '420px',
+      disableClose: true,
+      backdropClass: 'delete-dialog-backdrop',
+    });
 
     confirmRef.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
         this.authService.deleteAccount().subscribe({
-          next: () => {
-            this.dialogRef.close();
-          },
+          next: () => { },
           error: (err: unknown) => {
             console.error('Failed to delete account:', err);
           },
@@ -228,24 +234,4 @@ export class ProfileEditComponent implements OnInit {
     });
   }
 }
-
-@Component({
-  selector: 'app-confirm-delete-dialog',
-  imports: [MatDialogModule, MatButtonModule],
-  template: `
-    <h2 mat-dialog-title>Delete Account</h2>
-    <mat-dialog-content>
-      Are you sure you want to delete your account? This action is irreversible.
-      All your images and profile data will be permanently deleted.
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button [mat-dialog-close]="false">Cancel</button>
-      <button mat-flat-button color="warn" [mat-dialog-close]="true">
-        Delete
-      </button>
-    </mat-dialog-actions>
-  `,
-})
-export class ConfirmDeleteDialogComponent { }
-
 
