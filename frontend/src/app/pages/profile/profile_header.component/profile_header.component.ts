@@ -52,7 +52,6 @@ export class ProfileHeader implements OnInit {
   protected readonly isOtherUserProfile = signal(false);
   protected readonly isDeletedAccount = signal(false);
 
-
   ngOnInit(): void {
     this.loadProfile();
   }

@@ -8,11 +8,26 @@
   <div class="edit-layout">
     <div class="avatar-section">
       <div class="avatar-preview-container">
-        <img [src]="tempAvatarUrl() || '/default-avatar.png'" alt="User avatar" class="preview-avatar" />
-        <button mat-button class="camera-overlay" (click)="fileInput.click()" aria-label="Change photo">
+        <img
+          [src]="tempAvatarUrl() || '/default-avatar.png'"
+          alt="User avatar"
+          class="preview-avatar"
+        />
+        <button
+          mat-button
+          class="camera-overlay"
+          (click)="fileInput.click()"
+          aria-label="Change photo"
+        >
           <mat-icon>photo_camera</mat-icon>
         </button>
-        <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" style="display: none" />
+        <input
+          #fileInput
+          type="file"
+          accept="image/*"
+          (change)="onFileSelected($event)"
+          style="display: none"
+        />
       </div>
       <p class="avatar-hint">Click to change photo</p>
     </div>
@@ -20,69 +35,98 @@
     <form [formGroup]="editForm" class="edit-form">
       <mat-form-field appearance="outline">
         <mat-label>Username</mat-label>
-        <input matInput formControlName="username" placeholder="Username" (focus)="onFieldFocus('username')"
-          (blur)="onFieldBlur('username')" />
+        <input
+          matInput
+          formControlName="username"
+          placeholder="Username"
+          (focus)="onFieldFocus('username')"
+          (blur)="onFieldBlur('username')"
+        />
         <mat-icon matSuffix>person</mat-icon>
         @if (editForm.get('username')?.hasError('taken')) {
           <mat-error>This username is already taken</mat-error>
         }
         @if (editForm.get('username')?.hasError('required')) {
-        <mat-error> Username is required </mat-error>
+          <mat-error> Username is required </mat-error>
         }
       </mat-form-field>
 
       <div class="form-row">
         <mat-form-field appearance="outline">
           <mat-label>First Name</mat-label>
-          <input matInput formControlName="firstName" placeholder="First Name" (focus)="onFieldFocus('firstName')"
-            (blur)="onFieldBlur('firstName')" />
+          <input
+            matInput
+            formControlName="firstName"
+            placeholder="First Name"
+            (focus)="onFieldFocus('firstName')"
+            (blur)="onFieldBlur('firstName')"
+          />
           @if (editForm.get('firstName')?.hasError('required')) {
-          <mat-error> First name is required </mat-error>
+            <mat-error> First name is required </mat-error>
           }
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Last Name</mat-label>
-          <input matInput formControlName="lastName" placeholder="Last Name" (focus)="onFieldFocus('lastName')"
-            (blur)="onFieldBlur('lastName')" />
+          <input
+            matInput
+            formControlName="lastName"
+            placeholder="Last Name"
+            (focus)="onFieldFocus('lastName')"
+            (blur)="onFieldBlur('lastName')"
+          />
           @if (editForm.get('lastName')?.hasError('required')) {
-          <mat-error> Last name is required </mat-error>
+            <mat-error> Last name is required </mat-error>
           }
         </mat-form-field>
       </div>
 
       @if (
-      (editForm.get('firstName')?.hasError('pattern') ||
-      editForm.get('lastName')?.hasError('pattern')) &&
-      (editForm.get('firstName')?.touched || editForm.get('lastName')?.touched)
+        (editForm.get('firstName')?.hasError('pattern') ||
+          editForm.get('lastName')?.hasError('pattern')) &&
+        (editForm.get('firstName')?.touched || editForm.get('lastName')?.touched)
       ) {
-      <div class="shared-error">First name and last name must only contain characters</div>
+        <div class="shared-error">First name and last name must only contain characters</div>
       }
 
       <mat-form-field appearance="outline">
         <mat-label>Email Address</mat-label>
-        <input matInput type="email" formControlName="email" placeholder="Email Address" (focus)="onFieldFocus('email')"
-          (blur)="onFieldBlur('email')" />
+        <input
+          matInput
+          type="email"
+          formControlName="email"
+          placeholder="Email Address"
+          (focus)="onFieldFocus('email')"
+          (blur)="onFieldBlur('email')"
+        />
         <mat-icon matSuffix>email</mat-icon>
         @if (editForm.get('email')?.hasError('taken')) {
           <mat-error>This email is already registered</mat-error>
         }
         @if (editForm.get('email')?.hasError('required')) {
-        <mat-error> Email is required </mat-error>
+          <mat-error> Email is required </mat-error>
         } @else if (editForm.get('email')?.hasError('pattern')) {
-        <mat-error> Invalid email format (e.g. .com) </mat-error>
+          <mat-error> Invalid email format (e.g. .com) </mat-error>
         }
       </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>Phone Number</mat-label>
-        <input matInput type="tel" formControlName="phone" placeholder="XXX-XXX-XXXX" maxlength="12"
-          (input)="onPhoneInput($event)" (focus)="onFieldFocus('phone')" (blur)="onFieldBlur('phone')" />
+        <input
+          matInput
+          type="tel"
+          formControlName="phone"
+          placeholder="XXX-XXX-XXXX"
+          maxlength="12"
+          (input)="onPhoneInput($event)"
+          (focus)="onFieldFocus('phone')"
+          (blur)="onFieldBlur('phone')"
+        />
         <mat-icon matSuffix>phone</mat-icon>
         @if (editForm.get('phone')?.hasError('required')) {
-        <mat-error> Phone is required </mat-error>
+          <mat-error> Phone is required </mat-error>
         } @else if (editForm.get('phone')?.hasError('pattern')) {
-        <mat-error> Use XXX-XXX-XXXX </mat-error>
+          <mat-error> Use XXX-XXX-XXXX </mat-error>
         }
       </mat-form-field>
     </form>
@@ -90,12 +134,16 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="dialog-actions">
-  <button mat-button class="delete-btn" (click)="onDeleteAccount()">
-    Delete Account
-  </button>
+  <button mat-button class="delete-btn" (click)="onDeleteAccount()">Delete Account</button>
   <span class="spacer"></span>
   <button mat-button (click)="onCancel()" class="cancel-btn">Cancel</button>
-  <button mat-flat-button color="primary" (click)="onSave()" class="save-btn" [disabled]="editForm.invalid">
+  <button
+    mat-flat-button
+    color="primary"
+    (click)="onSave()"
+    class="save-btn"
+    [disabled]="editForm.invalid"
+  >
     Save Changes
   </button>
 </mat-dialog-actions>
