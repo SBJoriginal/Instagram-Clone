@@ -225,7 +225,6 @@ export class ProfileEditComponent implements OnInit {
     confirmRef.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
         this.authService.deleteAccount().subscribe({
-          next: () => { },
           error: (err: unknown) => {
             console.error('Failed to delete account:', err);
           },
@@ -234,4 +233,3 @@ export class ProfileEditComponent implements OnInit {
     });
   }
 }
-
