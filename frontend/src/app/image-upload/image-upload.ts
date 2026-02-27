@@ -218,8 +218,9 @@ export class ImageUploadComponent implements OnInit {
       }
 
       if (data.filePath) {
+        const filePath = data.filePath;
         const baseUrl = environment.apiUrl.replace('/api', '');
-        this.previewUrl.set(baseUrl + data.filePath);
+        this.previewUrl.set(filePath.startsWith('http') ? filePath : baseUrl + filePath);
       }
     }
 

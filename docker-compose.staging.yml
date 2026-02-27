@@ -1,0 +1,24 @@
+# Staging override — points backend at RDS instead of local Postgres
+# Usage: docker compose -f docker-compose.yml -f docker-compose.staging.yml up
+#
+# Requires in your .env:
+#   STAGING_DB_CONNECTION=Host=<rds-endpoint>;Database=ugram_staging;Username=postgres;Password=<password>
+#   JWT_SECRET=<staging-secret>
+#   AWS_REGION=us-east-2
+
+services:
+  db:
+    # Disable local Postgres — staging uses RDS
+    profiles: [ "disabled" ]
+
+  backend:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Staging
+      - ConnectionStrings__DefaultConnection=${STAGING_DB_CONNECTION}
+      - JwtSettings__Secret=${JWT_SECRET}
+      - AWS_REGION=${AWS_REGION:-us-east-2}
+    volumes:
+      # No ~/.aws mount — use IAM credentials / env vars for staging
+      - ./backend/backend/uploads:/app/uploads
+      - ./backend/backend/wwwroot/images:/app/wwwroot/images
+    depends_on: {}

@@ -1,0 +1,50 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  migrate-and-deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+
+    defaults:
+      run:
+        working-directory: ./backend/backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install EF Core tools
+        run: dotnet tool install --global dotnet-ef
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore
+
+      # Migrations run BEFORE deploy — if this fails, deploy does not run
+      - name: Run migrations against Staging RDS
+        env:
+          ASPNETCORE_ENVIRONMENT: Staging
+          ConnectionStrings__DefaultConnection: ${{ secrets.STAGING_DB_CONNECTION }}
+        run: |
+          dotnet ef database update \
+            --project UGram.csproj \
+            --no-build
+
+      - name: Deploy to Elastic Beanstalk
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: us-east-2
+        run: |
+          pip install awsebcli --quiet
+          eb deploy ugram-staging --timeout 20

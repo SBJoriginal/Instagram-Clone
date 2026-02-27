@@ -13,7 +13,9 @@ namespace UGram.src.Application.Services
     public S3ImageStorageService(IAmazonS3 s3Client, IConfiguration configuration)
     {
       _s3Client = s3Client;
-      _bucketName = configuration["S3:BucketName"] ?? throw new ArgumentNullException("S3:BucketName config is missing");
+      _bucketName = Environment.GetEnvironmentVariable("S3_BUCKET_NAME")
+        ?? configuration["S3:BucketName"]
+        ?? throw new InvalidOperationException("S3 bucket name is not configured. Set S3_BUCKET_NAME env var or S3:BucketName in appsettings.");
       _expirationMinutes = configuration.GetValue<int>("S3:PresignedUrlExpirationMinutes", 60);
     }
 
@@ -57,7 +59,7 @@ namespace UGram.src.Application.Services
       await _s3Client.DeleteObjectAsync(deleteRequest);
     }
 
-    public string GetImageUrl(string filePath)
+    public async Task<string> GetImageUrlAsync(string filePath)
     {
       if (string.IsNullOrEmpty(filePath))
         return string.Empty;
@@ -73,7 +75,7 @@ namespace UGram.src.Application.Services
         Expires = DateTime.UtcNow.AddMinutes(_expirationMinutes)
       };
 
-      return _s3Client.GetPreSignedURL(request);
+      return await _s3Client.GetPreSignedURLAsync(request);
     }
   }
 }

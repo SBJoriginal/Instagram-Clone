@@ -1,64 +1,63 @@
-# Project Architecture
+# UGram
 
-## 1. Frontend
-- **Framework:** Angular
-- **UI Component Library:** Angular Material
-- **State Management:** Services + RxJS (no global store yet).
-- **Routing:** Angular Router with guards for future auth.
+## Architecture
 
-## 2. Backend
-- **Language:** C#
-- **Framework:** ASP.NET Core
-- **API:** RESTful endpoints using Controllers
-- **ORM:** Entity Framework Core
-- **Logging:** Built-in ASP.NET Core logging
+| Layer | Technology |
+|---|---|
+| Frontend | Angular + Angular Material |
+| Backend | ASP.NET Core 8, REST API, Clean Architecture |
+| ORM | Entity Framework Core |
+| Database | PostgreSQL 15 |
+| File Storage | Amazon S3 |
+| CI/CD | GitHub Actions |
+| Deployment | AWS Elastic Beanstalk |
 
-## 3. Database
-- **Primary DB:** PostgreSQL
+---
 
-## 4. Image Storage
-- **Storage:** Amazon S3
+## Getting Started
 
-## 5. CI/CD
-- **CI Tool:** GitHub Actions
-- **Enforced Checks:**
-  - Linting (ESLint for frontend)
-  - Formatting (Prettier / dotnet format)
-  - Build & test verification
-  - Branch naming & PR checks (feature → develop → release)
-- **Pipeline Purpose:** Ensure code quality and reproducibility
+### Prerequisites
 
-## 6. Local Development
+- Docker Desktop
+- .NET 8 SDK (for local development without Docker)
+- AWS CLI configured with a dev IAM user (`aws configure`)
 
-### Running Only the Database (for Visual Studio Debugging)
+### Quick start
 
-To debug the backend in Visual Studio while using Docker for the database:
+```bash
+# 1. Copy environment template and fill in values
+cp .env.example .env
 
-```powershell
-# Start only the database
-docker-compose --profile dev up -d
-
-# Or explicitly run just the database service
-docker-compose up -d db
+# 2. Start the full stack
+docker compose --profile full up --build
 ```
 
-Then open the solution in Visual Studio and press **F5** to start debugging. The backend will connect to the Docker database on `localhost:5432`.
+| Service | URL |
+|---|---|
+| Frontend | http://localhost:4200 |
+| Backend API | http://localhost:8081 |
+| Swagger UI | http://localhost:8081/swagger |
 
-### Running the Full Stack
+**→ See [`docker/README.md`](docker/README.md) for the full environment guide**, including:
+- Local vs staging vs production setup
+- EF Core migration workflow
+- AWS credential strategy
+- Troubleshooting
 
-```powershell
-# Run all services (database + backend + frontend)
-docker-compose --profile full up -d
+---
 
-# Or use the default (same as above)
-docker-compose up -d
-```
+## Environments
 
-**Access points:**
-- Frontend: http://localhost:4200
-- Backend API: http://localhost:8081
-- Swagger UI: http://localhost:8081/swagger
-- Database: localhost:5432
+| Environment | Database | Migrations | Triggered by |
+|---|---|---|---|
+| `Development` | Local Postgres (Docker) | Auto on startup | `dotnet run` |
+| `Docker` | Local Postgres (Docker) | Auto on startup | `docker compose up` |
+| `Staging` | AWS RDS | CI only (before deploy) | Push to `main` |
+| `Production` | AWS RDS | CI only (before deploy) | Release workflow |
 
-## 7. Deployment
-- Same method as course
+---
+
+## CI/CD
+
+- **`ci.yml`** — runs on all branches: lint, format, build, test
+- **`deploy-staging.yml`** — runs on push to `main`: migrate → deploy to Elastic Beanstalk
