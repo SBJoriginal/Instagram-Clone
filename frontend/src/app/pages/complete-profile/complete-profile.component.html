@@ -12,10 +12,13 @@
       <div class="error-message">{{ errorMessage() }}</div>
     }
 
-    <mat-form-field appearance="outline">
+    <mat-form-field>
       <mat-label>Username</mat-label>
-      <input matInput formControlName="username" placeholder="Choose a username" />
-      @if (profileForm.controls.username.hasError('required')) {
+      <input matInput formControlName="username" />
+      @if (profileForm.get('username')?.hasError('taken')) {
+        <mat-error>This username is already taken</mat-error>
+      }
+      @if (profileForm.get('username')?.hasError('required')) {
         <mat-error>Username is required</mat-error>
       }
     </mat-form-field>

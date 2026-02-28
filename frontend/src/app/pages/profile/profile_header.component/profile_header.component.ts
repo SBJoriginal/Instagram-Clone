@@ -9,7 +9,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ProfileEditComponent } from '../profile_edit.component/profile_edit.component';
 import { ProfileService } from '../../../services/profile.service';
 import { TokenService } from '../../../services/token.service';
-import { ProfileRequest, ProfileResponse } from '../../../models/auth.models';
+import { ProfileResponse } from '../../../models/auth.models';
 
 @Component({
   selector: 'app-profile-header',
@@ -125,35 +125,14 @@ export class ProfileHeader implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.user.update((current) => ({
-          ...current,
-          username: result.username,
-          firstName: result.firstName,
-          lastName: result.lastName,
-          phone: result.phone,
-          profilePictureUrl: this.formatImageUrl(result.avatarUrl || current.profilePictureUrl),
-        }));
+      if (result?.success) {
+        this.loadProfile();
 
-        const profileUpdate: ProfileRequest = {
-          username: result.username,
-          firstName: result.firstName,
-          lastName: result.lastName,
-          email: result.email,
-          phoneNumber: result.phone,
-        };
-
-        this.profileService.updateProfile(profileUpdate).subscribe({
-          next: () => {
-            this.loadProfile();
-            if (!this.isOtherUserProfile()) {
-              this.router.navigate(['/home/profile', profileUpdate.username]);
-            }
-          },
-          error: (err) => {
-            console.error('Failed to update profile info:', err);
-          },
-        });
+        if (!this.isOtherUserProfile() && result.newUsername) {
+          setTimeout(() => {
+            this.router.navigate(['/home/profile', result.newUsername]);
+          }, 100);
+        }
       }
     });
   }

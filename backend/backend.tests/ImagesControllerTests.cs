@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
+using System.Security.Claims;
 using UGram.src.Application.DTOs;
 using UGram.src.Application.Interfaces;
 
@@ -18,6 +20,7 @@ namespace Backend.Tests
     private readonly Mock<IWebHostEnvironment> _mockEnvironment;
     private readonly Mock<IImageService> _mockImageService;
     private readonly ImagesController _controller;
+    private const string TestUserId = "test-user-id";
 
     public ImagesControllerTests()
     {
@@ -32,14 +35,38 @@ namespace Backend.Tests
       _mockEnvironment.Setup(e => e.WebRootPath).Returns("wwwroot");
       _mockEnvironment.Setup(e => e.ContentRootPath).Returns("root");
 
-      _controller = new ImagesController(_mockImageService.Object, _context, _mockEnvironment.Object);
+      _controller = new ImagesController(
+          _mockImageService.Object,
+          _context,
+          _mockEnvironment.Object,
+          new Mock<ILogger<ImagesController>>().Object);
+
+      // Mock the User Claims to prevent NullReferenceException when checking ownership
+      var claims = new List<Claim>
+      {
+          new Claim(ClaimTypes.NameIdentifier, TestUserId)
+      };
+      var identity = new ClaimsIdentity(claims, "TestAuth");
+      var principal = new ClaimsPrincipal(identity);
+
+      _controller.ControllerContext = new ControllerContext
+      {
+        HttpContext = new DefaultHttpContext { User = principal }
+      };
     }
 
     [Fact]
     public async Task Update_ReturnsOk_WhenImageExists()
     {
-      // Arrange
-      var image = new Image { Id = 1, Description = "Old", FilePath = "/local.png", CreatedAt = DateTime.UtcNow };
+      // Arrange - Added UserId to match the authenticated user
+      var image = new Image
+      {
+        Id = 1,
+        Description = "Old",
+        UserId = TestUserId,
+        FilePath = "/local.png",
+        CreatedAt = DateTime.UtcNow
+      };
       _context.Images.Add(image);
       await _context.SaveChangesAsync();
 
@@ -66,8 +93,15 @@ namespace Backend.Tests
     [Fact]
     public async Task Delete_ReturnsNoContent_WhenImageExists()
     {
-      // Arrange
-      var image = new Image { Id = 2, Description = "Delete Me", FilePath = "/delete.png", CreatedAt = DateTime.UtcNow };
+      // Arrange - Added UserId to match the authenticated user
+      var image = new Image
+      {
+        Id = 2,
+        Description = "Delete Me",
+        UserId = TestUserId,
+        FilePath = "/delete.png",
+        CreatedAt = DateTime.UtcNow
+      };
       _context.Images.Add(image);
       await _context.SaveChangesAsync();
 

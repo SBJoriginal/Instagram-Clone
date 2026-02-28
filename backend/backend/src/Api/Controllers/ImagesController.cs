@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using UGram.src.Application.DTOs;
 using UGram.src.Application.Interfaces;
 using Infrastructure.Persistence;
+using UGram.src.Domain.Exceptions;
 
 namespace Api.Controllers
 {
@@ -17,11 +18,14 @@ namespace Api.Controllers
     private readonly AppDbContext _context;
     private readonly IWebHostEnvironment _environment;
 
-    public ImagesController(IImageService imageService, AppDbContext context, IWebHostEnvironment environment)
+    private readonly ILogger<ImagesController> _logger;
+
+    public ImagesController(IImageService imageService, AppDbContext context, IWebHostEnvironment environment, ILogger<ImagesController> logger)
     {
       _imageService = imageService;
       _context = context;
       _environment = environment;
+      _logger = logger;
     }
 
     [Authorize]
@@ -39,15 +43,8 @@ namespace Api.Controllers
     [HttpGet]
     public async Task<IActionResult> GetImages([FromQuery] int page = 1, [FromQuery] int limit = 15)
     {
-      try
-      {
-        var images = await _imageService.GetAllImagesAsync();
-        return Ok(images);
-      }
-      catch (Exception ex)
-      {
-        return StatusCode(StatusCodes.Status500InternalServerError, new { error = ex.Message });
-      }
+      var images = await _imageService.GetAllImagesAsync();
+      return Ok(images);
     }
 
     [Authorize]
@@ -64,37 +61,23 @@ namespace Api.Controllers
     [HttpGet("user/{userId}")]
     public async Task<IActionResult> GetImagesByUserId(string userId)
     {
-      try
-      {
-        var images = await _imageService.GetAllImagesAsync(userId);
-        return Ok(images);
-      }
-      catch (Exception ex)
-      {
-        return StatusCode(StatusCodes.Status500InternalServerError, new { error = ex.Message });
-      }
+      var images = await _imageService.GetAllImagesAsync(userId);
+      return Ok(images);
     }
 
     [HttpGet("username/{username}")]
     public async Task<IActionResult> GetImagesByUsername(string username)
     {
-      try
-      {
-        var user = await _context.UserProfiles
-          .FirstOrDefaultAsync(p => p.UserName == username);
+      var user = await _context.Users
+        .FirstOrDefaultAsync(p => p.UserName == username);
 
-        if (user == null)
-        {
-          return NotFound(new { error = "User not found" });
-        }
-
-        var images = await _imageService.GetAllImagesAsync(user.UserId);
-        return Ok(images);
-      }
-      catch (Exception ex)
+      if (user == null)
       {
-        return StatusCode(StatusCodes.Status500InternalServerError, new { error = ex.Message });
+        throw new ApiException(StatusCodes.Status404NotFound, "Not Found", "User not found");
       }
+
+      var images = await _imageService.GetAllImagesAsync(user.Id);
+      return Ok(images);
     }
 
     [HttpGet("{id}")]
@@ -107,11 +90,20 @@ namespace Api.Controllers
       return Ok(result);
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] ImageUpdateDto update)
     {
+
+      var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
       var image = await _context.Images.FindAsync(id);
       if (image == null) return NotFound();
+
+      if (image.UserId != currentUserId)
+      {
+        return Forbid();
+      }
 
       image.Description = update.Description ?? "";
       image.Hashtags = update.Hashtags ?? "";
@@ -121,11 +113,20 @@ namespace Api.Controllers
       return Ok(image);
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
+
+      var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
       var image = await _context.Images.FindAsync(id);
       if (image == null) return NotFound();
+
+      if (image.UserId != currentUserId)
+      {
+        return Forbid();
+      }
 
       if (!string.IsNullOrEmpty(image.FilePath))
       {
