@@ -67,11 +67,6 @@ docker-compose.vs.*.yml
 backend/backend/wwwroot/images/*
 backend/backend/wwwroot/uploads/*
 
-<<<<<<< HEAD
-# Environment variables
-.env
-=======
 #Secrets and environment variables
 Security_vulnerabilities.md
 .env
->>>>>>> origin/develop
