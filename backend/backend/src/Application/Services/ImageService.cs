@@ -71,23 +71,31 @@ namespace UGram.src.Application.Services
     {
       var queryable = _context.Images.AsQueryable();
 
-      if (filterType.ToLower() == "description")
+      if (!string.IsNullOrWhiteSpace(query))
       {
-        queryable = queryable.Where(i => i.Description.ToLower().Contains(query.ToLower()));
-      }
-      else if (filterType.ToLower() == "hashtag")
-      {
-        var hashtags = query.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        queryable = queryable.Where(i => hashtags.All(tag =>
-          i.Hashtags.ToLower().Contains(tag.ToLower())
-        ));
+        var lowerQuery = query.ToLower();
+
+        if (filterType.Equals("description", StringComparison.OrdinalIgnoreCase))
+        {
+          queryable = queryable.Where(i => i.Description.ToLower().Contains(lowerQuery));
+        }
+        else if (filterType.Equals("hashtag", StringComparison.OrdinalIgnoreCase))
+        {
+          var hashtags = query.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+          foreach (var tag in hashtags)
+          {
+            var t = tag.ToLower();
+            queryable = queryable.Where(i => i.Hashtags.ToLower().Contains(t));
+          }
+        }
       }
 
       var images = await queryable
-        .OrderByDescending(i => i.CreatedAt)
-        .Skip((page - 1) * pageSize)
-        .Take(pageSize)
-        .ToListAsync();
+          .OrderByDescending(i => i.CreatedAt)
+          .Skip((page - 1) * pageSize)
+          .Take(pageSize)
+          .ToListAsync();
 
       return await MapImagesToDto(images);
     }
