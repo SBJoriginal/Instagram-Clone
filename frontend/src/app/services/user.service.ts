@@ -20,4 +20,12 @@ export class UserService {
   getUserImages(id: string): Observable<ImagePost[]> {
     return this.http.get<ImagePost[]>(`${this.apiUrl}/profile/${id}/images`);
   }
+
+  getUsernameAutocomplete(query: string): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/profile/autocomplete`, {
+      params: {
+        query: query,
+      },
+    });
+  }
 }

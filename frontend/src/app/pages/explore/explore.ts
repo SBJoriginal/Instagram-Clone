@@ -47,6 +47,7 @@ export class Explore implements OnInit, AfterViewInit, OnDestroy {
 
   readonly currentSearchType = signal<SearchType>('images');
   readonly currentImageFilter = signal<ImageFilter>('description');
+  readonly currentUserSearchQuery = signal<string>('');
   readonly searchQuery = signal<string>('');
 
   readonly images = signal<ImageResponse[]>([]);
@@ -75,6 +76,10 @@ export class Explore implements OnInit, AfterViewInit, OnDestroy {
     this.currentImageFilter.set(data.filter);
     this.searchQuery.set(data.query);
     this.refreshGrid();
+  }
+
+  onUserSearchChange(query: string): void {
+    this.currentUserSearchQuery.set(query);
   }
 
   private refreshGrid(): void {

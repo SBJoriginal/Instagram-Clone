@@ -419,5 +419,22 @@ namespace UGram.src.Application.Services
 
       return user;
     }
+
+    public async Task<IEnumerable<string>> GetUsernameAutocompleteAsync(string query)
+    {
+      var queryLower = query.ToLower();
+
+      var usernames = await _context.UserProfiles
+          .Where(p => p.UserName.ToLower().Contains(queryLower) ||
+                      (p.FirstName != null && p.FirstName.ToLower().Contains(queryLower)) ||
+                      (p.LastName != null && p.LastName.ToLower().Contains(queryLower)))
+          .OrderBy(p => p.UserName)
+          .Select(p => p.UserName)
+          .Distinct()
+          .Take(10)
+          .ToListAsync();
+
+      return usernames;
+    }
   }
 }

@@ -111,11 +111,23 @@ namespace backend.src.Api.Controllers
 
     [AllowAnonymous]
     [HttpGet("email-exists/{email}")]
-
     public async Task<ActionResult<bool>> CheckEmailExists(string email)
     {
       var exists = await _userProfileService.EmailExistsAsync(email);
       return Ok(exists);
+    }
+
+    [AllowAnonymous]
+    [HttpGet("autocomplete")]
+    public async Task<IActionResult> GetUsernameAutocomplete([FromQuery] string query)
+    {
+      if (string.IsNullOrWhiteSpace(query))
+      {
+        return BadRequest("query is required");
+      }
+
+      var usernames = await _userProfileService.GetUsernameAutocompleteAsync(query);
+      return Ok(usernames);
     }
   }
 }

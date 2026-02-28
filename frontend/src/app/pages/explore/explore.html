@@ -1,6 +1,7 @@
 <app-explore-header
   (searchTypeChange)="onSearchTypeChange($event)"
   (imageFilterChange)="onImageFilterChange($event)"
+  (userSearchChange)="onUserSearchChange($event)"
 >
 </app-explore-header>
 
@@ -29,7 +30,7 @@
     }
   } @else {
     <div class="user-results-container">
-      <app-user-list></app-user-list>
+      <app-user-list [searchQuery]="currentUserSearchQuery()"></app-user-list>
     </div>
   }
 </div>

@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { startWith, switchMap, debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 import { Subject, of } from 'rxjs';
 import { ImageUploadService } from '../../../services/image-upload.service';
+import { UserService } from '../../../services/user.service';
 
 export type SearchType = 'images' | 'users';
 export type ImageFilter = 'description' | 'hashtag';
@@ -35,36 +36,46 @@ export type ImageFilter = 'description' | 'hashtag';
 export class ExploreHeaderComponent {
   searchTypeChange = output<SearchType>();
   imageFilterChange = output<{ filter: ImageFilter; query: string }>();
+  userSearchChange = output<string>();
 
   private readonly imageService = inject(ImageUploadService);
+  private readonly userService = inject(UserService);
 
   protected searchQuery = '';
   protected readonly currentFilter = signal<ImageFilter>('description');
+  protected readonly currentSearchType = signal<SearchType>('images');
 
   protected onSearchInput(value: string): void {
     this.searchQuery = value;
-
     this.queryChange$.next(value);
 
-    this.imageFilterChange.emit({
-      filter: this.currentFilter(),
-      query: value,
-    });
+    if (this.currentSearchType() === 'users') {
+      this.userSearchChange.emit(value);
+    } else {
+      this.imageFilterChange.emit({
+        filter: this.currentFilter(),
+        query: value,
+      });
+    }
   }
 
   protected onFinalSearch(): void {
     let query = this.searchQuery;
 
-    if (this.currentFilter() === 'hashtag' && query) {
+    if (this.currentSearchType() === 'images' && this.currentFilter() === 'hashtag' && query) {
       const words = query.split(/\s+/).filter((w) => w.length > 0);
       query = words.map((word) => (word.startsWith('#') ? word : '#' + word)).join(' ');
       this.searchQuery = query;
     }
 
-    this.imageFilterChange.emit({
-      filter: this.currentFilter(),
-      query: this.searchQuery,
-    });
+    if (this.currentSearchType() === 'users') {
+      this.userSearchChange.emit(this.searchQuery);
+    } else {
+      this.imageFilterChange.emit({
+        filter: this.currentFilter(),
+        query: this.searchQuery,
+      });
+    }
   }
 
   protected onSuggestionSelected(event: MatAutocompleteSelectedEvent): void {
@@ -80,23 +91,30 @@ export class ExploreHeaderComponent {
     switchMap((value) => {
       if (!value || value.length < 2) return of([]);
 
-      const cleanQuery =
-        this.currentFilter() === 'hashtag' ? value.replace(/^#+/, '').trim() : value;
-
-      if (!cleanQuery) return of([]);
-
-      return this.imageService.getAutocomplete(this.currentFilter(), cleanQuery);
+      if (this.currentSearchType() === 'users') {
+        return this.userService.getUsernameAutocomplete(value);
+      } else {
+        const cleanQuery =
+          this.currentFilter() === 'hashtag' ? value.replace(/^#+/, '').trim() : value;
+        if (!cleanQuery) return of([]);
+        return this.imageService.getAutocomplete(this.currentFilter(), cleanQuery);
+      }
     }),
-    map((suggestions) => suggestions.slice(0, 3)),
+    map((suggestions) => suggestions.slice(0, 5)),
   );
 
   protected clearSearch(): void {
     this.searchQuery = '';
     this.queryChange$.next('');
-    this.imageFilterChange.emit({
-      filter: this.currentFilter(),
-      query: '',
-    });
+
+    if (this.currentSearchType() === 'users') {
+      this.userSearchChange.emit('');
+    } else {
+      this.imageFilterChange.emit({
+        filter: this.currentFilter(),
+        query: '',
+      });
+    }
   }
 
   protected onFilterChange(newFilter: ImageFilter): void {
@@ -110,7 +128,15 @@ export class ExploreHeaderComponent {
   }
 
   protected onSearchTypeChange(type: SearchType): void {
+    this.currentSearchType.set(type);
     this.searchQuery = '';
+    this.queryChange$.next('');
+    this.imageFilterChange.emit({
+      filter: this.currentFilter(),
+      query: '',
+    });
+
+    this.userSearchChange.emit('');
     this.searchTypeChange.emit(type);
   }
 }
