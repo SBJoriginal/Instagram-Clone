@@ -73,8 +73,11 @@ export class Explore implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onImageFilterChange(data: { filter: ImageFilter; query: string }): void {
+    const validFilters: ImageFilter[] = ['description', 'hashtag'];
+    if (!validFilters.includes(data.filter)) return;
+
     this.currentImageFilter.set(data.filter);
-    this.searchQuery.set(data.query);
+    this.searchQuery.set(data.query.replace(/[<>]/g, ''));
     this.refreshGrid();
   }
 

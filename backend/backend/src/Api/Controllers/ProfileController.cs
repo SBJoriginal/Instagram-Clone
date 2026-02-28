@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 using UGram.src.Application.DTOs;
 using UGram.src.Application.Interfaces;
@@ -118,12 +119,13 @@ namespace backend.src.Api.Controllers
     }
 
     [AllowAnonymous]
+    [EnableRateLimiting("AutocompletePolicy")]
     [HttpGet("autocomplete")]
     public async Task<IActionResult> GetUsernameAutocomplete([FromQuery] string query)
     {
-      if (string.IsNullOrWhiteSpace(query))
+      if (string.IsNullOrWhiteSpace(query) || query.Length > 100)
       {
-        return BadRequest("query is required");
+        return BadRequest("Invalid query length.");
       }
 
       var usernames = await _userProfileService.GetUsernameAutocompleteAsync(query);

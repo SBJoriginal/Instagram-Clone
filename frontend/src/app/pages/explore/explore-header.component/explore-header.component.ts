@@ -46,15 +46,16 @@ export class ExploreHeaderComponent {
   protected readonly currentSearchType = signal<SearchType>('images');
 
   protected onSearchInput(value: string): void {
-    this.searchQuery = value;
-    this.queryChange$.next(value);
+    const cleanValue = this.sanitizeQuery(value);
+    this.searchQuery = cleanValue;
+    this.queryChange$.next(cleanValue);
 
     if (this.currentSearchType() === 'users') {
-      this.userSearchChange.emit(value);
+      this.userSearchChange.emit(cleanValue);
     } else {
       this.imageFilterChange.emit({
         filter: this.currentFilter(),
-        query: value,
+        query: cleanValue,
       });
     }
   }
@@ -138,5 +139,10 @@ export class ExploreHeaderComponent {
 
     this.userSearchChange.emit('');
     this.searchTypeChange.emit(type);
+  }
+
+  private sanitizeQuery(value: string): string {
+    if (!value) return '';
+    return value.replace(/[^\p{L}\p{N}\s\-_#]/gu, '').substring(0, 100);
   }
 }
