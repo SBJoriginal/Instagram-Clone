@@ -99,4 +99,13 @@ export class ImageUploadService {
   deleteImage(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  getAutocomplete(filterType: 'description' | 'hashtag', query: string): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/autocomplete`, {
+      params: {
+        filterType: filterType,
+        query: query,
+      },
+    });
+  }
 }

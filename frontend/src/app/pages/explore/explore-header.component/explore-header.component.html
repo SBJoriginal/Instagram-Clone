@@ -5,16 +5,35 @@
       <mat-label>Search ugram</mat-label>
       <input
         matInput
+        [matAutocomplete]="auto"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="onSearchInput($event)"
+        (keydown.enter)="onFinalSearch()"
         [placeholder]="
           currentFilter() === 'hashtag' ? 'Search by hashtag...' : 'Explore something new...'
         "
-        [(ngModel)]="searchQuery"
-        (ngModelChange)="onSearch()"
       />
+
       @if (searchQuery) {
         <mat-icon matSuffix class="clear-icon" (click)="clearSearch()">cancel</mat-icon>
       }
+
+      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onSuggestionSelected($event)">
+        @for (suggestion of filteredSuggestions$ | async; track suggestion) {
+          <mat-option [value]="suggestion">
+            <span class="suggestion-item">
+              @if (currentFilter() === 'hashtag') {
+                <mat-icon class="suggestion-icon">tag</mat-icon>
+              } @else {
+                <mat-icon class="suggestion-icon">short_text</mat-icon>
+              }
+              {{ suggestion }}
+            </span>
+          </mat-option>
+        }
+      </mat-autocomplete>
     </mat-form-field>
+
     <div class="controls">
       <mat-button-toggle-group
         #searchGroup="matButtonToggleGroup"

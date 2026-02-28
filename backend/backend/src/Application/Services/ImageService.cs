@@ -183,5 +183,39 @@ namespace UGram.src.Application.Services
         CreatedAt = i.CreatedAt
       });
     }
+
+    public async Task<IEnumerable<string>> GetAutocompleteAsync(string filterType, string query)
+    {
+      var queryLower = query.ToLower();
+      var suggestions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+      var rawData = await _context.Images
+          .Where(i => filterType == "hashtag"
+              ? i.Hashtags.ToLower().Contains(queryLower)
+              : i.Description.ToLower().Contains(queryLower))
+          .Select(i => filterType == "hashtag" ? i.Hashtags : i.Description)
+          .Take(100)
+          .ToListAsync();
+
+      foreach (var text in rawData)
+      {
+        if (string.IsNullOrEmpty(text)) continue;
+
+        var parts = text.Split(new[] { ' ', ',', '#' }, StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (var part in parts)
+        {
+          if (part.Length <= 2 && filterType != "hashtag") continue;
+
+          if (part.ToLower().Contains(queryLower))
+          {
+            var result = filterType == "hashtag" ? $"#{part.TrimStart('#')}" : part;
+            suggestions.Add(result);
+          }
+        }
+      }
+
+      return suggestions.OrderBy(s => s).Take(15).ToList();
+    }
   }
 }

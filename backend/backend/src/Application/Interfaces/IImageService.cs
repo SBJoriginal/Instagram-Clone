@@ -11,5 +11,6 @@ namespace UGram.src.Application.Interfaces
     Task<ImageResponseDto?> GetImageByIdAsync(int id);
     Task<IEnumerable<ImageResponseDto>> SearchImagesAsync(string filterType, string query, int page, int pageSize);
 
+    Task<IEnumerable<string>> GetAutocompleteAsync(string filterType, string query);
   }
 }

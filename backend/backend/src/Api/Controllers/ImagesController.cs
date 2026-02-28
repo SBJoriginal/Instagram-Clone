@@ -152,6 +152,20 @@ namespace Api.Controllers
       var images = await _imageService.SearchImagesAsync(filterType, query, page, pageSize);
       return Ok(images);
     }
+
+    [HttpGet("autocomplete")]
+    public async Task<IActionResult> GetAutocomplete(
+        [FromQuery] string filterType,
+        [FromQuery] string query)
+    {
+      if (string.IsNullOrWhiteSpace(filterType) || string.IsNullOrWhiteSpace(query))
+      {
+        return BadRequest("filterType and query are required");
+      }
+
+      var suggestions = await _imageService.GetAutocompleteAsync(filterType, query);
+      return Ok(suggestions);
+    }
   }
 
 }
