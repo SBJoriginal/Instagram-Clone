@@ -24,9 +24,18 @@ namespace Infrastructure.Persistence
           .HasConversion(v => v, v => DateTime.SpecifyKind(v, DateTimeKind.Utc))
           .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-      modelBuilder.Entity<UserProfile>()
-          .Property(p => p.SignUpDate)
-          .HasDefaultValueSql("CURRENT_TIMESTAMP");
+      modelBuilder.Entity<UserProfile>(entity =>
+      {
+        entity.Property(p => p.SignUpDate)
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+        entity.HasIndex(p => p.UserName)
+            .IsUnique();
+
+        entity.HasIndex(p => p.Email)
+            .IsUnique();
+      });
+
 
       modelBuilder.Entity<ApplicationUser>()
           .HasOne(u => u.UserProfile)
