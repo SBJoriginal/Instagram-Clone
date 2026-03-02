@@ -5,18 +5,18 @@ namespace Domain.Entities;
 
 public class Reaction
 {
-    [Key]
-    public int Id { get; set; }
+  [Key]
+  public int Id { get; set; }
 
-    [Required]
-    public int ImageId { get; set; }
+  [Required]
+  public int ImageId { get; set; }
 
-    [ForeignKey("ImageId")]
-    public virtual Image Image { get; set; } = null!;
+  [ForeignKey("ImageId")]
+  public virtual Image Image { get; set; } = null!;
 
-    [Required]
-    public string UserId { get; set; } = string.Empty;
+  [Required]
+  public string UserId { get; set; } = string.Empty;
 
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public DateTime CreatedAt { get; set; }
+  [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+  public DateTime CreatedAt { get; set; }
 }

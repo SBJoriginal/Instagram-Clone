@@ -52,7 +52,7 @@ namespace Infrastructure.Persistence
             .WithMany(i => i.Reactions)
             .HasForeignKey(r => r.ImageId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         entity.Property(r => r.CreatedAt)
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
       });
@@ -66,7 +66,7 @@ namespace Infrastructure.Persistence
 
         entity.Property(c => c.CreatedAt)
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
-        
+
         entity.Property(c => c.Content)
             .HasMaxLength(500)
             .IsRequired();
