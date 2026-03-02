@@ -21,22 +21,24 @@
         "
       />
 
-      @if (currentSearchType() === 'images') {
-        <mat-button-toggle-group
-          matSuffix
-          #filterGroup="matButtonToggleGroup"
-          [value]="currentFilter()"
-          (change)="onFilterChange(filterGroup.value)"
-          class="filter-toggle-inline"
-        >
-          <mat-button-toggle value="description">Description</mat-button-toggle>
-          <mat-button-toggle value="hashtag">#Hashtag</mat-button-toggle>
-        </mat-button-toggle-group>
-      }
+      <div matSuffix class="suffix-container">
+        @if (searchQuery) {
+          <mat-icon class="clear-icon" (click)="clearSearch()">cancel</mat-icon>
+        }
 
-      @if (searchQuery) {
-        <mat-icon matSuffix class="clear-icon" (click)="clearSearch()">cancel</mat-icon>
-      }
+        @if (currentSearchType() === 'images' && (isSearchFocused() || currentFilter())) {
+          <mat-button-toggle-group
+            #filterGroup="matButtonToggleGroup"
+            [value]="currentFilter()"
+            (change)="onFilterChange(filterGroup.value)"
+            (mousedown)="$event.preventDefault()"
+            class="filter-toggle-inline"
+          >
+            <mat-button-toggle value="description">Description</mat-button-toggle>
+            <mat-button-toggle value="hashtag">#Hashtag</mat-button-toggle>
+          </mat-button-toggle-group>
+        }
+      </div>
 
       <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onSuggestionSelected($event)">
         @for (suggestion of filteredSuggestions$ | async; track suggestion) {

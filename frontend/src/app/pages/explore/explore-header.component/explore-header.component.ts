@@ -15,7 +15,7 @@ import { ImageUploadService } from '../../../services/image-upload.service';
 import { UserService } from '../../../services/user.service';
 
 export type SearchType = 'images' | 'users';
-export type ImageFilter = 'description' | 'hashtag';
+export type ImageFilter = 'description' | 'hashtag' | null;
 
 @Component({
   selector: 'app-explore-header',
@@ -35,14 +35,14 @@ export type ImageFilter = 'description' | 'hashtag';
 })
 export class ExploreHeaderComponent {
   searchTypeChange = output<SearchType>();
-  imageFilterChange = output<{ filter: ImageFilter; query: string }>();
+  imageFilterChange = output<{ filter: 'description' | 'hashtag'; query: string }>();
   userSearchChange = output<string>();
 
   private readonly imageService = inject(ImageUploadService);
   private readonly userService = inject(UserService);
 
   protected searchQuery = '';
-  protected readonly currentFilter = signal<ImageFilter>('description');
+  protected readonly currentFilter = signal<ImageFilter>(null);
   protected readonly currentSearchType = signal<SearchType>('images');
   protected readonly isSearchFocused = signal(false);
 
@@ -53,7 +53,9 @@ export class ExploreHeaderComponent {
   protected onSearchBlur(): void {
     setTimeout(() => {
       const activeElement = document.activeElement;
-      if (!activeElement?.closest('.filter-toggle-inline')) {
+      const isInsideToggle = activeElement?.closest('.filter-toggle-inline');
+
+      if (!isInsideToggle) {
         this.isSearchFocused.set(false);
       }
     }, 150);
@@ -62,13 +64,18 @@ export class ExploreHeaderComponent {
   protected onSearchInput(value: string): void {
     const cleanValue = this.sanitizeQuery(value);
     this.searchQuery = cleanValue;
+
+    if (this.currentSearchType() === 'images' && !this.currentFilter() && cleanValue.length > 0) {
+      this.currentFilter.set('description');
+    }
+
     this.queryChange$.next(cleanValue);
 
     if (this.currentSearchType() === 'users') {
       this.userSearchChange.emit(cleanValue);
     } else {
       this.imageFilterChange.emit({
-        filter: this.currentFilter(),
+        filter: this.currentFilter() ?? 'description',
         query: cleanValue,
       });
     }
@@ -87,7 +94,7 @@ export class ExploreHeaderComponent {
       this.userSearchChange.emit(this.searchQuery);
     } else {
       this.imageFilterChange.emit({
-        filter: this.currentFilter(),
+        filter: this.currentFilter() ?? 'description',
         query: this.searchQuery,
       });
     }
@@ -109,10 +116,11 @@ export class ExploreHeaderComponent {
       if (this.currentSearchType() === 'users') {
         return this.userService.getUsernameAutocomplete(value);
       } else {
-        const cleanQuery =
-          this.currentFilter() === 'hashtag' ? value.replace(/^#+/, '').trim() : value;
+        const effectiveFilter = this.currentFilter() ?? 'description';
+        const cleanQuery = effectiveFilter === 'hashtag' ? value.replace(/^#+/, '').trim() : value;
+
         if (!cleanQuery) return of([]);
-        return this.imageService.getAutocomplete(this.currentFilter(), cleanQuery);
+        return this.imageService.getAutocomplete(effectiveFilter, cleanQuery);
       }
     }),
     map((suggestions) => suggestions.slice(0, 5)),
@@ -126,31 +134,30 @@ export class ExploreHeaderComponent {
       this.userSearchChange.emit('');
     } else {
       this.imageFilterChange.emit({
-        filter: this.currentFilter(),
+        filter: this.currentFilter() ?? 'description',
         query: '',
       });
     }
   }
 
   protected onFilterChange(newFilter: ImageFilter): void {
+    if (!newFilter) return;
     this.currentFilter.set(newFilter);
-    this.searchQuery = '';
-    this.queryChange$.next('');
+
+    this.queryChange$.next(this.searchQuery);
     this.imageFilterChange.emit({
-      filter: newFilter,
-      query: '',
+      filter: newFilter as 'description' | 'hashtag',
+      query: this.searchQuery,
     });
   }
 
   protected onSearchTypeChange(type: SearchType): void {
     this.currentSearchType.set(type);
     this.searchQuery = '';
-    this.queryChange$.next('');
-    this.imageFilterChange.emit({
-      filter: this.currentFilter(),
-      query: '',
-    });
+    this.currentFilter.set(null);
+    this.isSearchFocused.set(false);
 
+    this.queryChange$.next('');
     this.userSearchChange.emit('');
     this.searchTypeChange.emit(type);
   }
