@@ -44,6 +44,20 @@ export class ExploreHeaderComponent {
   protected searchQuery = '';
   protected readonly currentFilter = signal<ImageFilter>('description');
   protected readonly currentSearchType = signal<SearchType>('images');
+  protected readonly isSearchFocused = signal(false);
+
+  protected onSearchFocus(): void {
+    this.isSearchFocused.set(true);
+  }
+
+  protected onSearchBlur(): void {
+    setTimeout(() => {
+      const activeElement = document.activeElement;
+      if (!activeElement?.closest('.filter-toggle-inline')) {
+        this.isSearchFocused.set(false);
+      }
+    }, 150);
+  }
 
   protected onSearchInput(value: string): void {
     const cleanValue = this.sanitizeQuery(value);
