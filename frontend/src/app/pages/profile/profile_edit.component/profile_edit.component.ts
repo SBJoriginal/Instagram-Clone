@@ -1,6 +1,11 @@
 import { Component, inject, ChangeDetectionStrategy, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dialog';
+import {
+  MatDialogModule,
+  MAT_DIALOG_DATA,
+  MatDialogRef,
+  MatDialog,
+} from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,7 +16,6 @@ import { ProfileService } from '../../../services/profile.service';
 import { debounceTime, distinctUntilChanged, take } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
 import { ConfirmDeleteDialogComponent } from './confirm_delete_dialog.component';
-
 
 @Component({
   selector: 'app-profile-edit',
