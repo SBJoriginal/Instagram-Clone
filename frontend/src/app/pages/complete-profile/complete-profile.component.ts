@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -26,7 +26,7 @@ import { LogoComponent } from '../../shared/ui/logo/logo.component';
   templateUrl: './complete-profile.component.html',
   styleUrl: './complete-profile.component.css',
 })
-export class CompleteProfileComponent {
+export class CompleteProfileComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly profileService = inject(ProfileService);
@@ -34,6 +34,19 @@ export class CompleteProfileComponent {
 
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
+  protected readonly profileAlreadyExists = signal(false);
+
+  ngOnInit(): void {
+    this.profileService.getProfile().subscribe({
+      next: () => {
+        this.profileAlreadyExists.set(true);
+        this.errorMessage.set('A profile already exists for your account. Please sign in instead.');
+      },
+      error: () => {
+        // 404 = no profile yet, show the form normally
+      },
+    });
+  }
 
   protected readonly profileForm = this.fb.group({
     username: ['', [Validators.required]],
@@ -69,8 +82,6 @@ export class CompleteProfileComponent {
   protected onSubmit(): void {
     if (this.profileForm.valid && !this.isLoading()) {
       this.isLoading.set(true);
-      this.errorMessage.set(null);
-
       this.errorMessage.set(null);
 
       const profileData: ProfileRequest = {
