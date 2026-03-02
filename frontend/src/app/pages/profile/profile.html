@@ -38,7 +38,35 @@
         </button>
 
         <mat-card-content>
-          <p>{{ image.description }}</p>
+          <div class="card-actions">
+            <button
+              mat-icon-button
+              class="reaction-button"
+              [class.reacted]="image.hasReacted"
+              (click)="onToggleReaction($event, image)"
+              [aria-label]="image.hasReacted ? 'Remove like' : 'Like'"
+            >
+              <mat-icon>{{ image.hasReacted ? 'favorite' : 'favorite_border' }}</mat-icon>
+            </button>
+            @if (image.reactionCount > 0) {
+              <span class="reaction-count">
+                {{ image.reactionCount }}
+              </span>
+            }
+            <div
+              class="comment-summary-inline"
+              (click)="openImageDetail(image)"
+              (keyup.enter)="openImageDetail(image)"
+              role="button"
+              tabindex="0"
+            >
+              <mat-icon>chat_bubble_outline</mat-icon>
+              @if (image.commentCount > 0) {
+                <span class="comment-count-text">{{ image.commentCount }}</span>
+              }
+            </div>
+          </div>
+          <p class="description">{{ image.description }}</p>
         </mat-card-content>
       </mat-card>
     } @empty {

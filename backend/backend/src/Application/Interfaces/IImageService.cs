@@ -6,8 +6,8 @@ namespace UGram.src.Application.Interfaces
   {
     Task<ImageUploadResponseDto> UploadImageAsync(ImageUploadRequestDto upload, string userId);
 
-    Task<IEnumerable<ImageResponseDto>> GetAllImagesAsync(string? userId = null);
+    Task<IEnumerable<ImageResponseDto>> GetAllImagesAsync(string? userId = null, string? currentUserId = null);
 
-    Task<ImageResponseDto?> GetImageByIdAsync(int id);
+    Task<ImageResponseDto?> GetImageByIdAsync(int id, string? currentUserId = null);
   }
 }

@@ -86,9 +86,12 @@ namespace UGram.src.Application.Services
 
       return fileMagicBytes.SequenceEqual(expectedMagicBytes);
     }
-    public async Task<IEnumerable<ImageResponseDto>> GetAllImagesAsync(string? userId = null)
+    public async Task<IEnumerable<ImageResponseDto>> GetAllImagesAsync(string? userId = null, string? currentUserId = null)
     {
-      var query = _context.Images.AsQueryable();
+      var query = _context.Images
+        .Include(i => i.Reactions)
+        .Include(i => i.Comments)
+        .AsQueryable();
 
       if (!string.IsNullOrEmpty(userId))
       {
@@ -102,7 +105,7 @@ namespace UGram.src.Application.Services
       var userIds = images.Select(i => i.UserId).Distinct().ToList();
       var profiles = await _context.UserProfiles
         .Where(p => userIds.Contains(p.UserId))
-        .ToDictionaryAsync(p => p.UserId, p => p.UserName);
+        .ToDictionaryAsync(p => p.UserId, p => new { p.UserName, p.ProfilePictureUrl });
 
       return images.Select(i => new ImageResponseDto
       {
@@ -115,14 +118,22 @@ namespace UGram.src.Application.Services
         Mentions = i.Mentions,
         FilePath = i.FilePath,
         UserId = i.UserId,
-        Username = profiles.ContainsKey(i.UserId) ? profiles[i.UserId] : string.Empty,
-        CreatedAt = i.CreatedAt
+        Username = profiles.ContainsKey(i.UserId) ? profiles[i.UserId].UserName : string.Empty,
+        ProfilePictureUrl = profiles.ContainsKey(i.UserId) ? profiles[i.UserId].ProfilePictureUrl : null,
+        CreatedAt = i.CreatedAt,
+        ReactionCount = i.Reactions.Count,
+        HasReacted = !string.IsNullOrEmpty(currentUserId) && i.Reactions.Any(r => r.UserId == currentUserId),
+        CommentCount = i.Comments.Count
       });
     }
 
-    public async Task<ImageResponseDto?> GetImageByIdAsync(int id)
+    public async Task<ImageResponseDto?> GetImageByIdAsync(int id, string? currentUserId = null)
     {
-      var image = await _context.Images.FindAsync(id);
+      var image = await _context.Images
+        .Include(i => i.Reactions)
+        .Include(i => i.Comments)
+        .FirstOrDefaultAsync(i => i.Id == id);
+        
       if (image == null) return null;
 
       var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == image.UserId);
@@ -139,7 +150,11 @@ namespace UGram.src.Application.Services
         FilePath = image.FilePath,
         UserId = image.UserId,
         Username = profile?.UserName ?? string.Empty,
-        CreatedAt = image.CreatedAt
+        ProfilePictureUrl = profile?.ProfilePictureUrl,
+        CreatedAt = image.CreatedAt,
+        ReactionCount = image.Reactions.Count,
+        HasReacted = !string.IsNullOrEmpty(currentUserId) && image.Reactions.Any(r => r.UserId == currentUserId),
+        CommentCount = image.Comments.Count
       };
     }
   }

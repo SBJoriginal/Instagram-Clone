@@ -1,6 +1,8 @@
 using backend.src.Application.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Application.Interfaces;
+using Application.Services;
 using UGram.src.Application.Interfaces;
 using UGram.src.Application.Services;
 
@@ -28,6 +30,8 @@ namespace UGram.src.Application
       services.AddScoped<ITokenService, JwtTokenService>();
       services.AddScoped<IImageStorageService, LocalImageStorageService>();
       services.AddScoped<IImageService, ImageService>();
+      services.AddScoped<IReactionService, ReactionService>();
+      services.AddScoped<ICommentService, CommentService>();
     }
   }
 }

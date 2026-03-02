@@ -43,7 +43,8 @@ namespace Api.Controllers
     [HttpGet]
     public async Task<IActionResult> GetImages([FromQuery] int page = 1, [FromQuery] int limit = 15)
     {
-      var images = await _imageService.GetAllImagesAsync();
+      var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+      var images = await _imageService.GetAllImagesAsync(null, currentUserId);
       return Ok(images);
     }
 
@@ -54,14 +55,15 @@ namespace Api.Controllers
       var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
       if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
-      var images = await _imageService.GetAllImagesAsync(userId);
+      var images = await _imageService.GetAllImagesAsync(userId, userId);
       return Ok(images);
     }
 
     [HttpGet("user/{userId}")]
     public async Task<IActionResult> GetImagesByUserId(string userId)
     {
-      var images = await _imageService.GetAllImagesAsync(userId);
+      var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+      var images = await _imageService.GetAllImagesAsync(userId, currentUserId);
       return Ok(images);
     }
 
@@ -76,14 +78,16 @@ namespace Api.Controllers
         throw new ApiException(StatusCodes.Status404NotFound, "Not Found", "User not found");
       }
 
-      var images = await _imageService.GetAllImagesAsync(user.Id);
+      var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+      var images = await _imageService.GetAllImagesAsync(user.Id, currentUserId);
       return Ok(images);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetImageById(int id)
     {
-      var result = await _imageService.GetImageByIdAsync(id);
+      var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+      var result = await _imageService.GetImageByIdAsync(id, currentUserId);
 
       if (result == null) return NotFound();
 

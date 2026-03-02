@@ -27,3 +27,136 @@
   object-fit: contain;
   display: block;
 }
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+  color: white;
+}
+
+.grid-item:hover .overlay {
+  opacity: 1;
+}
+
+.reaction-container {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 8px;
+  border-radius: 16px;
+}
+
+.reaction-button {
+  width: 32px !important;
+  height: 32px !important;
+  color: white !important;
+}
+
+.reaction-button.reacted {
+  color: #ff2d55 !important;
+}
+
+.reaction-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+}
+
+.image-actions {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  z-index: 10;
+}
+
+.reaction-container {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 20px;
+  padding: 4px 10px 4px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.2s ease-out;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+
+.reaction-container:hover {
+  background: rgba(0, 0, 0, 0.75);
+  transform: translateY(-2px);
+}
+
+.reaction-button {
+  width: 28px !important;
+  height: 28px !important;
+  line-height: 28px !important;
+  padding: 0 !important;
+  min-width: unset !important;
+  color: white !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent !important;
+  border: none !important;
+}
+
+.reaction-button mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.reaction-button.reacted mat-icon {
+  color: #ff2d55 !important;
+  filter: drop-shadow(0 0 4px rgba(255, 45, 85, 0.6));
+}
+
+.reaction-count {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.comment-icon-container {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 20px;
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  gap: 4px;
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  transition: all 0.2s ease-out;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.comment-icon-container:hover {
+  background: rgba(0, 0, 0, 0.75);
+  transform: translateY(-2px);
+}
+
+.comment-icon-container mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.comment-count-badge {
+  font-size: 12px;
+  font-weight: 500;
+}

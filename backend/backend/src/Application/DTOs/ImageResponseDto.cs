@@ -13,5 +13,9 @@ namespace UGram.src.Application.DTOs
     public string UserId { get; set; } = string.Empty;
     public string Username { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
+    public int ReactionCount { get; set; }
+    public bool HasReacted { get; set; }
+    public int CommentCount { get; set; }
+    public string? ProfilePictureUrl { get; set; }
   }
 }

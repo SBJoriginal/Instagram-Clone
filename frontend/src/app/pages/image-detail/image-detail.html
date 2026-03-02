@@ -5,70 +5,172 @@
 
   @if (image) {
     <div class="image-detail-card">
-      <div class="section user-header">
-        <mat-icon>account_circle</mat-icon>
-        <button
-          type="button"
-          class="username"
-          (click)="navigateToProfile(image.username)"
-          style="
-            cursor: pointer;
-            text-decoration: underline;
-            background: none;
-            border: none;
-            padding: 0;
-            font: inherit;
-            color: inherit;
-            display: inline-flex;
-            align-items: center;
-            margin-left: 8px;
-          "
-        >
-          {{ image.username || 'User Not Found' }}
-        </button>
-      </div>
-
-      <div class="section image-display">
+      <!-- Left side: Image -->
+      <div class="image-display-side">
         <img [src]="'http://localhost:8081' + image.filePath" [alt]="image.description" />
       </div>
 
-      <div class="section info-block">
-        <p class="description">
-          <span class="highlight">{{ image.description || 'No description' }}</span>
-        </p>
-      </div>
+      <!-- Right side: Sidebar -->
+      <div class="info-sidebar">
+        <!-- Header: User info -->
+        <header class="sidebar-header">
+          <div
+            class="user-avatar"
+            (click)="navigateToProfile(image.username)"
+            (keyup.enter)="navigateToProfile(image.username)"
+            role="button"
+            tabindex="0"
+          >
+            @if (image.profilePictureUrl) {
+              <img
+                [src]="'http://localhost:8081' + image.profilePictureUrl"
+                [alt]="image.username"
+                class="avatar-img"
+              />
+            } @else {
+              <mat-icon>account_circle</mat-icon>
+            }
+          </div>
+          <button type="button" class="username-btn" (click)="navigateToProfile(image.username)">
+            {{ image.username || 'Anonymous' }}
+          </button>
+        </header>
 
-      @if (image.hashtags) {
-        <div class="section info-block">
-          <span class="highlight">{{ image.hashtags }}</span>
+        <!-- Main content: Description and Comments -->
+        <div class="sidebar-main">
+          <!-- Post description -->
+          <div class="post-description-section">
+            <p class="description-text">
+              <span class="username-inline">{{ image.username }}:</span>
+              {{ image.description || 'No description' }}
+            </p>
+            @if (image.hashtags) {
+              <div class="hashtags-container">
+                <span class="hashtag">{{ image.hashtags }}</span>
+              </div>
+            }
+            @if (image.mentions) {
+              <div class="mentions-container">
+                @for (mention of image.mentions | mention; track mention) {
+                  <button type="button" class="mention-link" (click)="navigateToProfile(mention)">
+                    {{ mention }}
+                  </button>
+                }
+              </div>
+            }
+            <div class="post-date-separator">
+              {{ image.createdAt | date: 'longDate' }}
+            </div>
+          </div>
+
+          <!-- Comments list -->
+          <div class="comments-scroll-area">
+            @for (comment of comments(); track comment.id) {
+              <div class="comment-row">
+                <div
+                  class="comment-avatar"
+                  (click)="navigateToProfile(comment.username)"
+                  (keyup.enter)="navigateToProfile(comment.username)"
+                  role="button"
+                  tabindex="0"
+                >
+                  @if (comment.profilePictureUrl) {
+                    <img
+                      [src]="'http://localhost:8081' + comment.profilePictureUrl"
+                      [alt]="comment.username"
+                      class="avatar-img"
+                    />
+                  } @else {
+                    <mat-icon>account_circle</mat-icon>
+                  }
+                </div>
+                <div class="comment-content-wrap">
+                  <div class="comment-item-header">
+                    <span
+                      class="comment-username"
+                      (click)="navigateToProfile(comment.username)"
+                      (keyup.enter)="navigateToProfile(comment.username)"
+                      role="button"
+                      tabindex="0"
+                    >
+                      {{ comment.username }}
+                    </span>
+                    <span class="comment-timestamp">{{
+                      comment.createdAt | date: 'shortDate'
+                    }}</span>
+                  </div>
+                  <div class="comment-body">{{ comment.content }}</div>
+                </div>
+              </div>
+            } @empty {
+              @if (!isLoadingComments()) {
+                <div class="empty-comments-msg">No comments yet.</div>
+              }
+            }
+
+            @if (hasMoreComments()) {
+              <button
+                mat-button
+                class="load-more-comments"
+                (click)="loadComments()"
+                [disabled]="isLoadingComments()"
+              >
+                @if (isLoadingComments()) {
+                  <mat-spinner diameter="20"></mat-spinner>
+                } @else {
+                  Load more comments
+                }
+              </button>
+            }
+          </div>
         </div>
-      }
 
-      @if (image.mentions) {
-        <div class="section info-block" style="display: flex; flex-wrap: wrap; gap: 4px">
-          @for (mention of image.mentions | mention; track mention) {
-            <button
-              type="button"
-              class="highlight"
-              (click)="navigateToProfile(mention)"
-              style="
-                cursor: pointer;
-                text-decoration: underline;
-                background: none;
-                border: none;
-                padding: 0;
-                font: inherit;
-                color: inherit;
-              "
+        <!-- Footer: Comment Input -->
+        <footer class="sidebar-footer">
+          <div class="interaction-summary">
+            <div
+              class="count-item"
+              (click)="toggleLike()"
+              (keyup.enter)="toggleLike()"
+              role="button"
+              tabindex="0"
             >
-              {{ mention }}
-            </button>
-          }
-        </div>
-      }
+              <mat-icon inline [class.liked]="image.hasReacted">
+                {{ image.hasReacted ? 'favorite' : 'favorite_border' }}
+              </mat-icon>
+              <span>{{ image.reactionCount || 0 }} likes</span>
+            </div>
+            <div class="count-item">
+              <mat-icon inline>chat_bubble</mat-icon>
+              <span>{{ image.commentCount || 0 }} comments</span>
+            </div>
+          </div>
 
-      <div class="section date-footer">
-        {{ image.createdAt | date: 'longDate' }}
+          <div class="comment-input-form">
+            <mat-form-field appearance="fill" class="comment-field">
+              <textarea
+                matInput
+                placeholder="Add a comment..."
+                [(ngModel)]="newCommentContent"
+                [maxLength]="maxLength"
+                rows="1"
+              ></textarea>
+            </mat-form-field>
+            <button
+              mat-button
+              color="primary"
+              class="post-btn"
+              [disabled]="!newCommentContent().trim() || isAddingComment()"
+              (click)="addComment()"
+            >
+              @if (isAddingComment()) {
+                <mat-spinner diameter="18"></mat-spinner>
+              } @else {
+                Post
+              }
+            </button>
+          </div>
+        </footer>
       </div>
     </div>
   } @else if (!loading) {
