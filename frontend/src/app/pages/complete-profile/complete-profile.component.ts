@@ -38,6 +38,7 @@ export class CompleteProfileComponent implements OnInit {
   protected readonly profileAlreadyExists = signal(false);
 
   ngOnInit(): void {
+    // Check if profile already exists
     this.profileService.getProfile().subscribe({
       next: () => {
         this.profileAlreadyExists.set(true);
@@ -47,16 +48,8 @@ export class CompleteProfileComponent implements OnInit {
         // 404 = no profile yet, show the form normally
       },
     });
-  }
 
-  protected readonly profileForm = this.fb.group({
-    username: ['', [Validators.required]],
-    firstName: ['', [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)]],
-    lastName: ['', [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)]],
-    phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{3}-\d{3}-\d{4}$/)]],
-  });
-
-  ngOnInit(): void {
+    // Handle username availability check
     this.profileForm
       .get('username')
       ?.valueChanges.pipe(debounceTime(300), distinctUntilChanged())
@@ -67,6 +60,13 @@ export class CompleteProfileComponent implements OnInit {
         }
       });
   }
+
+  protected readonly profileForm = this.fb.group({
+    username: ['', [Validators.required]],
+    firstName: ['', [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)]],
+    lastName: ['', [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)]],
+    phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{3}-\d{3}-\d{4}$/)]],
+  });
 
   protected onPhoneInput(event: Event): void {
     const input = event.target as HTMLInputElement;
