@@ -46,7 +46,8 @@ export class Explore implements OnInit, AfterViewInit, OnDestroy {
   private uploadSubscription?: Subscription;
 
   readonly currentSearchType = signal<SearchType>('images');
-  readonly currentImageFilter = signal<ImageFilter>('description');
+  readonly currentImageFilter = signal<ImageFilter>(null);
+  readonly currentUserSearchQuery = signal<string>('');
   readonly searchQuery = signal<string>('');
 
   readonly images = signal<ImageResponse[]>([]);
@@ -73,8 +74,12 @@ export class Explore implements OnInit, AfterViewInit, OnDestroy {
 
   onImageFilterChange(data: { filter: ImageFilter; query: string }): void {
     this.currentImageFilter.set(data.filter);
-    this.searchQuery.set(data.query);
+    this.searchQuery.set(data.query.replace(/[<>]/g, ''));
     this.refreshGrid();
+  }
+
+  onUserSearchChange(query: string): void {
+    this.currentUserSearchQuery.set(query);
   }
 
   private refreshGrid(): void {
@@ -113,7 +118,7 @@ export class Explore implements OnInit, AfterViewInit, OnDestroy {
 
     this.isLoading.set(true);
 
-    const filter = this.currentImageFilter();
+    const filter = this.currentImageFilter() ?? 'description';
     const query = this.searchQuery();
     const observable = query
       ? this.imageService.searchImages(filter, query, this.page(), 15)

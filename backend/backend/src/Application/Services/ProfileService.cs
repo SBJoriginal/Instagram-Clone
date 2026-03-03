@@ -357,7 +357,8 @@ namespace UGram.src.Application.Services
         { ".jpeg", new byte[] { 0xFF, 0xD8, 0xFF } },
         { ".png", new byte[] { 0x89, 0x50, 0x4E, 0x47 } },
         { ".gif", new byte[] { 0x47, 0x49, 0x46, 0x38 } },
-        {".webp", new byte[] { 0x52, 0x49, 0x46, 0x46 } }
+        {".webp", new byte[] { 0x52, 0x49, 0x46, 0x46 } },
+        { ".avif", new byte[] { 0x00, 0x00, 0x00, 0x1C, 0x66, 0x74, 0x79, 0x70, 0x61, 0x76, 0x69, 0x66 } }
       };
 
       if (!magicBytesDict.TryGetValue(fileExtension.ToLower(), out var expectedMagicBytes))
@@ -418,6 +419,23 @@ namespace UGram.src.Application.Services
       }
 
       return user;
+    }
+
+    public async Task<IEnumerable<string>> GetUsernameAutocompleteAsync(string query)
+    {
+      var queryLower = query.ToLower();
+
+      var usernames = await _context.UserProfiles
+          .Where(p => p.UserName.ToLower().Contains(queryLower) ||
+                      (p.FirstName != null && p.FirstName.ToLower().Contains(queryLower)) ||
+                      (p.LastName != null && p.LastName.ToLower().Contains(queryLower)))
+          .OrderBy(p => p.UserName)
+          .Select(p => p.UserName)
+          .Distinct()
+          .Take(10)
+          .ToListAsync();
+
+      return usernames;
     }
   }
 }
