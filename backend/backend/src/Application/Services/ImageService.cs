@@ -49,7 +49,7 @@ namespace UGram.src.Application.Services
       return new ImageUploadResponseDto
       {
         Id = image.Id,
-        FilePath = image.FilePath,
+        FilePath = await _imageStorageService.GetImageUrlAsync(image.FilePath),
         Description = image.Description,
         UserId = image.UserId,
         Username = profile?.UserName ?? string.Empty,
@@ -151,7 +151,7 @@ namespace UGram.src.Application.Services
         Description = image.Description,
         Hashtags = image.Hashtags,
         Mentions = image.Mentions,
-        FilePath = image.FilePath,
+        FilePath = await _imageStorageService.GetImageUrlAsync(image.FilePath),
         UserId = image.UserId,
         Username = profile?.UserName ?? string.Empty,
         CreatedAt = image.CreatedAt
@@ -168,7 +168,7 @@ namespace UGram.src.Application.Services
         .Where(p => userIds.Contains(p.UserId))
         .ToDictionaryAsync(p => p.UserId, p => p.UserName);
 
-      return imagesList.Select(i => new ImageResponseDto
+      var imageResults = await Task.WhenAll(images.Select(async i => new ImageResponseDto
       {
         Id = i.Id,
         FileName = i.FileName,
@@ -177,11 +177,13 @@ namespace UGram.src.Application.Services
         Description = i.Description,
         Hashtags = i.Hashtags,
         Mentions = i.Mentions,
-        FilePath = i.FilePath,
+        FilePath = await _imageStorageService.GetImageUrlAsync(i.FilePath),
         UserId = i.UserId,
         Username = profiles.ContainsKey(i.UserId) ? profiles[i.UserId] : string.Empty,
         CreatedAt = i.CreatedAt
-      });
+      }));
+
+      return imageResults;
     }
 
     public async Task<IEnumerable<string>> GetAutocompleteAsync(string filterType, string query)
