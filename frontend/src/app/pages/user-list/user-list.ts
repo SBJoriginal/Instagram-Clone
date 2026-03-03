@@ -41,11 +41,11 @@ export class UserListComponent {
         )
         .map((user) => ({
           ...user,
-          profilePictureUrl: user.profilePictureUrl 
-          ? user.profilePictureUrl.startsWith('http')
-            ? user.profilePictureUrl
-            : this.baseUrl + user.profilePictureUrl
-          : '',
+          profilePictureUrl: user.profilePictureUrl
+            ? user.profilePictureUrl.startsWith('http')
+              ? user.profilePictureUrl
+              : this.baseUrl + user.profilePictureUrl
+            : '',
         }));
     }),
   );
