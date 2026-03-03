@@ -141,5 +141,31 @@ namespace Api.Controllers
       await _context.SaveChangesAsync();
       return NoContent();
     }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchImages(
+        [FromQuery] string filterType,
+        [FromQuery] string query,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 15)
+    {
+      var images = await _imageService.SearchImagesAsync(filterType, query, page, pageSize);
+      return Ok(images);
+    }
+
+    [HttpGet("autocomplete")]
+    public async Task<IActionResult> GetAutocomplete(
+        [FromQuery] string filterType,
+        [FromQuery] string query)
+    {
+      if (string.IsNullOrWhiteSpace(filterType) || string.IsNullOrWhiteSpace(query))
+      {
+        return BadRequest("filterType and query are required");
+      }
+
+      var suggestions = await _imageService.GetAutocompleteAsync(filterType, query);
+      return Ok(suggestions);
+    }
   }
+
 }
