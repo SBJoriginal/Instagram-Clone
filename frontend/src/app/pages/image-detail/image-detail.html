@@ -7,7 +7,7 @@
     <div class="image-detail-card">
       <!-- Left side: Image -->
       <div class="image-display-side">
-        <img [src]="'http://localhost:8081' + image.filePath" [alt]="image.description" />
+        <img [src]="formatImageUrl(image.filePath)" [alt]="image.description" />
       </div>
       <!-- Right side: Sidebar -->
       <div class="info-sidebar">
@@ -22,7 +22,7 @@
           >
             @if (image.profilePictureUrl) {
               <img
-                [src]="'http://localhost:8081' + image.profilePictureUrl"
+                [src]="formatImageUrl(image.profilePictureUrl)"
                 [alt]="image.username"
                 class="avatar-img"
               />
@@ -75,7 +75,7 @@
                 >
                   @if (comment.profilePictureUrl) {
                     <img
-                      [src]="'http://localhost:8081' + comment.profilePictureUrl"
+                      [src]="formatImageUrl(comment.profilePictureUrl)"
                       [alt]="comment.username"
                       class="avatar-img"
                     />

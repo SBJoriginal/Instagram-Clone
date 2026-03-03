@@ -17,7 +17,7 @@
           <button type="button" class="grid-item-button" (click)="openImage(image)">
             <div class="grid-item">
               <img
-                [src]="'http://localhost:8081' + image.filePath"
+                [src]="formatImageUrl(image.filePath)"
                 [alt]="image.description"
                 loading="lazy"
               />

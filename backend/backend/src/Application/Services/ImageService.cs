@@ -168,7 +168,9 @@ namespace UGram.src.Application.Services
         FilePath = await _imageStorageService.GetImageUrlAsync(image.FilePath),
         UserId = image.UserId,
         Username = profile?.UserName ?? string.Empty,
-        ProfilePictureUrl = profile?.ProfilePictureUrl,
+        ProfilePictureUrl = !string.IsNullOrEmpty(profile?.ProfilePictureUrl)
+            ? await _imageStorageService.GetImageUrlAsync(profile.ProfilePictureUrl)
+            : null,
         CreatedAt = image.CreatedAt,
         ReactionCount = image.Reactions.Count,
         HasReacted = !string.IsNullOrEmpty(currentUserId) && image.Reactions.Any(r => r.UserId == currentUserId),
@@ -198,7 +200,9 @@ namespace UGram.src.Application.Services
         FilePath = await _imageStorageService.GetImageUrlAsync(i.FilePath),
         UserId = i.UserId,
         Username = profiles.ContainsKey(i.UserId) ? profiles[i.UserId].UserName : string.Empty,
-        ProfilePictureUrl = profiles.ContainsKey(i.UserId) ? profiles[i.UserId].ProfilePictureUrl : null,
+        ProfilePictureUrl = profiles.ContainsKey(i.UserId) && !string.IsNullOrEmpty(profiles[i.UserId].ProfilePictureUrl)
+            ? await _imageStorageService.GetImageUrlAsync(profiles[i.UserId].ProfilePictureUrl!)
+            : null,
         CreatedAt = i.CreatedAt,
         ReactionCount = i.Reactions?.Count ?? 0,
         HasReacted = !string.IsNullOrEmpty(currentUserId) && i.Reactions != null && i.Reactions.Any(r => r.UserId == currentUserId),

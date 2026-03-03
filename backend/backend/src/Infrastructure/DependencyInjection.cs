@@ -30,9 +30,14 @@ namespace UGram.src.Infrastructure
     private static void AddImageStorageService(IServiceCollection services)
     {
       // Uses the AWS SDK default credential and region chain:
-      // - Credentials: ~/.aws/credentials (mounted in Docker), IAM roles, env vars, etc.
-      // - Region: AWS_REGION / AWS_DEFAULT_REGION env var, or ~/.aws/config
-      services.AddSingleton<IAmazonS3>(_ => new AmazonS3Client());
+      // - Credentials: AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY env vars
+      // - Region: AWS_REGION env var
+      services.AddSingleton<IAmazonS3>(sp =>
+      {
+        var config = sp.GetRequiredService<IConfiguration>();
+        var region = Environment.GetEnvironmentVariable("AWS_REGION") ?? config["AWS:Region"] ?? "us-east-2";
+        return new AmazonS3Client(Amazon.RegionEndpoint.GetBySystemName(region));
+      });
       services.AddScoped<IImageStorageService, S3ImageStorageService>();
     }
 

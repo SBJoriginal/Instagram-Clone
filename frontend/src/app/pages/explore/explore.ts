@@ -163,4 +163,11 @@ export class Explore implements OnInit, AfterViewInit, OnDestroy {
       },
     });
   }
+
+  formatImageUrl(path: string): string {
+    if (!path) return '';
+    if (path.startsWith('http') || path.startsWith('data:')) return path;
+    const cleanPath = path.replace(/\\/g, '/');
+    return `http://localhost:8081/${cleanPath}`;
+  }
 }

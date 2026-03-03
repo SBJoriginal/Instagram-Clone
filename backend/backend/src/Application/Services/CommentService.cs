@@ -3,16 +3,19 @@ using Domain.Entities;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using UGram.src.Application.DTOs;
+using UGram.src.Application.Interfaces;
 
 namespace Application.Services
 {
   public class CommentService : ICommentService
   {
     private readonly AppDbContext _context;
+    private readonly IImageStorageService _imageStorageService;
 
-    public CommentService(AppDbContext context)
+    public CommentService(AppDbContext context, IImageStorageService imageStorageService)
     {
       _context = context;
+      _imageStorageService = imageStorageService;
     }
 
     public async Task<CommentDto> AddCommentAsync(string userId, CreateCommentDto createCommentDto)
@@ -39,7 +42,9 @@ namespace Application.Services
         ImageId = comment.ImageId,
         UserId = comment.UserId,
         Username = userProfile?.UserName ?? "Unknown",
-        ProfilePictureUrl = userProfile?.ProfilePictureUrl,
+        ProfilePictureUrl = !string.IsNullOrEmpty(userProfile?.ProfilePictureUrl)
+            ? await _imageStorageService.GetImageUrlAsync(userProfile.ProfilePictureUrl)
+            : null,
         Content = comment.Content,
         CreatedAt = comment.CreatedAt
       };
@@ -47,7 +52,7 @@ namespace Application.Services
 
     public async Task<IEnumerable<CommentDto>> GetCommentsByImageIdAsync(int imageId, int page = 1, int pageSize = 10)
     {
-      return await _context.Comments
+      var comments = await _context.Comments
           .Where(c => c.ImageId == imageId)
           .OrderByDescending(c => c.CreatedAt)
           .Skip((page - 1) * pageSize)
@@ -55,17 +60,27 @@ namespace Application.Services
           .Join(_context.UserProfiles,
               comment => comment.UserId,
               profile => profile.UserId,
-              (comment, profile) => new CommentDto
-              {
-                Id = comment.Id,
-                ImageId = comment.ImageId,
-                UserId = comment.UserId,
-                Username = profile.UserName,
-                ProfilePictureUrl = profile.ProfilePictureUrl,
-                Content = comment.Content,
-                CreatedAt = comment.CreatedAt
-              })
+              (comment, profile) => new { comment, profile })
           .ToListAsync();
+
+      var commentDtos = new List<CommentDto>();
+      foreach (var item in comments)
+      {
+        commentDtos.Add(new CommentDto
+        {
+          Id = item.comment.Id,
+          ImageId = item.comment.ImageId,
+          UserId = item.comment.UserId,
+          Username = item.profile.UserName,
+          ProfilePictureUrl = !string.IsNullOrEmpty(item.profile.ProfilePictureUrl)
+            ? await _imageStorageService.GetImageUrlAsync(item.profile.ProfilePictureUrl)
+            : null,
+          Content = item.comment.Content,
+          CreatedAt = item.comment.CreatedAt
+        });
+      }
+
+      return commentDtos;
     }
 
     public async Task<int> GetCommentCountByImageIdAsync(int imageId)
