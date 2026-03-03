@@ -64,6 +64,22 @@ export class ImageUploadService {
     });
   }
 
+  searchImages(
+    filterType: 'description' | 'hashtag',
+    query: string,
+    page: number,
+    pageSize: number,
+  ): Observable<ImageResponse[]> {
+    return this.http.get<ImageResponse[]>(`${this.apiUrl}/search`, {
+      params: {
+        filterType: filterType,
+        query: query,
+        page: page.toString(),
+        pageSize: pageSize.toString(),
+      },
+    });
+  }
+
   getMyImages(): Observable<ImageResponse[]> {
     return this.http.get<ImageResponse[]>(`${this.apiUrl}/my-images`);
   }
@@ -86,5 +102,14 @@ export class ImageUploadService {
 
   deleteImage(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  getAutocomplete(filterType: 'description' | 'hashtag', query: string): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/autocomplete`, {
+      params: {
+        filterType: filterType,
+        query: query,
+      },
+    });
   }
 }

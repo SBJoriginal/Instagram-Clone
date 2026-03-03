@@ -49,7 +49,7 @@ namespace UGram.src.Application.Services
       return new ImageUploadResponseDto
       {
         Id = image.Id,
-        FilePath = image.FilePath,
+        FilePath = await _imageStorageService.GetImageUrlAsync(image.FilePath),
         Description = image.Description,
         UserId = image.UserId,
         Username = profile?.UserName ?? string.Empty,
@@ -107,24 +107,42 @@ namespace UGram.src.Application.Services
         .Where(p => userIds.Contains(p.UserId))
         .ToDictionaryAsync(p => p.UserId, p => new { p.UserName, p.ProfilePictureUrl });
 
-      return images.Select(i => new ImageResponseDto
+      return await MapImagesToDto(images, currentUserId);
+    }
+
+    public async Task<IEnumerable<ImageResponseDto>> SearchImagesAsync(string filterType, string query, int page, int pageSize)
+    {
+      var queryable = _context.Images.AsQueryable();
+
+      if (!string.IsNullOrWhiteSpace(query))
       {
-        Id = i.Id,
-        FileName = i.FileName,
-        ContentType = i.ContentType,
-        Size = i.Size,
-        Description = i.Description,
-        Hashtags = i.Hashtags,
-        Mentions = i.Mentions,
-        FilePath = i.FilePath,
-        UserId = i.UserId,
-        Username = profiles.ContainsKey(i.UserId) ? profiles[i.UserId].UserName : string.Empty,
-        ProfilePictureUrl = profiles.ContainsKey(i.UserId) ? profiles[i.UserId].ProfilePictureUrl : null,
-        CreatedAt = i.CreatedAt,
-        ReactionCount = i.Reactions.Count,
-        HasReacted = !string.IsNullOrEmpty(currentUserId) && i.Reactions.Any(r => r.UserId == currentUserId),
-        CommentCount = i.Comments.Count
-      });
+        var lowerQuery = query.ToLower();
+
+        if (filterType.Equals("description", StringComparison.OrdinalIgnoreCase))
+        {
+          queryable = queryable.Where(i => i.Description.ToLower().Contains(lowerQuery));
+        }
+        else if (filterType.Equals("hashtag", StringComparison.OrdinalIgnoreCase))
+        {
+          var hashtags = query.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+          foreach (var tag in hashtags)
+          {
+            var t = tag.ToLower();
+            queryable = queryable.Where(i => i.Hashtags.ToLower().Contains(t));
+          }
+        }
+      }
+
+      var images = await queryable
+          .Include(i => i.Reactions)
+          .Include(i => i.Comments)
+          .OrderByDescending(i => i.CreatedAt)
+          .Skip((page - 1) * pageSize)
+          .Take(pageSize)
+          .ToListAsync();
+
+      return await MapImagesToDto(images);
     }
 
     public async Task<ImageResponseDto?> GetImageByIdAsync(int id, string? currentUserId = null)
@@ -147,7 +165,7 @@ namespace UGram.src.Application.Services
         Description = image.Description,
         Hashtags = image.Hashtags,
         Mentions = image.Mentions,
-        FilePath = image.FilePath,
+        FilePath = await _imageStorageService.GetImageUrlAsync(image.FilePath),
         UserId = image.UserId,
         Username = profile?.UserName ?? string.Empty,
         ProfilePictureUrl = profile?.ProfilePictureUrl,
@@ -156,6 +174,72 @@ namespace UGram.src.Application.Services
         HasReacted = !string.IsNullOrEmpty(currentUserId) && image.Reactions.Any(r => r.UserId == currentUserId),
         CommentCount = image.Comments.Count
       };
+    }
+
+    private async Task<IEnumerable<ImageResponseDto>> MapImagesToDto(IEnumerable<Image> images, string? currentUserId = null)
+    {
+      var imagesList = images.ToList();
+
+      // Get usernames and profile pictures
+      var userIds = imagesList.Select(i => i.UserId).Distinct().ToList();
+      var profiles = await _context.UserProfiles
+        .Where(p => userIds.Contains(p.UserId))
+        .ToDictionaryAsync(p => p.UserId, p => new { p.UserName, p.ProfilePictureUrl });
+
+      var imageResults = await Task.WhenAll(imagesList.Select(async i => new ImageResponseDto
+      {
+        Id = i.Id,
+        FileName = i.FileName,
+        ContentType = i.ContentType,
+        Size = i.Size,
+        Description = i.Description,
+        Hashtags = i.Hashtags,
+        Mentions = i.Mentions,
+        FilePath = await _imageStorageService.GetImageUrlAsync(i.FilePath),
+        UserId = i.UserId,
+        Username = profiles.ContainsKey(i.UserId) ? profiles[i.UserId].UserName : string.Empty,
+        ProfilePictureUrl = profiles.ContainsKey(i.UserId) ? profiles[i.UserId].ProfilePictureUrl : null,
+        CreatedAt = i.CreatedAt,
+        ReactionCount = i.Reactions?.Count ?? 0,
+        HasReacted = !string.IsNullOrEmpty(currentUserId) && i.Reactions != null && i.Reactions.Any(r => r.UserId == currentUserId),
+        CommentCount = i.Comments?.Count ?? 0
+      }));
+
+      return imageResults;
+    }
+
+    public async Task<IEnumerable<string>> GetAutocompleteAsync(string filterType, string query)
+    {
+      var queryLower = query.ToLower();
+      var suggestions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+      var rawData = await _context.Images
+          .Where(i => filterType == "hashtag"
+              ? i.Hashtags.ToLower().Contains(queryLower)
+              : i.Description.ToLower().Contains(queryLower))
+          .Select(i => filterType == "hashtag" ? i.Hashtags : i.Description)
+          .Take(100)
+          .ToListAsync();
+
+      foreach (var text in rawData)
+      {
+        if (string.IsNullOrEmpty(text)) continue;
+
+        var parts = text.Split(new[] { ' ', ',', '#' }, StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (var part in parts)
+        {
+          if (part.Length <= 2 && filterType != "hashtag") continue;
+
+          if (part.ToLower().Contains(queryLower))
+          {
+            var result = filterType == "hashtag" ? $"#{part.TrimStart('#')}" : part;
+            suggestions.Add(result);
+          }
+        }
+      }
+
+      return suggestions.OrderBy(s => s).Take(15).ToList();
     }
   }
 }

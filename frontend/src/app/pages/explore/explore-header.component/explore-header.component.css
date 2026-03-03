@@ -30,3 +30,14 @@
 .filter-group {
   scale: 0.9;
 }
+
+.clear-icon {
+  cursor: pointer;
+  color: #999;
+  font-size: 20px;
+  transition: color 0.2s;
+}
+
+.clear-icon:hover {
+  color: #666;
+}

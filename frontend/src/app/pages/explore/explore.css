@@ -45,41 +45,6 @@
 }
 
 .reaction-container {
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 2px 8px;
-  border-radius: 16px;
-}
-
-.reaction-button {
-  width: 32px !important;
-  height: 32px !important;
-  color: white !important;
-}
-
-.reaction-button.reacted {
-  color: #ff2d55 !important;
-}
-
-.reaction-count {
-  font-size: 13px;
-  font-weight: 600;
-  color: white;
-}
-
-.image-actions {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  z-index: 10;
-}
-
-.reaction-container {
   display: flex;
   align-items: center;
   background: rgba(0, 0, 0, 0.55);
@@ -91,6 +56,9 @@
   transition: all 0.2s ease-out;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   cursor: pointer;
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
 }
 
 .reaction-container:hover {
@@ -126,6 +94,7 @@
 .reaction-count {
   font-size: 12px;
   font-weight: 500;
+  color: white;
 }
 
 .comment-icon-container {
@@ -159,4 +128,27 @@
 .comment-count-badge {
   font-size: 12px;
   font-weight: 500;
+  color: white;
+}
+
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #999;
+}
+
+.no-results mat-icon {
+  font-size: 80px;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.no-results p {
+  font-size: 1.2em;
+  margin: 0;
 }

@@ -24,7 +24,11 @@ export class UserListComponent {
     map((users) =>
       users.map((user) => ({
         ...user,
-        profilePictureUrl: user.profilePictureUrl ? this.baseUrl + user.profilePictureUrl : '',
+        profilePictureUrl: user.profilePictureUrl
+          ? user.profilePictureUrl.startsWith('http')
+            ? user.profilePictureUrl
+            : this.baseUrl + user.profilePictureUrl
+          : '',
       })),
     ),
   );

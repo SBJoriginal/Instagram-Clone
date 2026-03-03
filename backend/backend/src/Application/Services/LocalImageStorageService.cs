@@ -48,12 +48,12 @@ namespace UGram.src.Application.Services
     }
 
 
-    public string GetImageUrl(string filePath)
+    public Task<string> GetImageUrlAsync(string filePath)
     {
       if (string.IsNullOrEmpty(filePath))
-        return string.Empty;
+        return Task.FromResult(string.Empty);
 
-      return filePath.StartsWith("/") ? filePath : $"/{filePath}";
+      return Task.FromResult(filePath.StartsWith("/") ? filePath : $"/{filePath}");
     }
   }
 }

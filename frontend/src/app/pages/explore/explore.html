@@ -6,52 +6,59 @@
 
 <div class="explore-content">
   @if (currentSearchType() === 'images') {
-    <div class="image-grid">
-      @for (image of images(); track image.id) {
-        <button type="button" class="grid-item-button" (click)="openImage(image)">
-          <div class="grid-item">
-            <img
-              [src]="'http://localhost:8081' + image.filePath"
-              [alt]="image.description"
-              loading="lazy"
-            />
-            <div class="overlay">
-              <mat-icon>visibility</mat-icon>
-              <div
-                class="reaction-container"
-                (click)="$event.stopPropagation()"
-                (keyup.enter)="$event.stopPropagation()"
-                role="presentation"
-              >
-                <button
-                  mat-icon-button
-                  class="reaction-button"
-                  [class.reacted]="image.hasReacted"
-                  (click)="onToggleReaction($event, image)"
-                  [aria-label]="image.hasReacted ? 'Remove like' : 'Like'"
+    @if (images().length === 0 && !isLoading()) {
+      <div class="no-results">
+        <mat-icon>photo_library</mat-icon>
+        <p>No images found</p>
+      </div>
+    } @else {
+      <div class="image-grid">
+        @for (image of images(); track image.id) {
+          <button type="button" class="grid-item-button" (click)="openImage(image)">
+            <div class="grid-item">
+              <img
+                [src]="'http://localhost:8081' + image.filePath"
+                [alt]="image.description"
+                loading="lazy"
+              />
+              <div class="overlay">
+                <mat-icon>visibility</mat-icon>
+                <div
+                  class="reaction-container"
+                  (click)="$event.stopPropagation()"
+                  (keyup.enter)="$event.stopPropagation()"
+                  role="presentation"
                 >
-                  <mat-icon>{{ image.hasReacted ? 'favorite' : 'favorite_border' }}</mat-icon>
-                </button>
-                @if (image.reactionCount > 0) {
-                  <span class="reaction-count">{{ image.reactionCount }}</span>
-                }
-              </div>
-              <div class="comment-icon-container">
-                <mat-icon>chat_bubble_outline</mat-icon>
-                @if (image.commentCount > 0) {
-                  <span class="comment-count-badge">{{ image.commentCount }}</span>
-                }
+                  <button
+                    mat-icon-button
+                    class="reaction-button"
+                    [class.reacted]="image.hasReacted"
+                    (click)="onToggleReaction($event, image)"
+                    [aria-label]="image.hasReacted ? 'Remove like' : 'Like'"
+                  >
+                    <mat-icon>{{ image.hasReacted ? 'favorite' : 'favorite_border' }}</mat-icon>
+                  </button>
+                  @if (image.reactionCount > 0) {
+                    <span class="reaction-count">{{ image.reactionCount }}</span>
+                  }
+                </div>
+                <div class="comment-icon-container">
+                  <mat-icon>chat_bubble_outline</mat-icon>
+                  @if (image.commentCount > 0) {
+                    <span class="comment-count-badge">{{ image.commentCount }}</span>
+                  }
+                </div>
               </div>
             </div>
-          </div>
-        </button>
-      }
-    </div>
-    <div #sentinel class="loading-trigger">
-      @if (isLoading()) {
-        <mat-spinner diameter="40"></mat-spinner>
-      }
-    </div>
+          </button>
+        }
+      </div>
+      <div #sentinel class="loading-trigger">
+        @if (isLoading()) {
+          <mat-spinner diameter="40"></mat-spinner>
+        }
+      </div>
+    }
   } @else {
     <div class="user-results-container">
       <app-user-list></app-user-list>
