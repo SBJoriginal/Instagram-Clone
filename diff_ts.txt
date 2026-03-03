@@ -1,0 +1,171 @@
+﻿diff --git a/frontend/src/app/pages/explore/explore-header.component/explore-header.component.ts b/frontend/src/app/pages/explore/explore-header.component/explore-header.component.ts
+index e256679..1291b1b 100644
+--- a/frontend/src/app/pages/explore/explore-header.component/explore-header.component.ts
++++ b/frontend/src/app/pages/explore/explore-header.component/explore-header.component.ts
+@@ -12,10 +12,9 @@ import { FormsModule } from '@angular/forms';
+ import { startWith, switchMap, debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
+ import { Subject, of } from 'rxjs';
+ import { ImageUploadService } from '../../../services/image-upload.service';
+-import { UserService } from '../../../services/user.service';
+ 
+ export type SearchType = 'images' | 'users';
+-export type ImageFilter = 'description' | 'hashtag' | null;
++export type ImageFilter = 'description' | 'hashtag';
+ 
+ @Component({
+   selector: 'app-explore-header',
+@@ -35,69 +34,37 @@ export type ImageFilter = 'description' | 'hashtag' | null;
+ })
+ export class ExploreHeaderComponent {
+   searchTypeChange = output<SearchType>();
+-  imageFilterChange = output<{ filter: 'description' | 'hashtag'; query: string }>();
+-  userSearchChange = output<string>();
++  imageFilterChange = output<{ filter: ImageFilter; query: string }>();
+ 
+   private readonly imageService = inject(ImageUploadService);
+-  private readonly userService = inject(UserService);
+ 
+   protected searchQuery = '';
+-  protected readonly currentFilter = signal<ImageFilter>(null);
+-  protected readonly currentSearchType = signal<SearchType>('images');
+-  protected readonly isSearchFocused = signal(false);
+-
+-  protected onSearchFocus(): void {
+-    this.isSearchFocused.set(true);
+-  }
+-
+-  protected onSearchBlur(): void {
+-    setTimeout(() => {
+-      const activeElement = document.activeElement;
+-      const isInsideToggle = activeElement?.closest('.filter-toggle-inline');
+-
+-      if (!isInsideToggle) {
+-        this.isSearchFocused.set(false);
+-      }
+-    }, 150);
+-  }
++  protected readonly currentFilter = signal<ImageFilter>('description');
+ 
+   protected onSearchInput(value: string): void {
+-    const cleanValue = this.sanitizeQuery(value);
+-    this.searchQuery = cleanValue;
+-
+-    if (this.currentSearchType() === 'images' && !this.currentFilter() && cleanValue.length > 0) {
+-      this.currentFilter.set('description');
+-    }
++    this.searchQuery = value;
+ 
+-    this.queryChange$.next(cleanValue);
++    this.queryChange$.next(value);
+ 
+-    if (this.currentSearchType() === 'users') {
+-      this.userSearchChange.emit(cleanValue);
+-    } else {
+-      this.imageFilterChange.emit({
+-        filter: this.currentFilter() ?? 'description',
+-        query: cleanValue,
+-      });
+-    }
++    this.imageFilterChange.emit({
++      filter: this.currentFilter(),
++      query: value,
++    });
+   }
+ 
+   protected onFinalSearch(): void {
+     let query = this.searchQuery;
+ 
+-    if (this.currentSearchType() === 'images' && this.currentFilter() === 'hashtag' && query) {
++    if (this.currentFilter() === 'hashtag' && query) {
+       const words = query.split(/\s+/).filter((w) => w.length > 0);
+       query = words.map((word) => (word.startsWith('#') ? word : '#' + word)).join(' ');
+       this.searchQuery = query;
+     }
+ 
+-    if (this.currentSearchType() === 'users') {
+-      this.userSearchChange.emit(this.searchQuery);
+-    } else {
+-      this.imageFilterChange.emit({
+-        filter: this.currentFilter() ?? 'description',
+-        query: this.searchQuery,
+-      });
+-    }
++    this.imageFilterChange.emit({
++      filter: this.currentFilter(),
++      query: this.searchQuery,
++    });
+   }
+ 
+   protected onSuggestionSelected(event: MatAutocompleteSelectedEvent): void {
+@@ -113,57 +80,37 @@ export class ExploreHeaderComponent {
+     switchMap((value) => {
+       if (!value || value.length < 2) return of([]);
+ 
+-      if (this.currentSearchType() === 'users') {
+-        return this.userService.getUsernameAutocomplete(value);
+-      } else {
+-        const effectiveFilter = this.currentFilter() ?? 'description';
+-        const cleanQuery = effectiveFilter === 'hashtag' ? value.replace(/^#+/, '').trim() : value;
++      const cleanQuery =
++        this.currentFilter() === 'hashtag' ? value.replace(/^#+/, '').trim() : value;
+ 
+-        if (!cleanQuery) return of([]);
+-        return this.imageService.getAutocomplete(effectiveFilter, cleanQuery);
+-      }
++      if (!cleanQuery) return of([]);
++
++      return this.imageService.getAutocomplete(this.currentFilter(), cleanQuery);
+     }),
+-    map((suggestions) => suggestions.slice(0, 5)),
++    map((suggestions) => suggestions.slice(0, 3)),
+   );
+ 
+   protected clearSearch(): void {
+     this.searchQuery = '';
+     this.queryChange$.next('');
+-
+-    if (this.currentSearchType() === 'users') {
+-      this.userSearchChange.emit('');
+-    } else {
+-      this.imageFilterChange.emit({
+-        filter: this.currentFilter() ?? 'description',
+-        query: '',
+-      });
+-    }
++    this.imageFilterChange.emit({
++      filter: this.currentFilter(),
++      query: '',
++    });
+   }
+ 
+   protected onFilterChange(newFilter: ImageFilter): void {
+-    if (!newFilter) return;
+     this.currentFilter.set(newFilter);
+-
+-    this.queryChange$.next(this.searchQuery);
++    this.searchQuery = '';
++    this.queryChange$.next('');
+     this.imageFilterChange.emit({
+-      filter: newFilter as 'description' | 'hashtag',
+-      query: this.searchQuery,
++      filter: newFilter,
++      query: '',
+     });
+   }
+ 
+   protected onSearchTypeChange(type: SearchType): void {
+-    this.currentSearchType.set(type);
+     this.searchQuery = '';
+-    this.currentFilter.set(null);
+-    this.isSearchFocused.set(false);
+-
+-    this.queryChange$.next('');
+-    this.userSearchChange.emit('');
+     this.searchTypeChange.emit(type);
+   }
+-
+-  private sanitizeQuery(value: string): string {
+-    if (!value) return '';
+-    return value.replace(/[^\p{L}\p{N}\s\-_#]/gu, '').substring(0, 100);
+-  }
+ }

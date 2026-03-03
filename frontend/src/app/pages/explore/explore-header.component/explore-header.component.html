@@ -3,58 +3,53 @@
     <mat-form-field appearance="outline" class="search-bar">
       <mat-icon matPrefix>search</mat-icon>
       <mat-label>Search ugram</mat-label>
-      <input
-        matInput
-        [matAutocomplete]="auto"
-        [(ngModel)]="searchQuery"
-        (ngModelChange)="onSearchInput($event)"
-        (keydown.enter)="onFinalSearch()"
-        [placeholder]="
-          currentFilter() === 'hashtag' ? 'Search by hashtag...' : 'Explore something new...'
-        "
-      />
+      <input matInput [matAutocomplete]="auto" [(ngModel)]="searchQuery" (ngModelChange)="onSearchInput($event)"
+        (keydown.enter)="onFinalSearch()" (focus)="onSearchFocus()" (blur)="onSearchBlur()" [placeholder]="
+          currentSearchType() === 'users'
+            ? 'Search users...'
+            : currentFilter() === 'hashtag'
+              ? 'Search by hashtag...'
+              : 'Explore something new...'
+        " />
 
-      @if (searchQuery) {
-        <mat-icon matSuffix class="clear-icon" (click)="clearSearch()">cancel</mat-icon>
-      }
+      <div matSuffix class="suffix-container">
+        @if (searchQuery) {
+        <mat-icon class="clear-icon" (click)="clearSearch()">cancel</mat-icon>
+        }
+
+        @if (currentSearchType() === 'images' && (isSearchFocused() || currentFilter())) {
+        <mat-button-toggle-group #filterGroup="matButtonToggleGroup" [value]="currentFilter()"
+          (change)="onFilterChange(filterGroup.value)" (mousedown)="$event.preventDefault()"
+          class="filter-toggle-inline">
+          <mat-button-toggle value="description">Description</mat-button-toggle>
+          <mat-button-toggle value="hashtag">#Hashtag</mat-button-toggle>
+        </mat-button-toggle-group>
+        }
+      </div>
 
       <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onSuggestionSelected($event)">
         @for (suggestion of filteredSuggestions$ | async; track suggestion) {
-          <mat-option [value]="suggestion">
-            <span class="suggestion-item">
-              @if (currentFilter() === 'hashtag') {
-                <mat-icon class="suggestion-icon">tag</mat-icon>
-              } @else {
-                <mat-icon class="suggestion-icon">short_text</mat-icon>
-              }
-              {{ suggestion }}
-            </span>
-          </mat-option>
+        <mat-option [value]="suggestion">
+          <span class="suggestion-item">
+            @if (currentFilter() === 'hashtag') {
+            <mat-icon class="suggestion-icon">tag</mat-icon>
+            } @else {
+            <mat-icon class="suggestion-icon">short_text</mat-icon>
+            }
+            {{ suggestion }}
+          </span>
+        </mat-option>
         }
       </mat-autocomplete>
     </mat-form-field>
 
     <div class="controls">
-      <mat-button-toggle-group
-        #searchGroup="matButtonToggleGroup"
-        value="images"
-        (change)="onSearchTypeChange(searchGroup.value)"
-      >
+      <mat-button-toggle-group #searchGroup="matButtonToggleGroup" value="images"
+        (change)="onSearchTypeChange(searchGroup.value)">
         <mat-button-toggle value="images">Images</mat-button-toggle>
         <mat-button-toggle value="users">Users</mat-button-toggle>
       </mat-button-toggle-group>
 
-      @if (searchGroup.value === 'images') {
-        <mat-button-toggle-group
-          #filterGroup="matButtonToggleGroup"
-          [value]="currentFilter()"
-          (change)="onFilterChange(filterGroup.value)"
-          class="filter-group"
-        >
-          <mat-button-toggle value="description">Description</mat-button-toggle>
-          <mat-button-toggle value="hashtag">#Hashtag</mat-button-toggle>
-        </mat-button-toggle-group>
-      }
     </div>
   </div>
 </header>
