@@ -20,31 +20,20 @@ namespace UGram.src.Infrastructure
 
       AddIdentityManagement(services);
 
-      AddImageStorageService(services, configuration);
+      AddImageStorageService(services);
 
       AddExceptionHandler(services);
 
       return services;
     }
 
-    private static void AddImageStorageService(IServiceCollection services, IConfiguration configuration)
+    private static void AddImageStorageService(IServiceCollection services)
     {
-      var environment = configuration["ASPNETCORE_ENVIRONMENT"] ?? "Development";
-
-      if (environment == "Production" || environment == "Staging")
-      {
-        // AWS S3 service commented out until properly configured
-        //services.AddAWSService<IAmazonS3>();
-        //services.AddScoped<IImageStorageService, S3ImageStorageService>();
-
-        // Fallback to local storage if S3 not configured
-        services.AddScoped<IImageStorageService, LocalImageStorageService>();
-      }
-      else
-      {
-        // Use local storage for development
-        services.AddScoped<IImageStorageService, LocalImageStorageService>();
-      }
+      // Uses the AWS SDK default credential and region chain:
+      // - Credentials: ~/.aws/credentials (mounted in Docker), IAM roles, env vars, etc.
+      // - Region: AWS_REGION / AWS_DEFAULT_REGION env var, or ~/.aws/config
+      services.AddSingleton<IAmazonS3>(_ => new AmazonS3Client());
+      services.AddScoped<IImageStorageService, S3ImageStorageService>();
     }
 
     private static void AddExceptionHandler(IServiceCollection services)
