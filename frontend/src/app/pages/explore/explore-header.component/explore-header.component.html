@@ -31,7 +31,9 @@
         @for (suggestion of filteredSuggestions$ | async; track suggestion) {
         <mat-option [value]="suggestion">
           <span class="suggestion-item">
-            @if (currentFilter() === 'hashtag') {
+            @if (currentSearchType() === 'users') {
+            <mat-icon class="suggestion-icon">person</mat-icon>
+            } @else if (currentFilter() === 'hashtag') {
             <mat-icon class="suggestion-icon">tag</mat-icon>
             } @else {
             <mat-icon class="suggestion-icon">short_text</mat-icon>
@@ -44,12 +46,11 @@
     </mat-form-field>
 
     <div class="controls">
-      <mat-button-toggle-group #searchGroup="matButtonToggleGroup" value="images"
+      <mat-button-toggle-group #searchGroup="matButtonToggleGroup" [value]="currentSearchType()"
         (change)="onSearchTypeChange(searchGroup.value)">
         <mat-button-toggle value="images">Images</mat-button-toggle>
         <mat-button-toggle value="users">Users</mat-button-toggle>
       </mat-button-toggle-group>
-
     </div>
   </div>
 </header>

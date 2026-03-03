@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 using UGram.src.Application.DTOs;
 using UGram.src.Application.Interfaces;
@@ -111,11 +112,24 @@ namespace backend.src.Api.Controllers
 
     [AllowAnonymous]
     [HttpGet("email-exists/{email}")]
-
     public async Task<ActionResult<bool>> CheckEmailExists(string email)
     {
       var exists = await _userProfileService.EmailExistsAsync(email);
       return Ok(exists);
+    }
+
+    [AllowAnonymous]
+    [EnableRateLimiting("AutocompletePolicy")]
+    [HttpGet("autocomplete")]
+    public async Task<IActionResult> GetUsernameAutocomplete([FromQuery] string query)
+    {
+      if (string.IsNullOrWhiteSpace(query) || query.Length > 100)
+      {
+        return BadRequest("Invalid query length.");
+      }
+
+      var usernames = await _userProfileService.GetUsernameAutocompleteAsync(query);
+      return Ok(usernames);
     }
   }
 }

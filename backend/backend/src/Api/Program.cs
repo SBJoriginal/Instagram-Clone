@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Infrastructure.Persistence;
 using UGram.src.Application.Configuration;
 using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,13 @@ builder.Services.AddRateLimiter(options =>
     opt.Window = TimeSpan.FromMinutes(1);
     opt.QueueLimit = 0;
   });
+  options.AddFixedWindowLimiter("AutocompletePolicy", opt =>
+   {
+     opt.PermitLimit = 60;
+     opt.Window = TimeSpan.FromMinutes(1);
+     opt.QueueLimit = 0;
+     opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+   });
 });
 
 var app = builder.Build();

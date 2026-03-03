@@ -6,7 +6,7 @@ import { LogoComponent } from '../../../shared/ui/logo/logo.component';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ImageUploadDialog } from '../../../image-upload-dialog/image-upload-dialog';
-import { ImageUploadService, ImageResponse } from '../../../services/image-upload.service';
+import { ImageUploadService } from '../../../services/image-upload.service';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
@@ -32,12 +32,6 @@ export class NavigationComponent {
   }
 
   openCreateDialog() {
-    const dialogRef = this.dialog.open(ImageUploadDialog);
-
-    dialogRef.afterClosed().subscribe((result: ImageResponse | undefined) => {
-      if (result) {
-        console.log('Image uploaded successfully:', result);
-      }
-    });
+    this.dialog.open(ImageUploadDialog);
   }
 }
