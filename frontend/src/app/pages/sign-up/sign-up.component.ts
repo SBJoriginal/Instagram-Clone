@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { AfterViewInit, ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+=======
+import { Component, inject, signal, OnInit } from '@angular/core';
+>>>>>>> fc50ac54b18e06cb940f04128749fae69b98c449
 import {
   FormBuilder,
   Validators,
@@ -17,7 +21,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../services/auth.service';
 import { PasswordValidators } from '../../validators/password.validators';
+<<<<<<< HEAD
 import { GoogleAuthService } from '../../services/google-auth.service';
+=======
+import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { ProfileService } from '../../services/profile.service';
+>>>>>>> fc50ac54b18e06cb940f04128749fae69b98c449
 
 @Component({
   selector: 'app-sign-up',
@@ -38,11 +47,19 @@ import { GoogleAuthService } from '../../services/google-auth.service';
   styleUrl: './sign-up.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+<<<<<<< HEAD
 export class SignUpComponent implements AfterViewInit {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly googleAuth = inject(GoogleAuthService);
+=======
+export class SignUpComponent implements OnInit {
+  private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly profileService = inject(ProfileService);
+>>>>>>> fc50ac54b18e06cb940f04128749fae69b98c449
 
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
@@ -54,6 +71,7 @@ export class SignUpComponent implements AfterViewInit {
         '',
         [
           Validators.required,
+          Validators.email,
           Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
         ],
       ],
@@ -73,8 +91,21 @@ export class SignUpComponent implements AfterViewInit {
     { validators: this.passwordMatchValidator },
   );
 
+<<<<<<< HEAD
   ngAfterViewInit(): void {
     this.googleAuth.initialize('google-btn-signup', '/complete-profile', this.errorMessage);
+=======
+  ngOnInit(): void {
+    this.signUpForm
+      .get('email')
+      ?.valueChanges.pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(() => {
+        const emailControl = this.signUpForm.get('email')!;
+        if (emailControl.value && emailControl.valid) {
+          this.profileService.checkEmailAvailability(emailControl);
+        }
+      });
+>>>>>>> fc50ac54b18e06cb940f04128749fae69b98c449
   }
 
   protected isRequirementMet(errorName: string): boolean {
@@ -90,7 +121,7 @@ export class SignUpComponent implements AfterViewInit {
       this.isLoading.set(true);
       this.errorMessage.set(null);
 
-      const { email, password } = this.signUpForm.value;
+      const { email, password } = this.signUpForm.getRawValue();
 
       this.authService.register(email!, password!).subscribe({
         next: () => {

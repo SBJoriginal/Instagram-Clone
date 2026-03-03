@@ -36,7 +36,7 @@ export class NavigationComponent {
 
     dialogRef.afterClosed().subscribe((result: ImageResponse | undefined) => {
       if (result) {
-        console.log('Upload déjà complété avec succès par le dialogue:', result);
+        console.log('Image uploaded successfully:', result);
       }
     });
   }

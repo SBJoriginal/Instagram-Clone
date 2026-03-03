@@ -6,17 +6,17 @@
       <div class="error-message">{{ errorMessage() }}</div>
     }
 
-    <mat-form-field appearance="outline">
+    <mat-form-field>
       <mat-label>Email</mat-label>
-      <input matInput type="email" formControlName="email" placeholder="Ex. pat@example.com" />
-      @if (
-        signUpForm.controls['email'].hasError('pattern') &&
-        !signUpForm.controls['email'].hasError('required')
-      ) {
-        <mat-error>Please enter a valid email address (e.g., .com, .ca)</mat-error>
+      <input matInput formControlName="email" />
+      @if (signUpForm.get('email')?.hasError('taken')) {
+        <mat-error>This email is already registered</mat-error>
       }
-      @if (signUpForm.controls['email'].hasError('required')) {
-        <mat-error>Please enter an email address</mat-error>
+      @if (signUpForm.get('email')?.hasError('required')) {
+        <mat-error>Email is required</mat-error>
+      }
+      @if (signUpForm.get('email')?.hasError('pattern')) {
+        <mat-error>Invalid email format</mat-error>
       }
     </mat-form-field>
     <mat-form-field appearance="outline">

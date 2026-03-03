@@ -40,7 +40,7 @@ export class ImageDetail implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('API Error:', err);
+        console.error('Failed to load image details:', err);
         this.loading = false;
         this.cdr.detectChanges();
       },

@@ -11,6 +11,7 @@ import { ProfileService } from '../../services/profile.service';
 import { TokenService } from '../../services/token.service';
 import { BackArrowComponent } from '../../shared/ui/back-arrow/back-arrow.component';
 import { LogoComponent } from '../../shared/ui/logo/logo.component';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-complete-profile',
@@ -54,6 +55,18 @@ export class CompleteProfileComponent implements OnInit {
     lastName: ['', [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)]],
     phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{3}-\d{3}-\d{4}$/)]],
   });
+
+  ngOnInit(): void {
+    this.profileForm
+      .get('username')
+      ?.valueChanges.pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(() => {
+        const usernameControl = this.profileForm.get('username')!;
+        if (usernameControl.value) {
+          this.profileService.checkUsernameAvailability(usernameControl);
+        }
+      });
+  }
 
   protected onPhoneInput(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -103,12 +116,15 @@ export class CompleteProfileComponent implements OnInit {
             this.errorMessage.set(
               'A profile already exists for your account. Please sign in instead.',
             );
-          } else if (error.status === 400) {
-            this.errorMessage.set(
-              error.error?.message || 'Invalid profile data. Please check your inputs.',
-            );
+          }
+          if (error.status === 400 && error.error?.message?.includes('Username')) {
+            this.errorMessage.set('This username is already taken. Please choose another one.');
           } else {
-            this.errorMessage.set('Failed to complete profile. Please try again.');
+            const errorMsg =
+              error.error?.detail ||
+              error.error?.message ||
+              'Failed to complete profile. Please try again.';
+            this.errorMessage.set(errorMsg);
           }
         },
       });

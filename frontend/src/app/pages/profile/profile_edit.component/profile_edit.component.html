@@ -43,6 +43,9 @@
           (blur)="onFieldBlur('username')"
         />
         <mat-icon matSuffix>person</mat-icon>
+        @if (editForm.get('username')?.hasError('taken')) {
+          <mat-error>This username is already taken</mat-error>
+        }
         @if (editForm.get('username')?.hasError('required')) {
           <mat-error> Username is required </mat-error>
         }
@@ -97,6 +100,9 @@
           (blur)="onFieldBlur('email')"
         />
         <mat-icon matSuffix>email</mat-icon>
+        @if (editForm.get('email')?.hasError('taken')) {
+          <mat-error>This email is already registered</mat-error>
+        }
         @if (editForm.get('email')?.hasError('required')) {
           <mat-error> Email is required </mat-error>
         } @else if (editForm.get('email')?.hasError('pattern')) {

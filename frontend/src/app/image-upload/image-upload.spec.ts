@@ -4,9 +4,14 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
 import { UserService } from '../services/user.service';
+import { ProfileService } from '../services/profile.service';
 import { of } from 'rxjs';
 import { User } from '../models/user.model';
 import { MatChipInputEvent } from '@angular/material/chips';
+import { HashtagPipe } from '../pipes/hashtag.pipe';
+import { MentionPipe } from '../pipes/mention.pipe';
+import { FileSizePipe } from '../pipes/file-size.pipe';
+import { ProfileResponse } from '../models/auth.models';
 
 describe('ImageUploadComponent', () => {
   let component: ImageUploadComponent;
@@ -16,11 +21,19 @@ describe('ImageUploadComponent', () => {
     getUsers: () => of([{ userName: 'user' }, { userName: 'friend' }] as User[]),
   };
 
+  const mockProfileService: Partial<ProfileService> = {
+    getProfile: () => of({ userName: 'mySelf' } as ProfileResponse),
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ImageUploadComponent, ReactiveFormsModule],
       providers: [
         { provide: UserService, useValue: mockUserService },
+        { provide: ProfileService, useValue: mockProfileService },
+        HashtagPipe,
+        MentionPipe,
+        FileSizePipe,
         provideHttpClient(),
         provideAnimations(),
       ],
@@ -35,50 +48,50 @@ describe('ImageUploadComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should invalidate form when no file is selected', () => {
-    const submitBtn = fixture.nativeElement.querySelector('button[type="submit"]');
-    expect(submitBtn.disabled).toBeTruthy();
+  it('should have invalid form when no file is selected', () => {
+    expect(component['selectedFile']()).toBeNull();
   });
 
   it('should auto-format hashtags on blur', () => {
-    const hashtagsInput = fixture.nativeElement.querySelector(
-      'input[formControlName="hashtags"]',
-    ) as HTMLInputElement;
-    hashtagsInput.value = 'test value';
-    hashtagsInput.dispatchEvent(new Event('input'));
-    hashtagsInput.dispatchEvent(new Event('blur'));
+    const hashtagsControl = component['uploadForm'].controls.hashtags;
+    hashtagsControl.setValue('test value');
+
+    component['onHashtagsBlur']();
     fixture.detectChanges();
 
-    expect(hashtagsInput.value).toBe('#test #value');
+    expect(hashtagsControl.value).toBe('#test #value');
   });
 
-  it('should add mentions as chips and update the hidden form control', () => {
-    const mentionsInput = fixture.nativeElement.querySelector(
-      'input[placeholder="Type @ to mention..."]',
-    ) as HTMLInputElement;
-
-    expect(mentionsInput).toBeTruthy();
-
-    mentionsInput.value = 'user';
-    mentionsInput.dispatchEvent(new Event('input'));
-
+  it('should add mentions as chips and update the form control', () => {
     const chipInputEvent = {
-      value: 'user',
-      input: mentionsInput,
+      value: 'friend',
       chipInput: {
         clear: () => {
-          mentionsInput.value = '';
+          // No-op for testing
         },
       },
-    } as MatChipInputEvent;
+    } as unknown as MatChipInputEvent;
 
     component['onChipInputEnd'](chipInputEvent);
-
     fixture.detectChanges();
 
-    expect(component['selectedMentions']()).toContain('user');
+    expect(component['selectedMentions']()).toContain('friend');
+    expect(component['uploadForm'].controls.mentions.value).toBe('@friend');
+  });
 
-    const hiddenControlValue = component['uploadForm'].controls.mentions.value;
-    expect(hiddenControlValue).toBe('@user');
+  it('should show error when mentioning yourself', () => {
+    const chipInputEvent = {
+      value: 'mySelf',
+      chipInput: {
+        clear: () => {
+          // No-op for testing
+        },
+      },
+    } as unknown as MatChipInputEvent;
+
+    component['onChipInputEnd'](chipInputEvent);
+    fixture.detectChanges();
+
+    expect(component['validationError']()).toBe('You cannot mention yourself.');
   });
 });

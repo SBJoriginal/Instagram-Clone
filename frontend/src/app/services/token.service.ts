@@ -44,7 +44,7 @@ export class TokenService {
       const decoded = atob(payload);
       return JSON.parse(decoded) as DecodedToken;
     } catch (error) {
-      console.error('Error decoding token:', error);
+      console.error('Failed to decode token:', error);
       return null;
     }
   }
