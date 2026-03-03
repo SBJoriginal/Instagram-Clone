@@ -46,7 +46,7 @@ namespace UGram.src.Application.Services
         Email = userProfile.Email,
         PhoneNumber = userProfile.PhoneNumber,
         SignUpDate = userProfile.SignUpDate,
-        ProfilePictureUrl = userProfile.ProfilePictureUrl
+        ProfilePictureUrl = await _imageStorageService.GetImageUrlAsync(userProfile.ProfilePictureUrl)
       };
 
       return userProfileDto;
@@ -54,21 +54,20 @@ namespace UGram.src.Application.Services
 
     public async Task<List<UserProfileResponseDto>> GetAllProfilesAsync()
     {
-      var profiles = await _context.UserProfiles
-          .Select(p => new UserProfileResponseDto
-          {
-            Id = p.UserId,
-            UserName = p.UserName,
-            FirstName = p.FirstName,
-            LastName = p.LastName,
-            Email = p.Email,
-            PhoneNumber = p.PhoneNumber,
-            SignUpDate = p.SignUpDate,
-            ProfilePictureUrl = p.ProfilePictureUrl
-          })
-          .ToListAsync();
+      var dbProfiles = await _context.UserProfiles.ToListAsync();
+      var profiles = await Task.WhenAll(dbProfiles.Select(async p => new UserProfileResponseDto
+      {
+        Id = p.UserId,
+        UserName = p.UserName,
+        FirstName = p.FirstName,
+        LastName = p.LastName,
+        Email = p.Email,
+        PhoneNumber = p.PhoneNumber,
+        SignUpDate = p.SignUpDate,
+        ProfilePictureUrl = await _imageStorageService.GetImageUrlAsync(p.ProfilePictureUrl)
+      }));
 
-      return profiles;
+      return profiles.ToList();
     }
 
     public async Task<UserProfileResponseDto?> GetProfileByIdAsync(string userId)
@@ -90,7 +89,7 @@ namespace UGram.src.Application.Services
         Email = profile.Email,
         PhoneNumber = profile.PhoneNumber,
         SignUpDate = profile.SignUpDate,
-        ProfilePictureUrl = profile.ProfilePictureUrl
+        ProfilePictureUrl = await _imageStorageService.GetImageUrlAsync(profile.ProfilePictureUrl)
       };
     }
 
@@ -118,29 +117,30 @@ namespace UGram.src.Application.Services
         Email = profile.Email,
         PhoneNumber = profile.PhoneNumber,
         SignUpDate = profile.SignUpDate,
-        ProfilePictureUrl = profile.ProfilePictureUrl
+        ProfilePictureUrl = await _imageStorageService.GetImageUrlAsync(profile.ProfilePictureUrl)
       };
     }
 
     public async Task<List<ImageResponseDto>> GetProfileImagesAsync(string userId)
     {
-      var images = await _context.Images
+      var dbImages = await _context.Images
           .Where(img => img.UserId == userId && !img.Description.EndsWith("has changed their profile picture"))
-          .Select(img => new ImageResponseDto
-          {
-            Id = img.Id,
-            FileName = img.FileName,
-            ContentType = img.ContentType,
-            Size = img.Size,
-            Description = img.Description,
-            Hashtags = img.Hashtags,
-            Mentions = img.Mentions,
-            FilePath = img.FilePath,
-            CreatedAt = img.CreatedAt
-          })
           .ToListAsync();
 
-      return images;
+      var images = await Task.WhenAll(dbImages.Select(async img => new ImageResponseDto
+      {
+        Id = img.Id,
+        FileName = img.FileName,
+        ContentType = img.ContentType,
+        Size = img.Size,
+        Description = img.Description,
+        Hashtags = img.Hashtags,
+        Mentions = img.Mentions,
+        FilePath = await _imageStorageService.GetImageUrlAsync(img.FilePath),
+        CreatedAt = img.CreatedAt
+      }));
+
+      return images.ToList();
     }
 
     public async Task CompleteProfileAsync(string userId, UserProfileRequestDto userProfileDto, string requesterUserId)
@@ -221,7 +221,7 @@ namespace UGram.src.Application.Services
 
       return new ProfilePictureResponseDto
       {
-        ProfilePictureUrl = imagePath,
+        ProfilePictureUrl = await _imageStorageService.GetImageUrlAsync(imagePath),
         ImageId = image.Id
       };
     }
