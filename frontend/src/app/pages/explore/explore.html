@@ -1,6 +1,7 @@
 <app-explore-header
   (searchTypeChange)="onSearchTypeChange($event)"
   (imageFilterChange)="onImageFilterChange($event)"
+  (userSearchChange)="onUserSearchChange($event)"
 >
 </app-explore-header>
 
@@ -16,20 +17,21 @@
         @for (image of images(); track image.id) {
           <button type="button" class="grid-item-button" (click)="openImage(image)">
             <div class="grid-item">
-              <img
-                [src]="'http://localhost:8081' + image.filePath"
-                [alt]="image.description"
-                loading="lazy"
-              />
+              <img [src]="image.filePath" [alt]="image.description" loading="lazy" />
               <div class="overlay"><mat-icon>visibility</mat-icon></div>
             </div>
           </button>
         }
       </div>
+      <div #sentinel class="loading-trigger">
+        @if (isLoading()) {
+          <mat-spinner diameter="40"></mat-spinner>
+        }
+      </div>
     }
   } @else {
     <div class="user-results-container">
-      <app-user-list></app-user-list>
+      <app-user-list [searchQuery]="currentUserSearchQuery()"></app-user-list>
     </div>
   }
 </div>

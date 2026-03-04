@@ -28,14 +28,16 @@ services:
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__DefaultConnection=Host=db;Database=ugram_dev;Username=postgres;Password=${DB_PASSWORD}
       - JwtSettings__Secret=${JWT_SECRET}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION:-us-east-2}
+      - S3__BucketName=${S3_BUCKET_NAME}
+      - Google__ClientId=${GOOGLE_CLIENT_ID}
     ports:
       - "8081:8080"
     volumes:
       - ./backend/backend/uploads:/app/uploads
       - ./backend/backend/wwwroot/images:/app/wwwroot/images
-    depends_on:
-      db:
-        condition: service_healthy
     networks:
       - ugram-network
     restart: unless-stopped
@@ -53,6 +55,8 @@ services:
     build:
       context: ./frontend
       dockerfile: ../docker/frontend.Dockerfile
+      args:
+        - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
     container_name: ugram_frontend
     ports:
       - "4200:80"

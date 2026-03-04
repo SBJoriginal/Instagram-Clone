@@ -50,7 +50,7 @@ namespace UGram.Tests.Unit.Controllers
 
       var imageResult = new ImageUploadResponseDto { Id = 1, FilePath = "/path" };
 
-      _mockImageService.Setup(s => s.UploadImageAsync(It.IsAny<IFormFile>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+      _mockImageService.Setup(s => s.UploadImageAsync(It.IsAny<ImageUploadRequestDto>(), It.IsAny<string>()))
           .ReturnsAsync(imageResult);
 
 

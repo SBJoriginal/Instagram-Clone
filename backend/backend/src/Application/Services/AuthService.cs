@@ -1,9 +1,10 @@
 using System.Security.Claims;
-using backend.src.Application.DTOs;
 using backend.src.Domain.Entities;
+using Google.Apis.Auth;
 using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using UGram.src.Application.DTOs;
 using UGram.src.Application.Interfaces;
 using UGram.src.Domain.Exceptions.Users;
@@ -16,18 +17,21 @@ namespace UGram.src.Application.Services
     private readonly ITokenService _tokenService;
     private readonly AppDbContext _context;
     private readonly IImageStorageService _imageStorageService;
+    private readonly IConfiguration _configuration;
 
     public AuthService(
       UserManager<ApplicationUser> userManager,
       ITokenService tokenService,
       AppDbContext context,
-      IImageStorageService imageStorageService
+      IImageStorageService imageStorageService,
+      IConfiguration configuration
     )
     {
       _userManager = userManager;
       _tokenService = tokenService;
       _context = context;
       _imageStorageService = imageStorageService;
+      _configuration = configuration;
     }
 
     public async Task<RegisterResponseDto> RegisterAsync(RegisterDto registerDto)
@@ -63,6 +67,54 @@ namespace UGram.src.Application.Services
       if (user == null || !await _userManager.CheckPasswordAsync(user, loginDto.Password))
       {
         throw new UnauthorizedAccessException("Invalid email or password.");
+      }
+
+      var token = _tokenService.GenerateToken(user);
+      var refreshToken = _tokenService.GenerateRefreshToken();
+
+      return new LoginResponseDto
+      {
+        Id = user.Id,
+        Email = user.Email ?? string.Empty,
+        Token = token,
+        RefreshToken = refreshToken,
+      };
+    }
+
+    public async Task<LoginResponseDto> GoogleLoginAsync(string idToken)
+    {
+      var settings = new GoogleJsonWebSignature.ValidationSettings
+      {
+        Audience = new[] { _configuration["Google:ClientId"] },
+      };
+
+      GoogleJsonWebSignature.Payload payload;
+      try
+      {
+        payload = await GoogleJsonWebSignature.ValidateAsync(idToken, settings);
+      }
+      catch (Exception ex)
+      {
+        throw new UnauthorizedAccessException("Invalid Google token.", ex);
+      }
+
+      var user = await _userManager.FindByEmailAsync(payload.Email);
+
+      if (user == null)
+      {
+        user = new ApplicationUser
+        {
+          UserName = payload.Email,
+          Email = payload.Email,
+          EmailConfirmed = true, // Google emails are verified
+        };
+
+        var result = await _userManager.CreateAsync(user);
+        if (!result.Succeeded)
+        {
+          var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+          throw new Exception($"User creation failed during Google login: {errors}");
+        }
       }
 
       var token = _tokenService.GenerateToken(user);

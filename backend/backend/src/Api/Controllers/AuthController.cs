@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using backend.src.Application.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -31,6 +30,13 @@ namespace backend.src.Api.Controllers
     public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
     {
       var loginResponse = await _authService.LoginAsync(loginDto);
+      return Ok(loginResponse);
+    }
+
+    [HttpPost("google")]
+    public async Task<IActionResult> GoogleLogin([FromBody] GoogleAuthDto googleAuthDto)
+    {
+      var loginResponse = await _authService.GoogleLoginAsync(googleAuthDto.IdToken);
       return Ok(loginResponse);
     }
 

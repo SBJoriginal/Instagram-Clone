@@ -1,4 +1,4 @@
-using backend.src.Application.Validators;
+using UGram.src.Application.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using UGram.src.Application.Interfaces;

@@ -1,4 +1,3 @@
-using backend.src.Application.DTOs;
 using UGram.src.Application.DTOs;
 
 namespace UGram.src.Application.Interfaces
@@ -17,5 +16,6 @@ namespace UGram.src.Application.Interfaces
     Task UpdateProfileAsync(string userId, UserProfileRequestDto userProfileDto, string requesterUserId);
     Task<bool> UsernameExistsAsync(string username);
     Task<bool> EmailExistsAsync(string email);
+    Task<IEnumerable<string>> GetUsernameAutocompleteAsync(string query);
   }
 }

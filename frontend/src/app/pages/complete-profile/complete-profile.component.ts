@@ -1,6 +1,7 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -34,15 +35,21 @@ export class CompleteProfileComponent implements OnInit {
 
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
-
-  protected readonly profileForm = this.fb.group({
-    username: ['', [Validators.required]],
-    firstName: ['', [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)]],
-    lastName: ['', [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)]],
-    phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{3}-\d{3}-\d{4}$/)]],
-  });
+  protected readonly profileAlreadyExists = signal(false);
 
   ngOnInit(): void {
+    // Check if profile already exists
+    this.profileService.getProfile().subscribe({
+      next: () => {
+        this.profileAlreadyExists.set(true);
+        this.errorMessage.set('A profile already exists for your account. Please sign in instead.');
+      },
+      error: () => {
+        // 404 = no profile yet, show the form normally
+      },
+    });
+
+    // Handle username availability check
     this.profileForm
       .get('username')
       ?.valueChanges.pipe(debounceTime(300), distinctUntilChanged())
@@ -53,6 +60,13 @@ export class CompleteProfileComponent implements OnInit {
         }
       });
   }
+
+  protected readonly profileForm = this.fb.group({
+    username: ['', [Validators.required]],
+    firstName: ['', [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)]],
+    lastName: ['', [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)]],
+    phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{3}-\d{3}-\d{4}$/)]],
+  });
 
   protected onPhoneInput(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -83,8 +97,6 @@ export class CompleteProfileComponent implements OnInit {
       this.isLoading.set(true);
       this.errorMessage.set(null);
 
-      this.errorMessage.set(null);
-
       const profileData: ProfileRequest = {
         username: this.profileForm.getRawValue().username!,
         firstName: this.profileForm.getRawValue().firstName!,
@@ -98,8 +110,13 @@ export class CompleteProfileComponent implements OnInit {
           this.isLoading.set(false);
           this.router.navigate(['/home']);
         },
-        error: (error) => {
+        error: (error: HttpErrorResponse) => {
           this.isLoading.set(false);
+          if (error.status === 409) {
+            this.errorMessage.set(
+              'A profile already exists for your account. Please sign in instead.',
+            );
+          }
           if (error.status === 400 && error.error?.message?.includes('Username')) {
             this.errorMessage.set('This username is already taken. Please choose another one.');
           } else {

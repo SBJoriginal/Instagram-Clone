@@ -16,6 +16,7 @@ import { ProfileService } from '../../../services/profile.service';
 import { debounceTime, distinctUntilChanged, take } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
 import { ConfirmDeleteDialogComponent } from './confirm_delete_dialog.component';
+import { ImageUploadService } from '../../../services/image-upload.service';
 
 @Component({
   selector: 'app-profile-edit',
@@ -37,6 +38,7 @@ export class ProfileEditComponent implements OnInit {
   private dialogRef = inject(MatDialogRef<ProfileEditComponent>);
   public data: ProfileEditData = inject(MAT_DIALOG_DATA);
   private profileService = inject(ProfileService);
+  private imageService = inject(ImageUploadService);
   protected readonly generalError = signal<string | null>(null);
   protected readonly isSaving = signal(false);
   private dialog = inject(MatDialog);
@@ -93,7 +95,7 @@ export class ProfileEditComponent implements OnInit {
     if (input.files && input.files[0]) {
       const file = input.files[0];
 
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif'];
       if (!allowedTypes.includes(file.type)) {
         console.error('Invalid file type');
         return;
@@ -156,6 +158,7 @@ export class ProfileEditComponent implements OnInit {
           if (file) {
             this.profileService.uploadProfilePicture(file).subscribe({
               next: () => {
+                this.imageService.notifyImageCreated();
                 this.isSaving.set(false);
                 this.dialogRef.close({ success: true });
               },

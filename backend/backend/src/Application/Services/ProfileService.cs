@@ -1,4 +1,3 @@
-using backend.src.Application.DTOs;
 using backend.src.Domain.Entities;
 using Domain.Entities;
 using Infrastructure.Persistence;
@@ -47,7 +46,7 @@ namespace UGram.src.Application.Services
         Email = userProfile.Email,
         PhoneNumber = userProfile.PhoneNumber,
         SignUpDate = userProfile.SignUpDate,
-        ProfilePictureUrl = userProfile.ProfilePictureUrl
+        ProfilePictureUrl = await _imageStorageService.GetImageUrlAsync(userProfile.ProfilePictureUrl)
       };
 
       return userProfileDto;
@@ -55,21 +54,20 @@ namespace UGram.src.Application.Services
 
     public async Task<List<UserProfileResponseDto>> GetAllProfilesAsync()
     {
-      var profiles = await _context.UserProfiles
-          .Select(p => new UserProfileResponseDto
-          {
-            Id = p.UserId,
-            UserName = p.UserName,
-            FirstName = p.FirstName,
-            LastName = p.LastName,
-            Email = p.Email,
-            PhoneNumber = p.PhoneNumber,
-            SignUpDate = p.SignUpDate,
-            ProfilePictureUrl = p.ProfilePictureUrl
-          })
-          .ToListAsync();
+      var dbProfiles = await _context.UserProfiles.ToListAsync();
+      var profiles = await Task.WhenAll(dbProfiles.Select(async p => new UserProfileResponseDto
+      {
+        Id = p.UserId,
+        UserName = p.UserName,
+        FirstName = p.FirstName,
+        LastName = p.LastName,
+        Email = p.Email,
+        PhoneNumber = p.PhoneNumber,
+        SignUpDate = p.SignUpDate,
+        ProfilePictureUrl = await _imageStorageService.GetImageUrlAsync(p.ProfilePictureUrl)
+      }));
 
-      return profiles;
+      return profiles.ToList();
     }
 
     public async Task<UserProfileResponseDto?> GetProfileByIdAsync(string userId)
@@ -91,7 +89,7 @@ namespace UGram.src.Application.Services
         Email = profile.Email,
         PhoneNumber = profile.PhoneNumber,
         SignUpDate = profile.SignUpDate,
-        ProfilePictureUrl = profile.ProfilePictureUrl
+        ProfilePictureUrl = await _imageStorageService.GetImageUrlAsync(profile.ProfilePictureUrl)
       };
     }
 
@@ -119,29 +117,30 @@ namespace UGram.src.Application.Services
         Email = profile.Email,
         PhoneNumber = profile.PhoneNumber,
         SignUpDate = profile.SignUpDate,
-        ProfilePictureUrl = profile.ProfilePictureUrl
+        ProfilePictureUrl = await _imageStorageService.GetImageUrlAsync(profile.ProfilePictureUrl)
       };
     }
 
     public async Task<List<ImageResponseDto>> GetProfileImagesAsync(string userId)
     {
-      var images = await _context.Images
+      var dbImages = await _context.Images
           .Where(img => img.UserId == userId && !img.Description.EndsWith("has changed their profile picture"))
-          .Select(img => new ImageResponseDto
-          {
-            Id = img.Id,
-            FileName = img.FileName,
-            ContentType = img.ContentType,
-            Size = img.Size,
-            Description = img.Description,
-            Hashtags = img.Hashtags,
-            Mentions = img.Mentions,
-            FilePath = img.FilePath,
-            CreatedAt = img.CreatedAt
-          })
           .ToListAsync();
 
-      return images;
+      var images = await Task.WhenAll(dbImages.Select(async img => new ImageResponseDto
+      {
+        Id = img.Id,
+        FileName = img.FileName,
+        ContentType = img.ContentType,
+        Size = img.Size,
+        Description = img.Description,
+        Hashtags = img.Hashtags,
+        Mentions = img.Mentions,
+        FilePath = await _imageStorageService.GetImageUrlAsync(img.FilePath),
+        CreatedAt = img.CreatedAt
+      }));
+
+      return images.ToList();
     }
 
     public async Task CompleteProfileAsync(string userId, UserProfileRequestDto userProfileDto, string requesterUserId)
@@ -222,7 +221,7 @@ namespace UGram.src.Application.Services
 
       return new ProfilePictureResponseDto
       {
-        ProfilePictureUrl = imagePath,
+        ProfilePictureUrl = await _imageStorageService.GetImageUrlAsync(imagePath),
         ImageId = image.Id
       };
     }
@@ -357,7 +356,8 @@ namespace UGram.src.Application.Services
         { ".jpeg", new byte[] { 0xFF, 0xD8, 0xFF } },
         { ".png", new byte[] { 0x89, 0x50, 0x4E, 0x47 } },
         { ".gif", new byte[] { 0x47, 0x49, 0x46, 0x38 } },
-        {".webp", new byte[] { 0x52, 0x49, 0x46, 0x46 } }
+        {".webp", new byte[] { 0x52, 0x49, 0x46, 0x46 } },
+        { ".avif", new byte[] { 0x00, 0x00, 0x00, 0x1C, 0x66, 0x74, 0x79, 0x70, 0x61, 0x76, 0x69, 0x66 } }
       };
 
       if (!magicBytesDict.TryGetValue(fileExtension.ToLower(), out var expectedMagicBytes))
@@ -418,6 +418,23 @@ namespace UGram.src.Application.Services
       }
 
       return user;
+    }
+
+    public async Task<IEnumerable<string>> GetUsernameAutocompleteAsync(string query)
+    {
+      var queryLower = query.ToLower();
+
+      var usernames = await _context.UserProfiles
+          .Where(p => p.UserName.ToLower().Contains(queryLower) ||
+                      (p.FirstName != null && p.FirstName.ToLower().Contains(queryLower)) ||
+                      (p.LastName != null && p.LastName.ToLower().Contains(queryLower)))
+          .OrderBy(p => p.UserName)
+          .Select(p => p.UserName)
+          .Distinct()
+          .Take(10)
+          .ToListAsync();
+
+      return usernames;
     }
   }
 }
