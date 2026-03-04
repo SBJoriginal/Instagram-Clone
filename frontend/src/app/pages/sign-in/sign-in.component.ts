@@ -1,17 +1,18 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LogoComponent } from '../../shared/ui/logo/logo.component';
 import { BackArrowComponent } from '../../shared/ui/back-arrow/back-arrow.component';
 import { AuthService } from '../../services/auth.service';
+import { GoogleAuthService } from '../../services/google-auth.service';
 
 @Component({
   selector: 'app-sign-in',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -26,10 +27,11 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './sign-in.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SignInComponent {
+export class SignInComponent implements AfterViewInit {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly googleAuth = inject(GoogleAuthService);
 
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
@@ -47,6 +49,10 @@ export class SignInComponent {
     password: ['', [Validators.required]],
   });
 
+  ngAfterViewInit(): void {
+    this.googleAuth.initialize('google-btn', '/home', this.errorMessage);
+  }
+
   protected onSignIn(): void {
     if (this.countdown() > 0) return;
 
@@ -61,7 +67,7 @@ export class SignInComponent {
           this.isLoading.set(false);
           this.router.navigate(['/home']);
         },
-        error: (error) => {
+        error: (error: HttpErrorResponse) => {
           this.isLoading.set(false);
           if (error.status === 503 || error.status === 429) {
             this.startCountdown(60);

@@ -8,6 +8,7 @@ import {
   RefreshTokenRequest,
   RegisterRequest,
   User,
+  GoogleAuthRequest,
 } from '../models/auth.models';
 import { TokenService } from './token.service';
 
@@ -35,6 +36,16 @@ export class AuthService {
     const request: RegisterRequest = { email, password };
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, request).pipe(
+      tap((response) => {
+        this.tokenService.saveTokens(response.token, response.refreshToken);
+      }),
+    );
+  }
+
+  loginWithGoogle(idToken: string): Observable<AuthResponse> {
+    const request: GoogleAuthRequest = { idToken };
+
+    return this.http.post<AuthResponse>(`${this.apiUrl}/google`, request).pipe(
       tap((response) => {
         this.tokenService.saveTokens(response.token, response.refreshToken);
       }),

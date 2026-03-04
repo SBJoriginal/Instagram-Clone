@@ -1,4 +1,3 @@
-using backend.src.Application.DTOs;
 using backend.src.Domain.Entities;
 using Domain.Entities;
 using Infrastructure.Persistence;
