@@ -97,8 +97,8 @@ jobs:
   # Deploy Backend → AWS Elastic Beanstalk
   #
   # Pre-requisites:
-  #   - An EB application named ${{ secrets.EB_APP_NAME }} must exist in us-east-2
-  #   - An EB environment named "ugram-staging" pointing to that application
+  #   - An EB application named "ugram-backend" must exist in us-east-2
+  #   - An EB environment named "ugram-backend-dev" pointing to that application
   #   - The EB environment must have these env vars configured (via EB console or CLI):
   #       ASPNETCORE_ENVIRONMENT=Staging
   #       ConnectionStrings__DefaultConnection=<rds-connection-string>
@@ -136,8 +136,8 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: ${{ secrets.EB_APP_NAME }}
-          environment_name: ugram-staging
+          application_name: ugram-backend
+          environment_name: ugram-backend-dev
           region: us-east-2
           version_label: staging-${{ github.sha }}
           deployment_package: deploy-backend.zip
