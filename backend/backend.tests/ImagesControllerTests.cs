@@ -1,10 +1,6 @@
 using Api.Controllers;
-using Domain.Entities;
-using Infrastructure.Persistence;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -16,29 +12,16 @@ namespace Backend.Tests
 {
   public class ImagesControllerTests
   {
-    private readonly AppDbContext _context;
-    private readonly Mock<IWebHostEnvironment> _mockEnvironment;
     private readonly Mock<IImageService> _mockImageService;
     private readonly ImagesController _controller;
     private const string TestUserId = "test-user-id";
 
     public ImagesControllerTests()
     {
-      var options = new DbContextOptionsBuilder<AppDbContext>()
-          .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-          .Options;
-      _context = new AppDbContext(options);
-      _mockEnvironment = new Mock<IWebHostEnvironment>();
       _mockImageService = new Mock<IImageService>();
-
-      // Setup default environment paths
-      _mockEnvironment.Setup(e => e.WebRootPath).Returns("wwwroot");
-      _mockEnvironment.Setup(e => e.ContentRootPath).Returns("root");
 
       _controller = new ImagesController(
           _mockImageService.Object,
-          _context,
-          _mockEnvironment.Object,
           new Mock<ILogger<ImagesController>>().Object);
 
       // Mock the User Claims to prevent NullReferenceException when checking ownership
@@ -58,26 +41,25 @@ namespace Backend.Tests
     [Fact]
     public async Task Update_ReturnsOk_WhenImageExists()
     {
-      // Arrange - Added UserId to match the authenticated user
-      var image = new Image
+      // Arrange
+      var dto = new ImageUpdateDto { Description = "New", Hashtags = "#new", Mentions = "@new" };
+      var responseDto = new ImageResponseDto
       {
         Id = 1,
-        Description = "Old",
-        UserId = TestUserId,
-        FilePath = "/local.png",
-        CreatedAt = DateTime.UtcNow
+        Description = "New",
+        Hashtags = "#new",
+        Mentions = "@new"
       };
-      _context.Images.Add(image);
-      await _context.SaveChangesAsync();
 
-      var dto = new ImageUpdateDto { Description = "New", Hashtags = "#new", Mentions = "@new" };
+      _mockImageService.Setup(s => s.UpdateImageAsync(1, It.IsAny<ImageUpdateDto>(), TestUserId))
+          .ReturnsAsync(responseDto);
 
       // Act
       var result = await _controller.Update(1, dto);
 
       // Assert
       var okResult = Assert.IsType<OkObjectResult>(result);
-      var returnedImage = Assert.IsType<Image>(okResult.Value);
+      var returnedImage = Assert.IsType<ImageResponseDto>(okResult.Value);
       Assert.Equal("New", returnedImage.Description);
       Assert.Equal("#new", returnedImage.Hashtags);
       Assert.Equal("@new", returnedImage.Mentions);
@@ -86,37 +68,42 @@ namespace Backend.Tests
     [Fact]
     public async Task Update_ReturnsNotFound_WhenImageDoesNotExist()
     {
+      // Arrange
+      _mockImageService.Setup(s => s.UpdateImageAsync(99, It.IsAny<ImageUpdateDto>(), TestUserId))
+          .ReturnsAsync((ImageResponseDto?)null);
+
+      // Act
       var result = await _controller.Update(99, new ImageUpdateDto());
+
+      // Assert
       Assert.IsType<NotFoundResult>(result);
     }
 
     [Fact]
     public async Task Delete_ReturnsNoContent_WhenImageExists()
     {
-      // Arrange - Added UserId to match the authenticated user
-      var image = new Image
-      {
-        Id = 2,
-        Description = "Delete Me",
-        UserId = TestUserId,
-        FilePath = "/delete.png",
-        CreatedAt = DateTime.UtcNow
-      };
-      _context.Images.Add(image);
-      await _context.SaveChangesAsync();
+      // Arrange
+      _mockImageService.Setup(s => s.DeleteImageAsync(2, TestUserId))
+          .ReturnsAsync(true);
 
       // Act
       var result = await _controller.Delete(2);
 
       // Assert
       Assert.IsType<NoContentResult>(result);
-      Assert.Null(await _context.Images.FindAsync(2));
     }
 
     [Fact]
     public async Task Delete_ReturnsNotFound_WhenImageDoesNotExist()
     {
+      // Arrange
+      _mockImageService.Setup(s => s.DeleteImageAsync(99, TestUserId))
+          .ReturnsAsync((bool?)null);
+
+      // Act
       var result = await _controller.Delete(99);
+
+      // Assert
       Assert.IsType<NotFoundResult>(result);
     }
   }
