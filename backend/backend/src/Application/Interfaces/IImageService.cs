@@ -12,5 +12,11 @@ namespace UGram.src.Application.Interfaces
     Task<IEnumerable<ImageResponseDto>> SearchImagesAsync(string filterType, string query, int page, int pageSize);
 
     Task<IEnumerable<string>> GetAutocompleteAsync(string filterType, string query);
+
+    Task<ImageResponseDto?> UpdateImageAsync(int id, ImageUpdateDto update, string currentUserId);
+
+    Task<bool?> DeleteImageAsync(int id, string currentUserId);
+
+    Task<IEnumerable<ImageResponseDto>> GetImagesByUsernameAsync(string username);
   }
 }

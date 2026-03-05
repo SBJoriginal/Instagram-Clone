@@ -219,5 +219,48 @@ namespace UGram.src.Application.Services
 
       return suggestions.OrderBy(s => s).Take(15).ToList();
     }
+
+    public async Task<ImageResponseDto?> UpdateImageAsync(int id, ImageUpdateDto update, string currentUserId)
+    {
+      var image = await _context.Images.FindAsync(id);
+      if (image == null) return null;
+
+      if (image.UserId != currentUserId)
+        throw new UnauthorizedAccessException("You are not the owner of this image.");
+
+      image.Description = update.Description ?? "";
+      image.Hashtags = update.Hashtags ?? "";
+      image.Mentions = update.Mentions ?? "";
+
+      await _context.SaveChangesAsync();
+
+      return await GetImageByIdAsync(id);
+    }
+
+    public async Task<bool?> DeleteImageAsync(int id, string currentUserId)
+    {
+      var image = await _context.Images.FindAsync(id);
+      if (image == null) return null;
+
+      if (image.UserId != currentUserId)
+        throw new UnauthorizedAccessException("You are not the owner of this image.");
+
+      if (!string.IsNullOrEmpty(image.FilePath))
+      {
+        await _imageStorageService.DeleteImageAsync(image.FilePath);
+      }
+
+      _context.Images.Remove(image);
+      await _context.SaveChangesAsync();
+      return true;
+    }
+
+    public async Task<IEnumerable<ImageResponseDto>> GetImagesByUsernameAsync(string username)
+    {
+      var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == username);
+      if (user == null) return Enumerable.Empty<ImageResponseDto>();
+
+      return await GetAllImagesAsync(user.Id);
+    }
   }
 }
