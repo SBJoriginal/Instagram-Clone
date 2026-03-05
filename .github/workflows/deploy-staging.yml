@@ -128,8 +128,23 @@ jobs:
       - name: Publish
         run: dotnet publish UGram.csproj -c Release -o ./publish
 
+      - name: Create runtime Dockerfile
+        run: |
+          cat > ./publish/Dockerfile <<EOF
+          FROM mcr.microsoft.com/dotnet/aspnet:8.0
+          WORKDIR /app
+          COPY . .
+          RUN mkdir -p /app/uploads
+          ENV ASPNETCORE_URLS=http://+:8080
+          ENV ASPNETCORE_ENVIRONMENT=Staging
+          EXPOSE 8080
+          ENTRYPOINT ["dotnet", "UGram.dll"]
+          EOF
+
       - name: Create deployment zip
-        run: zip -r ../../deploy-backend.zip ./publish
+        run: |
+          cd ./publish
+          zip -r ../../../deploy-backend.zip .
 
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v22
