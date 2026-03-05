@@ -182,10 +182,6 @@ namespace UGram.src.Application.Services
 
       _context.Images.RemoveRange(userImages);
 
-      var username =
-        user.UserProfile?.UserName
-        ?? (await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId))?.UserName;
-
       await _context.SaveChangesAsync();
 
       var result = await _userManager.DeleteAsync(user);
