@@ -186,19 +186,6 @@ namespace UGram.src.Application.Services
         user.UserProfile?.UserName
         ?? (await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId))?.UserName;
 
-      if (!string.IsNullOrEmpty(username))
-      {
-        var mentionTag = $"@{username}";
-        var imagesWithMention = await _context
-          .Images.Where(i => i.Mentions.Contains(mentionTag))
-          .ToListAsync();
-
-        foreach (var image in imagesWithMention)
-        {
-          image.Mentions = image.Mentions.Replace(mentionTag, "").Trim();
-        }
-      }
-
       await _context.SaveChangesAsync();
 
       var result = await _userManager.DeleteAsync(user);
