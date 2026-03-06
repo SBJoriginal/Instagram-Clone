@@ -11,7 +11,7 @@ import {
   GoogleAuthRequest,
 } from '../models/auth.models';
 import { TokenService } from './token.service';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
