@@ -34,13 +34,13 @@ namespace UGram.src.Application.Services
 
       using var inputStream = upload.File.OpenReadStream();
       using var outputStream = new MemoryStream();
-      
+
       using (var imageProcessor = await SixLabors.ImageSharp.Image.LoadAsync(inputStream))
       {
         // Resize if larger than 1920px in either dimension
         int maxWidth = 1920;
         int maxHeight = 1920;
-        
+
         if (imageProcessor.Width > maxWidth || imageProcessor.Height > maxHeight)
         {
           imageProcessor.Mutate(x => x.Resize(new SixLabors.ImageSharp.Processing.ResizeOptions
@@ -58,7 +58,7 @@ namespace UGram.src.Application.Services
       }
 
       outputStream.Position = 0;
-      
+
       // Wrap the compressed stream back into an IFormFile-like structure for the storage service
       var compressedFile = new FormFile(outputStream, 0, outputStream.Length, upload.File.Name, upload.File.FileName)
       {
