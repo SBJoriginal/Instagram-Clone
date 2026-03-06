@@ -28,6 +28,7 @@ namespace UGram.src.Application
       services.AddScoped<ITokenService, JwtTokenService>();
       services.AddScoped<IImageStorageService, LocalImageStorageService>();
       services.AddScoped<IImageService, ImageService>();
+      services.AddScoped<IHealthService, HealthService>();
     }
   }
 }
