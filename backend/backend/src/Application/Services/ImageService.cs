@@ -1,8 +1,11 @@
-using Domain.Entities;
+using DomainImage = Domain.Entities.Image;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using UGram.src.Application.DTOs;
 using UGram.src.Application.Interfaces;
+using Microsoft.AspNetCore.Http;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
 namespace UGram.src.Application.Services
 {
@@ -29,9 +32,43 @@ namespace UGram.src.Application.Services
         throw new ArgumentException("File content does not match the expected image format.", nameof(upload.File));
       }
 
-      var filePath = await _imageStorageService.SaveImageAsync(upload.File, "images");
+      using var inputStream = upload.File.OpenReadStream();
+      using var outputStream = new MemoryStream();
+      
+      using (var imageProcessor = await SixLabors.ImageSharp.Image.LoadAsync(inputStream))
+      {
+        // Resize if larger than 1920px in either dimension
+        int maxWidth = 1920;
+        int maxHeight = 1920;
+        
+        if (imageProcessor.Width > maxWidth || imageProcessor.Height > maxHeight)
+        {
+          imageProcessor.Mutate(x => x.Resize(new SixLabors.ImageSharp.Processing.ResizeOptions
+          {
+            Size = new SixLabors.ImageSharp.Size(maxWidth, maxHeight),
+            Mode = SixLabors.ImageSharp.Processing.ResizeMode.Max
+          }));
+        }
 
-      var image = new Image
+        // Save with compression (80% quality)
+        await imageProcessor.SaveAsJpegAsync(outputStream, new SixLabors.ImageSharp.Formats.Jpeg.JpegEncoder
+        {
+          Quality = 80
+        });
+      }
+
+      outputStream.Position = 0;
+      
+      // Wrap the compressed stream back into an IFormFile-like structure for the storage service
+      var compressedFile = new FormFile(outputStream, 0, outputStream.Length, upload.File.Name, upload.File.FileName)
+      {
+        Headers = upload.File.Headers,
+        ContentType = "image/jpeg"
+      };
+
+      var filePath = await _imageStorageService.SaveImageAsync(compressedFile, "images");
+
+      var image = new DomainImage
       {
         Description = upload.Description ?? "",
         Hashtags = upload.Hashtags ?? "",
@@ -158,7 +195,7 @@ namespace UGram.src.Application.Services
       };
     }
 
-    private async Task<IEnumerable<ImageResponseDto>> MapImagesToDto(IEnumerable<Image> images)
+    private async Task<IEnumerable<ImageResponseDto>> MapImagesToDto(IEnumerable<DomainImage> images)
     {
       var imagesList = images.ToList();
 

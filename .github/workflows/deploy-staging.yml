@@ -140,6 +140,8 @@ jobs:
           EXPOSE 8080
           ENTRYPOINT ["dotnet", "UGram.dll"]
           EOF
+          cp -r .platform ./publish/ || true
+
 
       - name: Create deployment zip
         run: |
