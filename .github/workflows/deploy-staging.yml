@@ -156,6 +156,7 @@ jobs:
           region: us-east-2
           version_label: staging-${{ github.sha }}
           deployment_package: deploy-backend.zip
+          use_existing_version_if_available: true
           # Wait up to 10 min for EB to finish rolling out
           wait_for_environment_recovery: 600
 
