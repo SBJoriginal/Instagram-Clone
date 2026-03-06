@@ -1,4 +1,4 @@
-namespace backend.src.Application.DTOs
+namespace UGram.src.Application.DTOs
 {
   public class RegisterDto
   {

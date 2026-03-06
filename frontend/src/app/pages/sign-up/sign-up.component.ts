@@ -1,4 +1,11 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+  OnInit,
+} from '@angular/core';
 import {
   FormBuilder,
   Validators,
@@ -10,12 +17,14 @@ import { BackArrowComponent } from '../../shared/ui/back-arrow/back-arrow.compon
 import { LogoComponent } from '../../shared/ui/logo/logo.component';
 import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
 import { Router, RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../services/auth.service';
 import { PasswordValidators } from '../../validators/password.validators';
+import { GoogleAuthService } from '../../services/google-auth.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ProfileService } from '../../services/profile.service';
 
@@ -36,11 +45,13 @@ import { ProfileService } from '../../services/profile.service';
   ],
   templateUrl: './sign-up.component.html',
   styleUrl: './sign-up.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SignUpComponent implements OnInit {
+export class SignUpComponent implements OnInit, AfterViewInit {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly googleAuth = inject(GoogleAuthService);
   private readonly profileService = inject(ProfileService);
 
   protected readonly isLoading = signal(false);
@@ -85,6 +96,10 @@ export class SignUpComponent implements OnInit {
       });
   }
 
+  ngAfterViewInit(): void {
+    this.googleAuth.initialize('google-btn-signup', '/complete-profile', this.errorMessage);
+  }
+
   protected isRequirementMet(errorName: string): boolean {
     const passwordControl = this.signUpForm.controls.password;
     if (passwordControl.hasError('required')) {
@@ -105,7 +120,7 @@ export class SignUpComponent implements OnInit {
           this.isLoading.set(false);
           this.router.navigate(['/complete-profile']);
         },
-        error: (error) => {
+        error: (error: HttpErrorResponse) => {
           this.isLoading.set(false);
 
           if (error.status === 409) {

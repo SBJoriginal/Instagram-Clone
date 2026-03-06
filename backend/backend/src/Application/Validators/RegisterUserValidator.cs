@@ -1,7 +1,7 @@
-using backend.src.Application.DTOs;
+using UGram.src.Application.DTOs;
 using FluentValidation;
 
-namespace backend.src.Application.Validators
+namespace UGram.src.Application.Validators
 {
   public class RegisterUserValidator : AbstractValidator<RegisterDto>
   {

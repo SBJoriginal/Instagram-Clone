@@ -138,7 +138,7 @@ dotnet ef migrations add <MigrationName> --project backend/backend/UGram.csproj
 Migrations and deployment to Elastic Beanstalk are handled automatically by CI on push to `main`:
 
 1. **Migrate** — runs `dotnet ef database update` against staging RDS
-2. **Deploy** — runs `eb deploy ugram-staging` only if migration succeeds
+2. **Deploy** — runs `eb deploy ugram-backend-dev` only if migration succeeds
 
 Production follows the same pattern on a separate workflow/branch.
 
