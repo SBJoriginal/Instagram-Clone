@@ -10,6 +10,7 @@ import { ProfileEditComponent } from '../profile_edit.component/profile_edit.com
 import { ProfileService } from '../../../services/profile.service';
 import { TokenService } from '../../../services/token.service';
 import { ProfileResponse } from '../../../models/auth.models';
+import { environment } from '../../../services/../../environments/environment';
 
 @Component({
   selector: 'app-profile-header',
@@ -107,7 +108,8 @@ export class ProfileHeader implements OnInit {
     if (path === '/default-avatar.png') return path; // ← AJOUTEZ
     if (path.startsWith('http') || path.startsWith('data:')) return path;
     const cleanPath = path.replace(/\\/g, '/');
-    return `http://localhost:8081/${cleanPath}`;
+    const baseUrl = environment.apiUrl.replace(/\/api$/, '');
+    return `${baseUrl}/${cleanPath}`;
   }
 
   openSettings(): void {
