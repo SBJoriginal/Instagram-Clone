@@ -16,6 +16,14 @@ namespace UGram.src.Api
     {
       app.UseExceptionHandler();
 
+      // Security Headers for Google OAuth / GSI
+      app.Use(async (context, next) =>
+      {
+        context.Response.Headers.Append("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+        context.Response.Headers.Append("Cross-Origin-Embedder-Policy", "require-corp");
+        await next();
+      });
+
       if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Docker")
       {
         app.UseSwagger();
