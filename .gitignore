@@ -38,6 +38,11 @@ testem.log
 typings/
 __screenshots__/
 
+# Review/Diff Logs
+diff*.txt
+frontend/*_report.txt
+e --profile full up --build
+
 
 # System files
 .DS_Store
@@ -53,6 +58,7 @@ Thumbs.db
 *.vstemplate
 .vs/
 *.csproj.user
+backend/backend/publish/
 
 #User Uploads
 /backend/backend/wwwroot
