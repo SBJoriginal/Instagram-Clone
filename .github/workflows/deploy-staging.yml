@@ -192,6 +192,10 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: List build artifacts (Debug)
+        run: |
+          ls -R dist/
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
