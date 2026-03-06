@@ -9,10 +9,12 @@ namespace UGram.src.Api.Middleware
   public class GlobalExceptionHandler : IExceptionHandler
   {
     private readonly ILogger<GlobalExceptionHandler> _logger;
+    private readonly IWebHostEnvironment _env;
 
-    public GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger)
+    public GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger, IWebHostEnvironment env)
     {
       _logger = logger;
+      _env = env;
     }
 
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
@@ -63,7 +65,16 @@ namespace UGram.src.Api.Middleware
           httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
           problemDetails.Status = StatusCodes.Status500InternalServerError;
           problemDetails.Title = "Internal Server Error";
-          problemDetails.Detail = "An unexpected error occurred.";
+
+          if (_env.IsEnvironment("Staging"))
+          {
+            problemDetails.Detail = $"{exception.Message} | {exception.StackTrace}";
+          }
+          else
+          {
+            problemDetails.Detail = "An unexpected error occurred.";
+          }
+
           problemDetails.Type = "https://httpstatuses.com/500";
           _logger.LogError(exception, "Unhandled Exception: {Message} [TraceId: {TraceId}]", exception.Message, traceId);
           break;
