@@ -36,8 +36,8 @@ namespace UGram.src.Api
         ContentTypeProvider = provider
       });
       app.ConfigureUploadsFolder();
-      app.UseCors("AllowAll");
       app.UseRouting();
+      app.UseCors("AllowAll");
       app.UseRateLimiter();
       app.UseAuthentication();
       app.UseAuthorization();
