@@ -64,9 +64,9 @@ namespace UGram.src.Api.Middleware
         default:
           httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
           problemDetails.Status = StatusCodes.Status500InternalServerError;
-          problemDetails.Title = "Internal Server Error";
+          problemDetails.Title = $"Internal Server Error ({_env.EnvironmentName})";
 
-          if (_env.IsEnvironment("Staging"))
+          if (!_env.IsDevelopment())
           {
             problemDetails.Detail = $"{exception.Message} | {exception.StackTrace}";
           }
