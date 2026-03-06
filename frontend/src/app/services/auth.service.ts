@@ -11,6 +11,7 @@ import {
   GoogleAuthRequest,
 } from '../models/auth.models';
 import { TokenService } from './token.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +21,7 @@ export class AuthService {
   private readonly tokenService = inject(TokenService);
   private readonly router = inject(Router);
 
-  private readonly apiUrl = 'http://localhost:8081/api/auth';
+  private readonly apiUrl = `${environment.apiUrl}/auth`;
 
   login(email: string, password: string): Observable<AuthResponse> {
     const request: LoginRequest = { email, password };
