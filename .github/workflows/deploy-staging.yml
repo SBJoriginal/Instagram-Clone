@@ -208,8 +208,7 @@ jobs:
 
       - name: Upload index.html (no-cache — always fetch fresh)
         run: |
-          aws s3 cp dist/frontend/browser/index.html \
-            s3://${{ secrets.STAGING_FRONTEND_BUCKET }}/index.html \
+          aws s3 cp dist/frontend/browser/index.html s3://${{ secrets.STAGING_FRONTEND_BUCKET }}/index.html \
             --cache-control "no-cache, no-store, must-revalidate"
 
       # Uncomment once CloudFront is set up:
