@@ -13,5 +13,7 @@ namespace UGram.src.Application.DTOs
     public DateTime SignUpDate { get; set; } = DateTime.Now;
 
     public string? ProfilePictureUrl { get; set; }
+
+    public bool IsDeleted { get; set; } = false;
   }
 }

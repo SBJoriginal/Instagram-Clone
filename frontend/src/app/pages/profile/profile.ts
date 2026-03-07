@@ -68,14 +68,11 @@ export class Profile {
 
       if (uname) {
         this.profileService.getUserProfileByUsername(uname).subscribe({
-          next: () => {
-            this.isDeletedAccount.set(false);
+          next: (profile) => {
+            this.isDeletedAccount.set(profile.isDeleted === true);
             this.refresh$.next();
           },
-          error: (err) => {
-            if (err.status === 404) {
-              this.isDeletedAccount.set(true);
-            }
+          error: () => {
             this.refresh$.next();
           },
         });

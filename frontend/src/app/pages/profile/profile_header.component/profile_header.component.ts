@@ -71,6 +71,11 @@ export class ProfileHeader implements OnInit {
 
         profileObservable.subscribe({
           next: (profile: ProfileResponse) => {
+            if (profile.isDeleted && isOtherUser) {
+              this.isDeletedAccount.set(true);
+              this.isLoading.set(false);
+              return;
+            }
             this.user.set({
               username: profile.userName || '',
               firstName: profile.firstName || '',
@@ -83,12 +88,7 @@ export class ProfileHeader implements OnInit {
             this.isLoading.set(false);
           },
           error: (error) => {
-            if (error.status !== 404) {
-              console.error('Failed to load profile:', error);
-            }
-            if (error.status === 404 && isOtherUser) {
-              this.isDeletedAccount.set(true);
-            }
+            console.error('Failed to load profile:', error);
             const email = !isOtherUser ? this.tokenService.getEmailFromToken() : '';
             this.user.set({
               username: '',

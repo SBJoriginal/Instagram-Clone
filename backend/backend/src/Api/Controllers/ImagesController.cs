@@ -78,7 +78,7 @@ namespace Api.Controllers
 
       if (user == null)
       {
-        throw new ApiException(StatusCodes.Status404NotFound, "Not Found", "User not found");
+        return Ok(new List<object>());
       }
 
       var images = await _imageService.GetAllImagesAsync(user.Id);
