@@ -111,7 +111,7 @@ export class ProfileHeader implements OnInit {
     if (path === '/default-avatar.png') return path; // ← AJOUTEZ
     if (path.startsWith('http') || path.startsWith('data:')) return path;
     const cleanPath = path.replace(/\\/g, '/');
-    const baseUrl = environment.apiUrl.replace('/api', '');
+    const baseUrl = environment.apiUrl.replace(/\/api$/, '');
     return `${baseUrl}/${cleanPath}`;
   }
 
