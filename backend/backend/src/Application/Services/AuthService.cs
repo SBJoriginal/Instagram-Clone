@@ -83,9 +83,15 @@ namespace UGram.src.Application.Services
 
     public async Task<LoginResponseDto> GoogleLoginAsync(string idToken)
     {
+      var clientId = _configuration["Google:ClientId"];
+      if (string.IsNullOrEmpty(clientId))
+      {
+        throw new InvalidOperationException("Google:ClientId is not configured in the application settings or environment variables.");
+      }
+
       var settings = new GoogleJsonWebSignature.ValidationSettings
       {
-        Audience = new[] { _configuration["Google:ClientId"] },
+        Audience = new[] { clientId }
       };
 
       GoogleJsonWebSignature.Payload payload;

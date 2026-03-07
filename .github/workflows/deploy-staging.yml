@@ -97,8 +97,8 @@ jobs:
   # Deploy Backend → AWS Elastic Beanstalk
   #
   # Pre-requisites:
-  #   - An EB application named ${{ secrets.EB_APP_NAME }} must exist in us-east-2
-  #   - An EB environment named "ugram-staging" pointing to that application
+  #   - An EB application named "ugram-backend" must exist in us-east-2
+  #   - An EB environment named "ugram-backend-dev" pointing to that application
   #   - The EB environment must have these env vars configured (via EB console or CLI):
   #       ASPNETCORE_ENVIRONMENT=Staging
   #       ConnectionStrings__DefaultConnection=<rds-connection-string>
@@ -128,19 +128,37 @@ jobs:
       - name: Publish
         run: dotnet publish UGram.csproj -c Release -o ./publish
 
+      - name: Create runtime Dockerfile
+        run: |
+          cat > ./publish/Dockerfile <<EOF
+          FROM mcr.microsoft.com/dotnet/aspnet:8.0
+          WORKDIR /app
+          COPY . .
+          RUN mkdir -p /app/uploads
+          ENV ASPNETCORE_URLS=http://+:8080
+          ENV ASPNETCORE_ENVIRONMENT=Staging
+          EXPOSE 8080
+          ENTRYPOINT ["dotnet", "UGram.dll"]
+          EOF
+          cp -r .platform ./publish/ || true
+
+
       - name: Create deployment zip
-        run: zip -r ../../deploy-backend.zip ./publish
+        run: |
+          cd ./publish
+          zip -r ../../../deploy-backend.zip .
 
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v22
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: ${{ secrets.EB_APP_NAME }}
-          environment_name: ugram-staging
+          application_name: ugram-backend
+          environment_name: ugram-backend-dev
           region: us-east-2
           version_label: staging-${{ github.sha }}
           deployment_package: deploy-backend.zip
+          use_existing_version_if_available: true
           # Wait up to 10 min for EB to finish rolling out
           wait_for_environment_recovery: 600
 
@@ -174,8 +192,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Inject Environment Variables
+        run: |
+          sed -i "s|http://localhost:8081/api|${{ secrets.STAGING_API_URL }}|g" src/environments/*.ts
+          sed -i "s|GOOGLE_CLIENT_ID_PLACEHOLDER|${{ secrets.STAGING_GOOGLE_CLIENT_ID }}|g" src/environments/*.ts
+          sed -i "s|http://localhost:8081|$(echo "${{ secrets.STAGING_API_URL }}" | sed 's|/api$||')|g" src/index.html
+          sed -i "s|ws://localhost:8081|$(echo "${{ secrets.STAGING_API_URL }}" | sed 's|/api$||' | sed 's|http|ws|')|g" src/index.html
+
       - name: Build
         run: npm run build
+
+      - name: List build artifacts (Debug)
+        run: |
+          ls -R dist/
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -186,20 +215,20 @@ jobs:
 
       - name: Sync static assets to S3 (long-lived cache)
         run: |
-          aws s3 sync dist/frontend/browser/ s3://${{ secrets.STAGING_FRONTEND_BUCKET }}/ \
+          BUCKET=$(echo "${{ secrets.STAGING_FRONTEND_BUCKET }}" | xargs)
+          aws s3 sync dist/frontend/browser/ "s3://${BUCKET}" \
             --delete \
             --exclude "index.html" \
             --cache-control "public, max-age=31536000, immutable"
 
       - name: Upload index.html (no-cache — always fetch fresh)
         run: |
-          aws s3 cp dist/frontend/browser/index.html \
-            s3://${{ secrets.STAGING_FRONTEND_BUCKET }}/index.html \
+          BUCKET=$(echo "${{ secrets.STAGING_FRONTEND_BUCKET }}" | xargs)
+          aws s3 cp dist/frontend/browser/index.html "s3://${BUCKET}/index.html" \
             --cache-control "no-cache, no-store, must-revalidate"
 
-      # Uncomment once CloudFront is set up:
-      # - name: Invalidate CloudFront cache
-      #   run: |
-      #     aws cloudfront create-invalidation \
-      #       --distribution-id ${{ secrets.STAGING_CF_DISTRIBUTION_ID }} \
-      #       --paths "/*"
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.STAGING_CF_DISTRIBUTION_ID }} \
+            --paths "/*"

@@ -34,6 +34,7 @@ namespace Api.Controllers
 
     [Authorize]
     [HttpPost]
+    [DisableRequestSizeLimit]
     public async Task<IActionResult> Upload([FromForm] ImageUploadRequestDto upload)
     {
       var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
