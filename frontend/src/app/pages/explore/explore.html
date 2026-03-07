@@ -25,7 +25,7 @@
               <div class="overlay">
                 <mat-icon>visibility</mat-icon>
                 <div
-                  class="reaction-container"
+                  class="icon-container reaction-container"
                   (click)="$event.stopPropagation()"
                   (keyup.enter)="$event.stopPropagation()"
                   role="presentation"
@@ -43,7 +43,7 @@
                     <span class="reaction-count">{{ image.reactionCount }}</span>
                   }
                 </div>
-                <div class="comment-icon-container">
+                <div class="icon-container comment-icon-container">
                   <mat-icon>chat_bubble_outline</mat-icon>
                   @if (image.commentCount > 0) {
                     <span class="comment-count-badge">{{ image.commentCount }}</span>

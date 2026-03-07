@@ -14,7 +14,7 @@
         <!-- Header: User info -->
         <header class="sidebar-header">
           <div
-            class="user-avatar"
+            class="avatar-container"
             (click)="navigateToProfile(image.username)"
             (keyup.enter)="navigateToProfile(image.username)"
             role="button"
@@ -67,7 +67,7 @@
             @for (comment of comments(); track comment.id) {
               <div class="comment-row">
                 <div
-                  class="comment-avatar"
+                  class="avatar-container"
                   (click)="navigateToProfile(comment.username)"
                   (keyup.enter)="navigateToProfile(comment.username)"
                   role="button"
@@ -153,6 +153,7 @@
                 [(ngModel)]="newCommentContent"
                 [maxLength]="maxLength"
                 rows="1"
+                (keydown)="onKeydown($event)"
               ></textarea>
             </mat-form-field>
             <button

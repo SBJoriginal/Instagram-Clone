@@ -124,6 +124,13 @@ export class ImageDetail implements OnInit {
       });
   }
 
+  onKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      this.addComment();
+    }
+  }
+
   goBack(): void {
     this.location.back();
   }

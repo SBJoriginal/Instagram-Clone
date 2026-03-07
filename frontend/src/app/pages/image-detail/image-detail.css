@@ -76,20 +76,20 @@
   border-bottom: 1px solid #efefef;
 }
 
-.user-avatar {
+.avatar-container {
   width: 32px;
   height: 32px;
   border-radius: 50%;
   overflow: hidden;
+  flex-shrink: 0;
+  background: #fafafa;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fafafa;
   cursor: pointer;
-  flex-shrink: 0;
 }
 
-.user-avatar mat-icon {
+.avatar-container mat-icon {
   font-size: 32px;
   width: 32px;
   height: 32px;
@@ -185,26 +185,6 @@
   display: flex;
   gap: 12px;
   animation: fadeIn 0.3s ease-out;
-}
-
-.comment-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  overflow: hidden;
-  flex-shrink: 0;
-  background: #fafafa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.comment-avatar mat-icon {
-  font-size: 32px;
-  width: 32px;
-  height: 32px;
-  color: #dbdbdb;
 }
 
 .comment-content-wrap {
@@ -334,7 +314,8 @@
 
   .image-display-side {
     flex: none;
-    height: 50vh;
+    height: 40vh;
+    /* Set a specific height for the image area to allow space for comments */
     border-right: none;
     border-bottom: 1px solid #efefef;
   }
@@ -342,6 +323,33 @@
   .info-sidebar {
     flex: 1;
     min-width: 0;
+    height: 60vh;
+    /* Remaining height for sidebar */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    /* Important: prevent sidebar from expanding beyond its container */
+  }
+
+  .sidebar-main {
+    flex: 1;
+    overflow-y: hidden;
+    /* The main container hides overflow, inner elements scroll */
+    display: flex;
+    flex-direction: column;
+  }
+
+  .comments-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    /* Ensure comments scroll */
+  }
+
+  .sidebar-footer {
+    flex-shrink: 0;
+    /* Important: prevent footer from shrinking */
+    margin-bottom: env(safe-area-inset-bottom, 0);
+    /* Add safe area padding for modern phones */
   }
 
   .close-btn {

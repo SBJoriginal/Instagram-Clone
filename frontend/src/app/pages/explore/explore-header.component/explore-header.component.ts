@@ -42,7 +42,7 @@ export class ExploreHeaderComponent {
   private readonly userService = inject(UserService);
 
   protected searchQuery = '';
-  protected readonly currentFilter = signal<ImageFilter>('description');
+  protected readonly currentFilter = signal<ImageFilter>(null);
   protected readonly currentSearchType = signal<SearchType>('images');
   protected readonly isSearchFocused = signal(false);
 
@@ -154,7 +154,9 @@ export class ExploreHeaderComponent {
   protected onSearchTypeChange(type: SearchType): void {
     this.currentSearchType.set(type);
     this.searchQuery = '';
+    this.currentFilter.set(null);
     this.isSearchFocused.set(false);
+
     this.queryChange$.next('');
     this.userSearchChange.emit('');
     this.searchTypeChange.emit(type);

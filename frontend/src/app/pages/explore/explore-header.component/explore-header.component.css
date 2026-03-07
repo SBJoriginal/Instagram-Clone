@@ -27,6 +27,10 @@
   align-items: center;
 }
 
+.filter-group {
+  scale: 0.9;
+}
+
 .clear-icon {
   cursor: pointer;
   color: #999;
