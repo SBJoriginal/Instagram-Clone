@@ -62,6 +62,7 @@ Thumbs.db
 **/obj/Docker/
 backend/**/docker-compose.dcproj
 docker-compose.vs.*.yml
+.env
 
 # Uploaded images
 backend/backend/wwwroot/images/*
@@ -70,4 +71,6 @@ backend/backend/wwwroot/uploads/*
 #Secrets and environment variables
 Security_vulnerabilities.md
 .env
+
+#dotnet tools
 .config/dotnet-tools.json

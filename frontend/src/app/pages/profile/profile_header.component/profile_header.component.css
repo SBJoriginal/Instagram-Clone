@@ -85,3 +85,23 @@ mat-card-title {
 .settings-button mat-icon {
   color: #555;
 }
+
+.deleted-account {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 24px;
+  color: #999;
+}
+
+.deleted-account mat-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+}
+
+.deleted-account h2 {
+  margin: 0 0 8px;
+  color: #333;
+}

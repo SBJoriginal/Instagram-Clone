@@ -74,7 +74,7 @@ namespace backend.src.Api.Controllers
       var profile = await _userProfileService.GetProfileByUsernameAsync(username);
       if (profile == null)
       {
-        return NotFound();
+        return Ok(new UserProfileResponseDto { UserName = username, IsDeleted = true });
       }
       return Ok(profile);
     }

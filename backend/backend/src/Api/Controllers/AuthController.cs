@@ -1,8 +1,9 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using UGram.src.Application.DTOs;
 using UGram.src.Application.Interfaces;
-using Microsoft.AspNetCore.RateLimiting;
 
 namespace backend.src.Api.Controllers
 {
@@ -54,6 +55,19 @@ namespace backend.src.Api.Controllers
     public async Task<IActionResult> Logout()
     {
       return Ok(new { message = "Logout successful. Please discard your token." });
+    }
+
+    [HttpDelete("delete-account")]
+    [Authorize]
+    public async Task<IActionResult> DeleteAccount()
+    {
+      var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+      if (string.IsNullOrEmpty(userId))
+        return Unauthorized();
+
+      await _authService.DeleteAccountAsync(userId);
+      return NoContent();
     }
   }
 }

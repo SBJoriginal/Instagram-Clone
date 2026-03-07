@@ -53,6 +53,7 @@ export class ProfileHeader implements OnInit {
   protected readonly profilePictureUrl = signal('');
   protected readonly isLoading = signal(true);
   protected readonly isOtherUserProfile = signal(false);
+  protected readonly isDeletedAccount = signal(false);
 
   ngOnInit(): void {
     this.loadProfile();
@@ -75,6 +76,11 @@ export class ProfileHeader implements OnInit {
       )
       .subscribe({
         next: (profile: ProfileResponse) => {
+          if (profile.isDeleted && this.isOtherUserProfile()) {
+            this.isDeletedAccount.set(true);
+            this.isLoading.set(false);
+            return;
+          }
           this.user.set({
             username: profile.userName || '',
             firstName: profile.firstName || '',
