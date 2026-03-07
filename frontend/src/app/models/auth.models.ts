@@ -44,4 +44,5 @@ export interface ProfileResponse {
   phoneNumber: string;
   signUpDate: string;
   profilePictureUrl?: string;
+  isDeleted?: boolean;
 }

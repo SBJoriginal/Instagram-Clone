@@ -15,7 +15,7 @@ import {
 } from '../../services/image-upload.service';
 import { ProfileService } from '../../services/profile.service';
 import { ReactionService } from '../../services/reaction.service';
-import { BehaviorSubject, switchMap, merge } from 'rxjs';
+import { BehaviorSubject, switchMap, merge, of } from 'rxjs';
 import { ImageEditDialog } from '../../image-edit-dialog/image-edit-dialog';
 
 @Component({
@@ -53,10 +53,14 @@ export class Profile {
     const currentUsername = this.currentUsername();
     return !routeUsername || routeUsername === currentUsername;
   });
+  protected readonly isDeletedAccount = signal(false);
 
   private readonly refresh$ = new BehaviorSubject<void>(void 0);
   protected readonly images = merge(this.refresh$, this.imageUploadService.imageCreated$).pipe(
     switchMap(() => {
+      if (this.isDeletedAccount()) {
+        return of([]);
+      }
       const username = this.username();
       if (username) {
         return this.imageUploadService.getImagesByUsername(username);
@@ -69,7 +73,21 @@ export class Profile {
     this.route.paramMap.subscribe((params) => {
       const uname = params.get('username');
       this.username.set(uname);
-      this.refresh$.next();
+
+      if (uname) {
+        this.profileService.getUserProfileByUsername(uname).subscribe({
+          next: (profile) => {
+            this.isDeletedAccount.set(profile.isDeleted === true);
+            this.refresh$.next();
+          },
+          error: () => {
+            this.refresh$.next();
+          },
+        });
+      } else {
+        this.isDeletedAccount.set(false);
+        this.refresh$.next();
+      }
     });
 
     this.profileService.getProfile().subscribe({

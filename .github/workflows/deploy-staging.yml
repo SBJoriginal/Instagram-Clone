@@ -140,6 +140,8 @@ jobs:
           EXPOSE 8080
           ENTRYPOINT ["dotnet", "UGram.dll"]
           EOF
+          cp -r .platform ./publish/ || true
+
 
       - name: Create deployment zip
         run: |
@@ -225,9 +227,8 @@ jobs:
           aws s3 cp dist/frontend/browser/index.html "s3://${BUCKET}/index.html" \
             --cache-control "no-cache, no-store, must-revalidate"
 
-      # Uncomment once CloudFront is set up:
-      # - name: Invalidate CloudFront cache
-      #   run: |
-      #     aws cloudfront create-invalidation \
-      #       --distribution-id ${{ secrets.STAGING_CF_DISTRIBUTION_ID }} \
-      #       --paths "/*"
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.STAGING_CF_DISTRIBUTION_ID }} \
+            --paths "/*"

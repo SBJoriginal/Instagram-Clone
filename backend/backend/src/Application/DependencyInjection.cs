@@ -32,6 +32,7 @@ namespace UGram.src.Application
       services.AddScoped<IImageService, ImageService>();
       services.AddScoped<IReactionService, ReactionService>();
       services.AddScoped<ICommentService, CommentService>();
+      services.AddScoped<IHealthService, HealthService>();
     }
   }
 }

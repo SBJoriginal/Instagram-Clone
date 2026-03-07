@@ -11,5 +11,7 @@ namespace UGram.src.Application.Interfaces
     public Task<LoginResponseDto> GoogleLoginAsync(string idToken);
 
     public LoginResponseDto RefreshToken(string accessToken, string refreshToken);
+
+    public Task DeleteAccountAsync(string userId);
   }
 }

@@ -1,12 +1,13 @@
+using System.Security.Claims;
 using backend.src.Domain.Entities;
+using Google.Apis.Auth;
 using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
-using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using UGram.src.Application.DTOs;
 using UGram.src.Application.Interfaces;
 using UGram.src.Domain.Exceptions.Users;
-using Google.Apis.Auth;
-using Microsoft.Extensions.Configuration;
 
 namespace UGram.src.Application.Services
 {
@@ -14,12 +15,22 @@ namespace UGram.src.Application.Services
   {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ITokenService _tokenService;
+    private readonly AppDbContext _context;
+    private readonly IImageStorageService _imageStorageService;
     private readonly IConfiguration _configuration;
 
-    public AuthService(UserManager<ApplicationUser> userManager, ITokenService tokenService, IConfiguration configuration)
+    public AuthService(
+      UserManager<ApplicationUser> userManager,
+      ITokenService tokenService,
+      AppDbContext context,
+      IImageStorageService imageStorageService,
+      IConfiguration configuration
+    )
     {
       _userManager = userManager;
       _tokenService = tokenService;
+      _context = context;
+      _imageStorageService = imageStorageService;
       _configuration = configuration;
     }
 
@@ -32,11 +43,7 @@ namespace UGram.src.Application.Services
         throw new UserAlreadyExistsException(registerDto.Email);
       }
 
-      var newUser = new ApplicationUser
-      {
-        UserName = registerDto.Email,
-        Email = registerDto.Email,
-      };
+      var newUser = new ApplicationUser { UserName = registerDto.Email, Email = registerDto.Email };
 
       await RegisterUserAsync(registerDto, newUser);
 
@@ -48,7 +55,7 @@ namespace UGram.src.Application.Services
         Id = newUser.Id,
         Email = newUser.Email,
         Token = token,
-        RefreshToken = refreshToken
+        RefreshToken = refreshToken,
       };
       return userDto;
     }
@@ -70,15 +77,21 @@ namespace UGram.src.Application.Services
         Id = user.Id,
         Email = user.Email ?? string.Empty,
         Token = token,
-        RefreshToken = refreshToken
+        RefreshToken = refreshToken,
       };
     }
 
     public async Task<LoginResponseDto> GoogleLoginAsync(string idToken)
     {
+      var clientId = _configuration["Google:ClientId"];
+      if (string.IsNullOrEmpty(clientId))
+      {
+        throw new InvalidOperationException("Google:ClientId is not configured in the application settings or environment variables.");
+      }
+
       var settings = new GoogleJsonWebSignature.ValidationSettings
       {
-        Audience = new[] { _configuration["Google:ClientId"] }
+        Audience = new[] { clientId }
       };
 
       GoogleJsonWebSignature.Payload payload;
@@ -99,7 +112,7 @@ namespace UGram.src.Application.Services
         {
           UserName = payload.Email,
           Email = payload.Email,
-          EmailConfirmed = true // Google emails are verified
+          EmailConfirmed = true, // Google emails are verified
         };
 
         var result = await _userManager.CreateAsync(user);
@@ -118,7 +131,7 @@ namespace UGram.src.Application.Services
         Id = user.Id,
         Email = user.Email ?? string.Empty,
         Token = token,
-        RefreshToken = refreshToken
+        RefreshToken = refreshToken,
       };
     }
 
@@ -145,7 +158,7 @@ namespace UGram.src.Application.Services
         Id = userId,
         Email = principal.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
         Token = newAccessToken,
-        RefreshToken = newRefreshToken
+        RefreshToken = newRefreshToken,
       };
     }
 
@@ -157,6 +170,31 @@ namespace UGram.src.Application.Services
       {
         var errors = string.Join(", ", result.Errors.Select(e => e.Description));
         throw new Exception($"User registration failed: {errors}");
+      }
+    }
+
+    public async Task DeleteAccountAsync(string userId)
+    {
+      var user = await _userManager.FindByIdAsync(userId);
+      if (user == null)
+        throw new Exception("User not found.");
+
+      var userImages = await _context.Images.Where(i => i.UserId == userId).ToListAsync();
+
+      foreach (var image in userImages)
+      {
+        await _imageStorageService.DeleteImageAsync(image.FilePath);
+      }
+
+      _context.Images.RemoveRange(userImages);
+
+      await _context.SaveChangesAsync();
+
+      var result = await _userManager.DeleteAsync(user);
+      if (!result.Succeeded)
+      {
+        var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+        throw new Exception($"Failed to delete user account: {errors}");
       }
     }
   }
