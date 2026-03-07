@@ -1,6 +1,12 @@
 <mat-card class="profile-card" id="profile-container">
   @if (isLoading()) {
     <div class="loading" id="profile-loading">Loading profile...</div>
+  } @else if (isDeletedAccount()) {
+    <div class="deleted-account">
+      <mat-icon>person_off</mat-icon>
+      <h2>This account has been deleted</h2>
+      <p>This user's profile is no longer available.</p>
+    </div>
   } @else {
     <mat-card-header id="profile-header">
       <img

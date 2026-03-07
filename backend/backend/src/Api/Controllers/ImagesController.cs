@@ -1,11 +1,10 @@
-
 using System.Security.Claims;
+using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UGram.src.Application.DTOs;
 using UGram.src.Application.Interfaces;
-using Infrastructure.Persistence;
 using UGram.src.Domain.Exceptions;
 
 namespace Api.Controllers
@@ -20,7 +19,12 @@ namespace Api.Controllers
 
     private readonly ILogger<ImagesController> _logger;
 
-    public ImagesController(IImageService imageService, AppDbContext context, IWebHostEnvironment environment, ILogger<ImagesController> logger)
+    public ImagesController(
+      IImageService imageService,
+      AppDbContext context,
+      IWebHostEnvironment environment,
+      ILogger<ImagesController> logger
+    )
     {
       _imageService = imageService;
       _context = context;
@@ -34,11 +38,11 @@ namespace Api.Controllers
     public async Task<IActionResult> Upload([FromForm] ImageUploadRequestDto upload)
     {
       var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-      if (string.IsNullOrEmpty(userId)) return Unauthorized();
+      if (string.IsNullOrEmpty(userId))
+        return Unauthorized();
 
       var result = await _imageService.UploadImageAsync(upload, userId);
       return CreatedAtAction(nameof(GetImages), new { id = result.Id }, result);
-
     }
 
     [HttpGet]
@@ -53,7 +57,8 @@ namespace Api.Controllers
     public async Task<IActionResult> GetMyImages()
     {
       var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-      if (string.IsNullOrEmpty(userId)) return Unauthorized();
+      if (string.IsNullOrEmpty(userId))
+        return Unauthorized();
 
       var images = await _imageService.GetAllImagesAsync(userId);
       return Ok(images);
@@ -69,12 +74,11 @@ namespace Api.Controllers
     [HttpGet("username/{username}")]
     public async Task<IActionResult> GetImagesByUsername(string username)
     {
-      var user = await _context.Users
-        .FirstOrDefaultAsync(p => p.UserName == username);
+      var user = await _context.Users.FirstOrDefaultAsync(p => p.UserName == username);
 
       if (user == null)
       {
-        throw new ApiException(StatusCodes.Status404NotFound, "Not Found", "User not found");
+        return Ok(new List<object>());
       }
 
       var images = await _imageService.GetAllImagesAsync(user.Id);
@@ -86,7 +90,8 @@ namespace Api.Controllers
     {
       var result = await _imageService.GetImageByIdAsync(id);
 
-      if (result == null) return NotFound();
+      if (result == null)
+        return NotFound();
 
       return Ok(result);
     }
@@ -95,11 +100,11 @@ namespace Api.Controllers
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] ImageUpdateDto update)
     {
-
       var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
       var image = await _context.Images.FindAsync(id);
-      if (image == null) return NotFound();
+      if (image == null)
+        return NotFound();
 
       if (image.UserId != currentUserId)
       {
@@ -118,11 +123,11 @@ namespace Api.Controllers
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-
       var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
       var image = await _context.Images.FindAsync(id);
-      if (image == null) return NotFound();
+      if (image == null)
+        return NotFound();
 
       if (image.UserId != currentUserId)
       {
@@ -131,7 +136,10 @@ namespace Api.Controllers
 
       if (!string.IsNullOrEmpty(image.FilePath))
       {
-        var fileSystemPath = Path.Combine(_environment.WebRootPath ?? _environment.ContentRootPath, image.FilePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+        var fileSystemPath = Path.Combine(
+          _environment.WebRootPath ?? _environment.ContentRootPath,
+          image.FilePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar)
+        );
         if (System.IO.File.Exists(fileSystemPath))
         {
           System.IO.File.Delete(fileSystemPath);
@@ -145,10 +153,11 @@ namespace Api.Controllers
 
     [HttpGet("search")]
     public async Task<IActionResult> SearchImages(
-        [FromQuery] string filterType,
-        [FromQuery] string query,
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 15)
+      [FromQuery] string filterType,
+      [FromQuery] string query,
+      [FromQuery] int page = 1,
+      [FromQuery] int pageSize = 15
+    )
     {
       var images = await _imageService.SearchImagesAsync(filterType, query, page, pageSize);
       return Ok(images);
@@ -156,8 +165,9 @@ namespace Api.Controllers
 
     [HttpGet("autocomplete")]
     public async Task<IActionResult> GetAutocomplete(
-        [FromQuery] string filterType,
-        [FromQuery] string query)
+      [FromQuery] string filterType,
+      [FromQuery] string query
+    )
     {
       if (string.IsNullOrWhiteSpace(filterType) || string.IsNullOrWhiteSpace(query))
       {
@@ -168,5 +178,4 @@ namespace Api.Controllers
       return Ok(suggestions);
     }
   }
-
 }

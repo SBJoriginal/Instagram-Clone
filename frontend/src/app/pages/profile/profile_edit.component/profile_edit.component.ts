@@ -1,6 +1,11 @@
 import { Component, inject, ChangeDetectionStrategy, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+  MatDialogModule,
+  MAT_DIALOG_DATA,
+  MatDialogRef,
+  MatDialog,
+} from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,6 +14,8 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ProfileEditData } from '../profile.model';
 import { ProfileService } from '../../../services/profile.service';
 import { debounceTime, distinctUntilChanged, take } from 'rxjs';
+import { AuthService } from '../../../services/auth.service';
+import { ConfirmDeleteDialogComponent } from './confirm_delete_dialog.component';
 import { ImageUploadService } from '../../../services/image-upload.service';
 
 @Component({
@@ -34,6 +41,8 @@ export class ProfileEditComponent implements OnInit {
   private imageService = inject(ImageUploadService);
   protected readonly generalError = signal<string | null>(null);
   protected readonly isSaving = signal(false);
+  private dialog = inject(MatDialog);
+  private authService = inject(AuthService);
 
   tempAvatarUrl = signal<string | null>(this.data.avatarUrl);
   selectedFile = signal<File | null>(null);
@@ -209,5 +218,25 @@ export class ProfileEditComponent implements OnInit {
     if (!currentValue || currentValue.trim() === '') {
       control?.setValue(this.originalValues[fieldName as keyof typeof this.originalValues]);
     }
+  }
+
+  onDeleteAccount(): void {
+    this.dialogRef.close();
+
+    const confirmRef = this.dialog.open(ConfirmDeleteDialogComponent, {
+      width: '420px',
+      disableClose: true,
+      backdropClass: 'delete-dialog-backdrop',
+    });
+
+    confirmRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.authService.deleteAccount().subscribe({
+          error: (err: unknown) => {
+            console.error('Failed to delete account:', err);
+          },
+        });
+      }
+    });
   }
 }
