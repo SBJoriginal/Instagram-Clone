@@ -41,10 +41,7 @@ export class ImageUploadService {
     formData.append('Hashtags', data.hashtags);
     formData.append('Mentions', data.mentions);
 
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-    return this.http.post<ImageResponse>(this.apiUrl, formData, { headers });
+    return this.http.post<ImageResponse>(this.apiUrl, formData);
   }
 
   notifyImageCreated() {

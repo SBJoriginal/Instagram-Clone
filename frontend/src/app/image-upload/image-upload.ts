@@ -200,7 +200,7 @@ export class ImageUploadComponent implements OnInit {
   ngOnInit(): void {
     this.profileService.getProfile().subscribe({
       next: (profile) => {
-        this.currentUsername = profile.userName || null;
+        this.currentUsername = profile?.userName || null;
       },
     });
 
@@ -351,8 +351,14 @@ export class ImageUploadComponent implements OnInit {
       try {
         this.isCompressing.set(true);
         const compressedBlob = await this.compressionService.compressImage(file);
-        // Create a new File from the Blob to preserve name
-        file = new File([compressedBlob], file.name, {
+        // Ensure the filename ends in .jpg since we compressed it to image/jpeg
+        const originalName = file.name;
+        const lastDotIndex = originalName.lastIndexOf('.');
+        const nameWithoutExtension =
+          lastDotIndex !== -1 ? originalName.substring(0, lastDotIndex) : originalName;
+        const newFileName = `${nameWithoutExtension}.jpg`;
+
+        file = new File([compressedBlob], newFileName, {
           type: 'image/jpeg',
           lastModified: Date.now(),
         });

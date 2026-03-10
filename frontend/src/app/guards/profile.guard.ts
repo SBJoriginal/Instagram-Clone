@@ -9,18 +9,17 @@ export const profileGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   return profileService.getProfile().pipe(
-    map(() => {
-      // Profile exists (200 OK)
-      return true;
-    }),
-    catchError((error: HttpErrorResponse) => {
-      if (error.status === 404) {
-        // Profile not found (404), redirect to completion page
-        return of(router.createUrlTree(['/complete-profile']));
+    map((profile) => {
+      if (profile) {
+        // Profile exists (200 OK)
+        return true;
       }
 
-      // Other errors (e.g., 401), let the auth guard or interceptor handle it,
-      // or redirect to sign-in as a fallback
+      // Profile not found (null from service), redirect to completion page
+      return router.createUrlTree(['/complete-profile']);
+    }),
+    catchError(() => {
+      // Other errors (e.g., 500), redirect to sign-in or error page
       return of(router.createUrlTree(['/sign-in']));
     }),
   );

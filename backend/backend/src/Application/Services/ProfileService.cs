@@ -32,10 +32,15 @@ namespace UGram.src.Application.Services
       _fileUploadSettings = fileUploadSettings.Value;
     }
 
-    public async Task<UserProfileResponseDto> GetUserProfileAsync(string userId)
+    public async Task<UserProfileResponseDto?> GetUserProfileAsync(string userId)
     {
       await VerifyUserExistence(userId);
-      UserProfile userProfile = GetUserProfile(userId);
+      var userProfile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
+
+      if (userProfile == null)
+      {
+        return null;
+      }
 
       var userProfileDto = new UserProfileResponseDto
       {
