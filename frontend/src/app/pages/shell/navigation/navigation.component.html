@@ -4,20 +4,6 @@
   </div>
 
   <nav class="sidebar-nav">
-    <button
-      mat-button
-      class="nav-item"
-      routerLink="/home"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
-    >
-      <mat-icon>home</mat-icon>
-      <span>Home</span>
-    </button>
-    <button mat-button class="nav-item">
-      <mat-icon>search</mat-icon>
-      <span>Search</span>
-    </button>
     <button mat-button class="nav-item" routerLink="/home/explore" routerLinkActive="active">
       <mat-icon>explore</mat-icon>
       <span>Explore</span>
@@ -25,10 +11,6 @@
     <button mat-button class="nav-item" (click)="openCreateDialog()">
       <mat-icon>add_box</mat-icon>
       <span>Create</span>
-    </button>
-    <button mat-button class="nav-item" routerLink="/home/users">
-      <mat-icon>group</mat-icon>
-      <span>Users</span>
     </button>
     <button mat-button class="nav-item" routerLink="/home/profile" routerLinkActive="active">
       <mat-icon>account_circle</mat-icon>
