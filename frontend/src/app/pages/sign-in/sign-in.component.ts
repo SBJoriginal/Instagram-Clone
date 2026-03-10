@@ -50,7 +50,7 @@ export class SignInComponent implements AfterViewInit {
   });
 
   ngAfterViewInit(): void {
-    this.googleAuth.initialize('google-btn', '/home', this.errorMessage);
+    this.googleAuth.initialize('google-btn', '/explore', this.errorMessage);
   }
 
   protected onSignIn(): void {
@@ -65,7 +65,7 @@ export class SignInComponent implements AfterViewInit {
       this.authService.login(email!, password!).subscribe({
         next: () => {
           this.isLoading.set(false);
-          this.router.navigate(['/home']);
+          this.router.navigate(['/explore']);
         },
         error: (error: HttpErrorResponse) => {
           this.isLoading.set(false);
