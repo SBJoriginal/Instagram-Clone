@@ -5,7 +5,7 @@ export const ProfileValidators = {
     Validators.required,
     Validators.minLength(3),
     Validators.maxLength(30),
-    Validators.pattern(/^[a-zA-Z0-9_\-]+$/),
+    Validators.pattern(/^[a-zA-Z0-9_-]+$/),
   ],
 
   name: [Validators.required, Validators.maxLength(50), Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)],

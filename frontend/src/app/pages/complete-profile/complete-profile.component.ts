@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
@@ -109,7 +109,7 @@ export class CompleteProfileComponent implements OnInit {
       this.profileService.completeProfile(profileData).subscribe({
         next: () => {
           this.isLoading.set(false);
-          this.router.navigate(['/home']);
+          this.router.navigate(['/explore']);
         },
         error: (error: HttpErrorResponse) => {
           this.isLoading.set(false);

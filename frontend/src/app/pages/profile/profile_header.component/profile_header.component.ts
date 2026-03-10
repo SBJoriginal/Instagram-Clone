@@ -141,7 +141,7 @@ export class ProfileHeader implements OnInit {
 
         if (!this.isOtherUserProfile() && result.newUsername) {
           setTimeout(() => {
-            this.router.navigate(['/home/profile', result.newUsername]);
+            this.router.navigate(['/explore/profile', result.newUsername]);
           }, 100);
         }
       }
