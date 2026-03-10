@@ -1,6 +1,8 @@
 import { Component, inject, OnInit, signal, ChangeDetectionStrategy, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { switchMap, tap } from 'rxjs/operators';
+import { of } from 'rxjs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,9 +10,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ProfileEditComponent } from '../profile_edit.component/profile_edit.component';
 import { ProfileService } from '../../../services/profile.service';
+import { environment } from '../../../../environments/environment';
 import { TokenService } from '../../../services/token.service';
 import { ProfileResponse } from '../../../models/auth.models';
-import { environment } from '../../../services/../../environments/environment';
 
 @Component({
   selector: 'app-profile-header',
@@ -58,53 +60,56 @@ export class ProfileHeader implements OnInit {
   }
 
   private loadProfile(): void {
-    const currentUserProfile = this.profileService.getProfile();
-
-    currentUserProfile.subscribe({
-      next: (profile) => {
-        const isOtherUser = !!this.username && this.username !== profile.userName;
-        this.isOtherUserProfile.set(isOtherUser);
-
-        const profileObservable = isOtherUser
-          ? this.profileService.getUserProfileByUsername(this.username!)
-          : this.profileService.getProfile();
-
-        profileObservable.subscribe({
-          next: (profile: ProfileResponse) => {
-            if (profile.isDeleted && isOtherUser) {
-              this.isDeletedAccount.set(true);
-              this.isLoading.set(false);
-              return;
-            }
-            this.user.set({
-              username: profile.userName || '',
-              firstName: profile.firstName || '',
-              lastName: profile.lastName || '',
-              email: profile.email,
-              phone: profile.phoneNumber || '',
-              memberSince: new Date(profile.signUpDate).toLocaleDateString(),
-              profilePictureUrl: this.formatImageUrl(profile.profilePictureUrl || ''),
-            });
+    this.profileService
+      .getProfile()
+      .pipe(
+        tap((profile) => {
+          const isOtherUser = !!this.username && this.username !== profile.userName;
+          this.isOtherUserProfile.set(isOtherUser);
+        }),
+        switchMap((profile) => {
+          const isOtherUser = !!this.username && this.username !== profile.userName;
+          return isOtherUser
+            ? this.profileService.getUserProfileByUsername(this.username!)
+            : of(profile);
+        }),
+      )
+      .subscribe({
+        next: (profile: ProfileResponse) => {
+          if (profile.isDeleted && this.isOtherUserProfile()) {
+            this.isDeletedAccount.set(true);
             this.isLoading.set(false);
-          },
-          error: (error) => {
+            return;
+          }
+          this.user.set({
+            username: profile.userName || '',
+            firstName: profile.firstName || '',
+            lastName: profile.lastName || '',
+            email: profile.email,
+            phone: profile.phoneNumber || '',
+            memberSince: new Date(profile.signUpDate).toLocaleDateString(),
+            profilePictureUrl: this.formatImageUrl(profile.profilePictureUrl || ''),
+          });
+          this.isLoading.set(false);
+        },
+        error: (error) => {
+          if (error.status !== 404) {
             console.error('Failed to load profile:', error);
-            const email = !isOtherUser ? this.tokenService.getEmailFromToken() : '';
-            this.user.set({
-              username: '',
-              firstName: '',
-              lastName: '',
-              email: email || '',
-              phone: '',
-              memberSince: '',
-              profilePictureUrl: '',
-            });
-            this.profilePictureUrl.set('');
-            this.isLoading.set(false);
-          },
-        });
-      },
-    });
+          }
+          const email = !this.isOtherUserProfile() ? this.tokenService.getEmailFromToken() : '';
+          this.user.set({
+            username: '',
+            firstName: '',
+            lastName: '',
+            email: email || '',
+            phone: '',
+            memberSince: '',
+            profilePictureUrl: '',
+          });
+          this.profilePictureUrl.set('');
+          this.isLoading.set(false);
+        },
+      });
   }
 
   private formatImageUrl(path: string): string {
