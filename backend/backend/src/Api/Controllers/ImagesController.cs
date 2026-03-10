@@ -2,10 +2,8 @@ using System.Security.Claims;
 using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using UGram.src.Application.DTOs;
 using UGram.src.Application.Interfaces;
-using UGram.src.Domain.Exceptions;
 
 namespace Api.Controllers
 {
@@ -14,21 +12,11 @@ namespace Api.Controllers
   public class ImagesController : ControllerBase
   {
     private readonly IImageService _imageService;
-    private readonly AppDbContext _context;
-    private readonly IWebHostEnvironment _environment;
-
     private readonly ILogger<ImagesController> _logger;
 
-    public ImagesController(
-      IImageService imageService,
-      AppDbContext context,
-      IWebHostEnvironment environment,
-      ILogger<ImagesController> logger
-    )
+    public ImagesController(IImageService imageService, ILogger<ImagesController> logger)
     {
       _imageService = imageService;
-      _context = context;
-      _environment = environment;
       _logger = logger;
     }
 
@@ -76,15 +64,8 @@ namespace Api.Controllers
     [HttpGet("username/{username}")]
     public async Task<IActionResult> GetImagesByUsername(string username)
     {
-      var user = await _context.Users.FirstOrDefaultAsync(p => p.UserName == username);
-
-      if (user == null)
-      {
-        return Ok(new List<object>());
-      }
-
       var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-      var images = await _imageService.GetAllImagesAsync(user.Id, currentUserId);
+      var images = await _imageService.GetImagesByUsernameAsync(username, currentUserId);
       return Ok(images);
     }
 
@@ -104,54 +85,27 @@ namespace Api.Controllers
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] ImageUpdateDto update)
     {
-      var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+      var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+      if (string.IsNullOrEmpty(currentUserId))
+        return Unauthorized();
 
-      var image = await _context.Images.FindAsync(id);
-      if (image == null)
+      var result = await _imageService.UpdateImageAsync(id, update, currentUserId);
+      if (result == null)
         return NotFound();
-
-      if (image.UserId != currentUserId)
-      {
-        return Forbid();
-      }
-
-      image.Description = update.Description ?? "";
-      image.Hashtags = update.Hashtags ?? "";
-      image.Mentions = update.Mentions ?? "";
-
-      await _context.SaveChangesAsync();
-      return Ok(image);
+      return Ok(result);
     }
 
     [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-      var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+      var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+      if (string.IsNullOrEmpty(currentUserId))
+        return Unauthorized();
 
-      var image = await _context.Images.FindAsync(id);
-      if (image == null)
+      var result = await _imageService.DeleteImageAsync(id, currentUserId);
+      if (result == null)
         return NotFound();
-
-      if (image.UserId != currentUserId)
-      {
-        return Forbid();
-      }
-
-      if (!string.IsNullOrEmpty(image.FilePath))
-      {
-        var fileSystemPath = Path.Combine(
-          _environment.WebRootPath ?? _environment.ContentRootPath,
-          image.FilePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar)
-        );
-        if (System.IO.File.Exists(fileSystemPath))
-        {
-          System.IO.File.Delete(fileSystemPath);
-        }
-      }
-
-      _context.Images.Remove(image);
-      await _context.SaveChangesAsync();
       return NoContent();
     }
 

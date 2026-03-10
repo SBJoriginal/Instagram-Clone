@@ -27,7 +27,7 @@ namespace backend.src.Api.Controllers
       return NoContent();
     }
 
-    [HttpPut("update-profile")]
+    [HttpPut]
     public async Task<IActionResult> UpdateUserProfile([FromBody] UserProfileRequestDto userProfileDto)
     {
       var userId = GetAuthenticatedUserId();
