@@ -33,6 +33,7 @@ namespace backend.src.Api.Controllers
       return Ok(loginResponse);
     }
 
+    [EnableRateLimiting("login")]
     [HttpPost("google")]
     public async Task<IActionResult> GoogleLogin([FromBody] GoogleAuthDto googleAuthDto)
     {
