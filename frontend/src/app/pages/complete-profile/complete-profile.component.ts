@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
@@ -50,6 +50,7 @@ export class CompleteProfileComponent implements OnInit {
       },
     });
 
+    // Handle username availability check
     this.profileForm
       .get('username')
       ?.valueChanges.pipe(debounceTime(300), distinctUntilChanged())
