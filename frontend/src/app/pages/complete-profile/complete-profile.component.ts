@@ -44,7 +44,9 @@ export class CompleteProfileComponent implements OnInit {
       next: (profile) => {
         if (profile) {
           this.profileAlreadyExists.set(true);
-          this.errorMessage.set('A profile already exists for your account. Please sign in instead.');
+          this.errorMessage.set(
+            'A profile already exists for your account. Please sign in instead.',
+          );
         }
       },
       error: () => {
