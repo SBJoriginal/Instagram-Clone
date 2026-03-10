@@ -26,6 +26,7 @@ import { UserService } from '../services/user.service';
 import { ProfileService } from '../services/profile.service';
 import { environment } from '../../environments/environment';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { ImageCompressionService } from '../services/image-compression.service';
 
 export interface ImageUploadData {
   file: File;
@@ -62,6 +63,7 @@ export class ImageUploadComponent implements OnInit {
   protected readonly previewUrl = signal<string | null>(null);
   protected readonly validationError = signal<string | null>(null);
   protected readonly allUsernames = signal<string[]>([]);
+  protected readonly isCompressing = signal<boolean>(false);
 
   protected readonly selectedMentions = signal<string[]>([]);
 
@@ -72,6 +74,7 @@ export class ImageUploadComponent implements OnInit {
   private readonly hashtagPipe = inject(HashtagPipe);
   private readonly mentionPipe = inject(MentionPipe);
   private readonly fileSizePipe = inject(FileSizePipe);
+  private readonly compressionService = inject(ImageCompressionService);
 
   private existingUsernames = new Set<string>();
   private currentUsername: string | null = null;
@@ -312,9 +315,9 @@ export class ImageUploadComponent implements OnInit {
     }
   }
 
-  protected onSubmit(): void {
+  protected async onSubmit(): Promise<void> {
     const isEditMode = !!this.editData();
-    const file = this.selectedFile();
+    let file = this.selectedFile();
 
     if (this.uploadForm.invalid) {
       this.validationError.set('Please fix the errors in the form before saving.');
@@ -341,6 +344,26 @@ export class ImageUploadComponent implements OnInit {
         );
       }
       return;
+    }
+
+    // Compress file if in upload mode
+    if (!isEditMode && file) {
+      try {
+        this.isCompressing.set(true);
+        const compressedBlob = await this.compressionService.compressImage(file);
+        // Create a new File from the Blob to preserve name
+        file = new File([compressedBlob], file.name, {
+          type: 'image/jpeg',
+          lastModified: Date.now(),
+        });
+      } catch (error) {
+        console.error('Compression failed:', error);
+        this.validationError.set('Failed to process image. Please try again.');
+        this.isCompressing.set(false);
+        return;
+      } finally {
+        this.isCompressing.set(false);
+      }
     }
 
     const formValue = this.uploadForm.getRawValue();
