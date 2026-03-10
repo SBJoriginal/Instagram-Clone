@@ -11,11 +11,11 @@ import { ImageDetail } from './pages/image-detail/image-detail';
 export const routes: Routes = [
   { path: '', component: LandingComponent, data: { animation: 'LandingPage' } },
   {
-    path: 'explore',
+    path: '',
     component: ShellComponent,
     canActivate: [authGuard, profileGuard],
     children: [
-      { path: '', component: Explore },
+      { path: 'explore', component: Explore },
       { path: 'profile/:username', component: Profile },
       { path: 'profile', component: Profile },
       { path: 'image/:id', component: ImageDetail },

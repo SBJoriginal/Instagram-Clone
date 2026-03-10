@@ -139,6 +139,6 @@ export class Explore implements OnInit, AfterViewInit, OnDestroy {
   }
 
   openImage(image: ImageResponse): void {
-    this.router.navigate(['/explore/image', image.id]);
+    this.router.navigate(['/image', image.id]);
   }
 }

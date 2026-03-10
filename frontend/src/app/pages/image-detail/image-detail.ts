@@ -56,7 +56,7 @@ export class ImageDetail implements OnInit {
       // Clean @ if present
       const cleanName = username.startsWith('@') ? username.substring(1) : username;
       if (cleanName) {
-        this.router.navigate(['/explore/profile', cleanName.trim()]);
+        this.router.navigate(['/profile', cleanName.trim()]);
       }
     }
   }
