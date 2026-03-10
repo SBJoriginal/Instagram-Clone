@@ -98,30 +98,35 @@ namespace UGram.src.Application.Services
     private bool VerifyMagicBytes(IFormFile file, string fileExtension)
     {
       var magicBytesDict = new Dictionary<string, byte[]>
-      {
+    {
         { ".jpg", new byte[] { 0xFF, 0xD8, 0xFF } },
         { ".jpeg", new byte[] { 0xFF, 0xD8, 0xFF } },
         { ".png", new byte[] { 0x89, 0x50, 0x4E, 0x47 } },
         { ".gif", new byte[] { 0x47, 0x49, 0x46, 0x38 } },
-        { ".webp", new byte[] { 0x52, 0x49, 0x46, 0x46 } }
-      };
+        { ".webp", new byte[] { 0x52, 0x49, 0x46, 0x46 } },
+        { ".avi", new byte[] { 0x52, 0x49, 0x46, 0x46 } }
+    };
 
-      if (!magicBytesDict.TryGetValue(fileExtension, out var expectedMagicBytes))
+      if (!magicBytesDict.TryGetValue(fileExtension.ToLower(), out var expectedBytes))
       {
         return false;
       }
 
-      using var stream = file.OpenReadStream();
-      using var reader = new BinaryReader(stream);
+      var stream = file.OpenReadStream();
 
-      var fileMagicBytes = reader.ReadBytes(expectedMagicBytes.Length);
-
-      if (stream.CanSeek)
+      if (!stream.CanSeek)
       {
-        stream.Seek(0, SeekOrigin.Begin);
+        return false;
       }
 
-      return fileMagicBytes.SequenceEqual(expectedMagicBytes);
+      stream.Position = 0;
+
+      var buffer = new byte[expectedBytes.Length];
+      int bytesRead = stream.Read(buffer, 0, buffer.Length);
+
+      stream.Position = 0;
+
+      return bytesRead == expectedBytes.Length && buffer.SequenceEqual(expectedBytes);
     }
     public async Task<IEnumerable<ImageResponseDto>> GetAllImagesAsync(string? userId = null)
     {
