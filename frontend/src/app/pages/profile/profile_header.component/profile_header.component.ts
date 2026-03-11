@@ -13,6 +13,7 @@ import { ProfileService } from '../../../services/profile.service';
 import { environment } from '../../../../environments/environment';
 import { TokenService } from '../../../services/token.service';
 import { ProfileResponse } from '../../../models/auth.models';
+import { LogService } from '../../../services/log.service';
 
 @Component({
   selector: 'app-profile-header',
@@ -39,6 +40,7 @@ export class ProfileHeader implements OnInit {
   private readonly profileService = inject(ProfileService);
   private readonly tokenService = inject(TokenService);
   private readonly router = inject(Router);
+  private readonly logger = inject(LogService);
 
   protected readonly user = signal({
     username: '',
@@ -94,7 +96,7 @@ export class ProfileHeader implements OnInit {
         },
         error: (error) => {
           if (error.status !== 404) {
-            console.error('Failed to load profile:', error);
+            this.logger.error('Failed to load profile:', error);
           }
           const email = !this.isOtherUserProfile() ? this.tokenService.getEmailFromToken() : '';
           this.user.set({

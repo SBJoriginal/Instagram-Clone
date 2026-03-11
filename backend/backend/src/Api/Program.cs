@@ -12,6 +12,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration
     .AddEnvironmentVariables();
 
+builder.WebHost.UseSentry(options =>
+{
+  // DSN will be read from SENTRY_DSN environment variable or appsettings.json
+  options.TracesSampleRate = 0.1; // Capture 10% of requests
+});
+
 builder.Services.Configure<FileUploadSettings>(
     builder.Configuration.GetSection("FileUpload"));
 

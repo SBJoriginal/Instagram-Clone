@@ -1,4 +1,6 @@
 import { Component, inject, ChangeDetectionStrategy, signal, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { LogService } from '../../../services/log.service';
 import { CommonModule } from '@angular/common';
 import {
   MatDialogModule,
@@ -39,6 +41,8 @@ export class ProfileEditComponent implements OnInit {
   public data: ProfileEditData = inject(MAT_DIALOG_DATA);
   private profileService = inject(ProfileService);
   private imageService = inject(ImageUploadService);
+  private readonly logger = inject(LogService);
+  private readonly router = inject(Router);
   protected readonly generalError = signal<string | null>(null);
   protected readonly isSaving = signal(false);
   private dialog = inject(MatDialog);
@@ -97,7 +101,7 @@ export class ProfileEditComponent implements OnInit {
 
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif'];
       if (!allowedTypes.includes(file.type)) {
-        console.error('Invalid file type');
+        this.logger.error('Invalid file type. Allowed types: ' + allowedTypes.join(', '));
         return;
       }
 
@@ -233,7 +237,7 @@ export class ProfileEditComponent implements OnInit {
       if (confirmed) {
         this.authService.deleteAccount().subscribe({
           error: (err: unknown) => {
-            console.error('Failed to delete account:', err);
+            this.logger.error('Failed to delete account:', err);
           },
         });
       }

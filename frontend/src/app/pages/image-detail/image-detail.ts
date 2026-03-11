@@ -6,6 +6,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 import { CommonModule, Location } from '@angular/common';
 import { MentionPipe } from '../../pipes/mention.pipe';
+import { LogService } from '../../services/log.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-image-detail',
@@ -17,6 +19,8 @@ import { MentionPipe } from '../../pipes/mention.pipe';
 export class ImageDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly logger = inject(LogService);
+  private readonly userService = inject(UserService);
   private readonly imageService = inject(ImageUploadService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly location = inject(Location);
@@ -40,7 +44,7 @@ export class ImageDetail implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Failed to load image details:', err);
+        this.logger.error('Failed to load image details:', err);
         this.loading = false;
         this.cdr.detectChanges();
       },

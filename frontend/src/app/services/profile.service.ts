@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { ProfileRequest, ProfileResponse } from '../models/auth.models';
 import { environment } from '../../environments/environment';
+import { LogService } from './log.service';
 import { AbstractControl } from '@angular/forms';
 
 @Injectable({
@@ -10,6 +11,7 @@ import { AbstractControl } from '@angular/forms';
 })
 export class ProfileService {
   private readonly http = inject(HttpClient);
+  private readonly logger = inject(LogService);
   private readonly apiUrl = `${environment.apiUrl}/Profile`;
 
   getProfile(): Observable<ProfileResponse> {
@@ -25,7 +27,13 @@ export class ProfileService {
   }
 
   updateProfile(profile: ProfileRequest): Observable<void> {
-    return this.http.put<void>(this.apiUrl, profile);
+    this.logger.info('Updating profile for user');
+    return this.http.put<void>(this.apiUrl, profile).pipe(
+      tap({
+        next: () => this.logger.info('Profile update successful'),
+        error: (err: unknown) => this.logger.error('Profile update failed', err),
+      }),
+    );
   }
 
   completeProfile(profile: ProfileRequest): Observable<void> {
@@ -33,12 +41,17 @@ export class ProfileService {
   }
 
   uploadProfilePicture(file: File): Observable<{ profilePictureUrl: string }> {
+    this.logger.info('Uploading profile picture');
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<{ profilePictureUrl: string }>(
-      `${this.apiUrl}/profile-picture`,
-      formData,
-    );
+    return this.http
+      .post<{ profilePictureUrl: string }>(`${this.apiUrl}/profile-picture`, formData)
+      .pipe(
+        tap({
+          next: () => this.logger.info('Profile picture upload successful'),
+          error: (err: unknown) => this.logger.error('Profile picture upload failed', err),
+        }),
+      );
   }
 
   getProfilePicture(): Observable<{ profilePictureUrl: string; imageId: number }> {
