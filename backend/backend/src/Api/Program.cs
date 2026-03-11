@@ -4,7 +4,6 @@ using UGram.src.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Infrastructure.Persistence;
 using UGram.src.Application.Configuration;
-using UGram.src.Application.Configuration;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Http.Features;
