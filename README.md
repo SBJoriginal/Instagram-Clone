@@ -11,6 +11,7 @@
 | File Storage | Amazon S3 |
 | CI/CD | GitHub Actions |
 | Deployment | AWS Elastic Beanstalk |
+| Logging & Monitoring | Sentry |
 
 ---
 
@@ -23,7 +24,6 @@
 - AWS CLI configured with a dev IAM user (`aws configure`)
 
 ### Quick start
-
 ```bash
 # 1. Copy environment template and fill in values
 cp .env.example .env
@@ -43,6 +43,51 @@ docker compose --profile full up --build
 - EF Core migration workflow
 - AWS credential strategy
 - Troubleshooting
+
+---
+
+## Logging & Monitoring (Sentry)
+
+Sentry is integrated on both the frontend and backend for error tracking, performance monitoring, and structured logging.
+
+### What is captured
+
+| Type | Frontend | Backend |
+|---|---|---|
+| Errors & exceptions | ✅ Full stack trace | ✅ Full stack trace |
+| Warnings & info logs | ✅ Via `LogService` | ✅ Via Serilog integration |
+| Breadcrumbs | ✅ User actions before error | ✅ Logs before crash |
+| Performance / Tracing | ✅ API call durations | ✅ Request durations |
+
+### Dashboard Preview
+
+![Sentry Backend Logs](docs/images/sentry%20backend%20logs.png)
+*Sentry dashboard showing backend logs and exceptions.*
+
+![Sentry Frontend Logs](docs/images/sentry%20frontend%20logs.png)
+*Sentry dashboard showing frontend errors and breadcrumbs.*
+
+### Environment variables
+
+Add the following to your `.env`:
+```env
+# Sentry
+SENTRY_DSN=https://<key>@o<org>.ingest.sentry.io/<project-id>
+```
+
+### Testing the integration
+
+To verify Sentry is working, trigger a test error manually:
+```typescript
+// Angular
+Sentry.captureException(new Error("Test Sentry"));
+```
+```csharp
+// .NET
+throw new Exception("Test Sentry");
+```
+
+Then check the **Issues** tab in your Sentry dashboard — the error should appear within seconds.
 
 ---
 
