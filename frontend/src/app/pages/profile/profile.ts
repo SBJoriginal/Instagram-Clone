@@ -93,7 +93,7 @@ export class Profile {
   }
 
   openImageDetail(image: ImageResponse): void {
-    this.router.navigate(['/home/image', image.id]);
+    this.router.navigate(['/image', image.id]);
   }
 
   openEditDialog(image: ImageResponse): void {

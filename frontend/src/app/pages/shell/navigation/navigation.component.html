@@ -4,7 +4,13 @@
   </div>
 
   <nav class="sidebar-nav">
-    <button mat-button class="nav-item" routerLink="/home/explore" routerLinkActive="active">
+    <button
+      mat-button
+      class="nav-item"
+      routerLink="/explore"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
       <mat-icon>explore</mat-icon>
       <span>Explore</span>
     </button>
@@ -12,7 +18,7 @@
       <mat-icon>add_box</mat-icon>
       <span>Create</span>
     </button>
-    <button mat-button class="nav-item" routerLink="/home/profile" routerLinkActive="active">
+    <button mat-button class="nav-item" routerLink="/profile" routerLinkActive="active">
       <mat-icon>account_circle</mat-icon>
       <span>Profile</span>
     </button>
