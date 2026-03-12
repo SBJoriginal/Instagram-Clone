@@ -30,6 +30,10 @@ export class GoogleAuthService {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
+  private isInitialized = false;
+  private currentRedirectPath = '';
+  private currentErrorSignal: WritableSignal<string | null> | null = null;
+
   initialize(
     elementId: string,
     redirectPath: string,
@@ -37,12 +41,19 @@ export class GoogleAuthService {
   ): void {
     if (typeof google === 'undefined') return;
 
-    google.accounts.id.initialize({
-      client_id: environment.googleClientId,
-      callback: (response: { credential: string }) => {
-        this.handleResponse(response.credential, redirectPath, errorSignal);
-      },
-    });
+    // Update state for the callback
+    this.currentRedirectPath = redirectPath;
+    this.currentErrorSignal = errorSignal;
+
+    if (!this.isInitialized) {
+      google.accounts.id.initialize({
+        client_id: environment.googleClientId,
+        callback: (response: { credential: string }) => {
+          this.handleResponse(response.credential);
+        },
+      });
+      this.isInitialized = true;
+    }
 
     google.accounts.id.renderButton(document.getElementById(elementId), {
       theme: 'outline',
@@ -51,16 +62,19 @@ export class GoogleAuthService {
     });
   }
 
-  private handleResponse(
-    credential: string,
-    redirectPath: string,
-    errorSignal: WritableSignal<string | null>,
-  ): void {
-    errorSignal.set(null);
+  private handleResponse(credential: string): void {
+    if (this.currentErrorSignal) {
+      this.currentErrorSignal.set(null);
+    }
+
     this.authService.loginWithGoogle(credential).subscribe({
-      next: () => this.router.navigate([redirectPath]),
+      next: () => this.router.navigate([this.currentRedirectPath]),
       error: (error: { error?: { message?: string } }) => {
-        errorSignal.set(error.error?.message ?? 'Google login failed. Please try again.');
+        if (this.currentErrorSignal) {
+          this.currentErrorSignal.set(
+            error.error?.message ?? 'Google login failed. Please try again.',
+          );
+        }
       },
     });
   }
