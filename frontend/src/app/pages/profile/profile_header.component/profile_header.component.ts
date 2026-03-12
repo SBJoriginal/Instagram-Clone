@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal, ChangeDetectionStrategy, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { switchMap, tap } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
@@ -63,19 +63,33 @@ export class ProfileHeader implements OnInit {
     this.profileService
       .getProfile()
       .pipe(
-        tap((profile) => {
-          const isOtherUser = !!this.username && this.username !== profile.userName;
-          this.isOtherUserProfile.set(isOtherUser);
-        }),
         switchMap((profile) => {
-          const isOtherUser = !!this.username && this.username !== profile.userName;
-          return isOtherUser
-            ? this.profileService.getUserProfileByUsername(this.username!)
-            : of(profile);
+          const isOtherUser = !!this.username && this.username !== profile?.userName;
+          this.isOtherUserProfile.set(isOtherUser);
+
+          if (isOtherUser) {
+            return this.profileService.getUserProfileByUsername(this.username!);
+          }
+          return of(profile);
         }),
       )
       .subscribe({
-        next: (profile: ProfileResponse) => {
+        next: (profile: ProfileResponse | null) => {
+          if (!profile) {
+            const email = !this.isOtherUserProfile() ? this.tokenService.getEmailFromToken() : '';
+            this.user.set({
+              username: '',
+              firstName: '',
+              lastName: '',
+              email: email || '',
+              phone: '',
+              memberSince: '',
+              profilePictureUrl: '',
+            });
+            this.isLoading.set(false);
+            return;
+          }
+
           if (profile.isDeleted && this.isOtherUserProfile()) {
             this.isDeletedAccount.set(true);
             this.isLoading.set(false);
