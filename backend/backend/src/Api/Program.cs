@@ -6,6 +6,7 @@ using Infrastructure.Persistence;
 using UGram.src.Application.Configuration;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Http.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +25,16 @@ builder.Services.Configure<FileUploadSettings>(
 builder.Services.AddApplication()
                 .AddInfrastructure(builder.Configuration)
                 .AddWebAPI(builder.Configuration);
+
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+  serverOptions.Limits.MaxRequestBodySize = 20 * 1024 * 1024;
+});
+
+builder.Services.Configure<FormOptions>(options =>
+{
+  options.MultipartBodyLengthLimit = 20 * 1024 * 1024;
+});
 
 builder.Services.AddRateLimiter(options =>
 {

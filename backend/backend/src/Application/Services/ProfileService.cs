@@ -36,10 +36,15 @@ namespace UGram.src.Application.Services
       _logger = logger;
     }
 
-    public async Task<UserProfileResponseDto> GetUserProfileAsync(string userId)
+    public async Task<UserProfileResponseDto?> GetUserProfileAsync(string userId)
     {
       await VerifyUserExistence(userId);
-      UserProfile userProfile = GetUserProfile(userId);
+      var userProfile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
+
+      if (userProfile == null)
+      {
+        return null;
+      }
 
       var userProfileDto = new UserProfileResponseDto
       {
@@ -50,7 +55,7 @@ namespace UGram.src.Application.Services
         Email = userProfile.Email,
         PhoneNumber = userProfile.PhoneNumber,
         SignUpDate = userProfile.SignUpDate,
-        ProfilePictureUrl = await _imageStorageService.GetImageUrlAsync(userProfile.ProfilePictureUrl)
+        ProfilePictureUrl = await _imageStorageService.GetImageUrlAsync(userProfile.ProfilePictureUrl ?? string.Empty)
       };
 
       return userProfileDto;
@@ -68,7 +73,7 @@ namespace UGram.src.Application.Services
         Email = p.Email,
         PhoneNumber = p.PhoneNumber,
         SignUpDate = p.SignUpDate,
-        ProfilePictureUrl = await _imageStorageService.GetImageUrlAsync(p.ProfilePictureUrl)
+        ProfilePictureUrl = await _imageStorageService.GetImageUrlAsync(p.ProfilePictureUrl ?? string.Empty)
       }));
 
       return profiles.ToList();
@@ -93,7 +98,7 @@ namespace UGram.src.Application.Services
         Email = profile.Email,
         PhoneNumber = profile.PhoneNumber,
         SignUpDate = profile.SignUpDate,
-        ProfilePictureUrl = await _imageStorageService.GetImageUrlAsync(profile.ProfilePictureUrl)
+        ProfilePictureUrl = await _imageStorageService.GetImageUrlAsync(profile.ProfilePictureUrl ?? string.Empty)
       };
     }
 
@@ -121,7 +126,7 @@ namespace UGram.src.Application.Services
         Email = profile.Email,
         PhoneNumber = profile.PhoneNumber,
         SignUpDate = profile.SignUpDate,
-        ProfilePictureUrl = await _imageStorageService.GetImageUrlAsync(profile.ProfilePictureUrl)
+        ProfilePictureUrl = await _imageStorageService.GetImageUrlAsync(profile.ProfilePictureUrl ?? string.Empty)
       };
     }
 

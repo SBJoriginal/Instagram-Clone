@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { catchError, Observable, of, tap } from 'rxjs';
 import { ProfileRequest, ProfileResponse } from '../models/auth.models';
 import { environment } from '../../environments/environment';
 import { LogService } from './log.service';
@@ -14,8 +14,15 @@ export class ProfileService {
   private readonly logger = inject(LogService);
   private readonly apiUrl = `${environment.apiUrl}/Profile`;
 
-  getProfile(): Observable<ProfileResponse> {
-    return this.http.get<ProfileResponse>(this.apiUrl);
+  getProfile(): Observable<ProfileResponse | null> {
+    return this.http.get<ProfileResponse>(this.apiUrl).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 404) {
+          return of(null);
+        }
+        throw error;
+      }),
+    );
   }
 
   getUserProfile(userId: string): Observable<ProfileResponse> {
