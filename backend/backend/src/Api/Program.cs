@@ -13,9 +13,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration
     .AddEnvironmentVariables();
 
+var sentryDsn = Environment.GetEnvironmentVariable("SENTRY_DSN");
+
 builder.WebHost.UseSentry(options =>
 {
-  // DSN will be read from SENTRY_DSN environment variable or appsettings.json
+  // If no DSN is provided (e.g. during EF Core migrations in CI), explicitly
+  // setting it to an empty string safely disables Sentry and prevents exceptions.
+  options.Dsn = string.IsNullOrWhiteSpace(sentryDsn) ? "" : sentryDsn;
   options.TracesSampleRate = 0.1; // Capture 10% of requests
 });
 
