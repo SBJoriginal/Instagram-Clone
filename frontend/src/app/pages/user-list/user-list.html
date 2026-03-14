@@ -1,6 +1,6 @@
 <mat-list>
   @for (user of users$ | async; track user.id) {
-    <mat-list-item class="user-item" [routerLink]="['/home/profile', user.userName]">
+    <mat-list-item class="user-item" [routerLink]="['/profile', user.userName]">
       <img
         matListItemAvatar
         class="user-avatar"
