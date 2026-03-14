@@ -93,7 +93,7 @@ export class ImageUploadComponent implements OnInit {
     mentions: new FormControl('', {
       nonNullable: true,
       // Mentions are already controlled so this is a "fail-safe"
-      validators: [Validators.pattern(/^(@[a-zA-Z0-9_]+\s*)*$/)],
+      validators: [Validators.pattern(/^(@[a-zA-Z0-9_\-.]+\s*)*$/)],
     }),
   });
 
@@ -320,7 +320,17 @@ export class ImageUploadComponent implements OnInit {
     let file = this.selectedFile();
 
     if (this.uploadForm.invalid) {
-      this.validationError.set('Please fix the errors in the form before saving.');
+      if (this.uploadForm.controls.mentions.invalid) {
+        this.validationError.set(
+          'Invalid mention format. Mentions must start with @ and only contain letters, numbers, underscores, hyphens, and dots.',
+        );
+      } else if (this.uploadForm.controls.hashtags.invalid) {
+        this.validationError.set(
+          'Invalid hashtag format. Only letters, numbers, and # are allowed.',
+        );
+      } else {
+        this.validationError.set('Please fix the errors in the form before saving.');
+      }
       return;
     }
 
