@@ -49,7 +49,7 @@ export class ProfileEditComponent implements OnInit {
   private dialog = inject(MatDialog);
   private authService = inject(AuthService);
 
-  tempAvatarUrl = signal<string | null>(this.data.avatarUrl);
+  tempAvatarUrl = signal<string | null>(this.data.avatarUrl || '/default-avatar.png');
   selectedFile = signal<File | null>(null);
 
   editForm = this.fb.group({
