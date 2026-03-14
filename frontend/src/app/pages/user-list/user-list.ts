@@ -45,7 +45,7 @@ export class UserListComponent {
             ? user.profilePictureUrl.startsWith('http')
               ? user.profilePictureUrl
               : this.baseUrl + user.profilePictureUrl
-            : '',
+            : '/default-avatar.png',
         }));
     }),
   );
