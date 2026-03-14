@@ -11,6 +11,7 @@ import {
   GoogleAuthRequest,
 } from '../models/auth.models';
 import { TokenService } from './token.service';
+import { LogService } from './log.service';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -20,11 +21,13 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly tokenService = inject(TokenService);
   private readonly router = inject(Router);
+  private readonly logger = inject(LogService);
 
   private readonly apiUrl = `${environment.apiUrl}/auth`;
 
   login(email: string, password: string): Observable<AuthResponse> {
     const request: LoginRequest = { email, password };
+    this.logger.info('Attempting login for email:', email);
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, request).pipe(
       tap((response) => {
@@ -35,6 +38,7 @@ export class AuthService {
 
   register(email: string, password: string): Observable<AuthResponse> {
     const request: RegisterRequest = { email, password };
+    this.logger.info('Attempting registration for email:', email);
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, request).pipe(
       tap((response) => {
@@ -70,8 +74,12 @@ export class AuthService {
         },
       })
       .pipe(
-        tap((response) => {
-          this.tokenService.saveTokens(response.token, response.refreshToken);
+        tap({
+          next: (response) => {
+            this.logger.info('Token refresh successful');
+            this.tokenService.saveTokens(response.token, response.refreshToken);
+          },
+          error: (err: unknown) => this.logger.error('Token refresh failed', err),
         }),
       );
   }

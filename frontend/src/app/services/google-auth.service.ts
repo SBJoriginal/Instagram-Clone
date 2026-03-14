@@ -2,6 +2,7 @@ import { inject, Injectable, WritableSignal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
+import { LogService } from './log.service';
 
 interface GoogleButtonOptions {
   theme: string;
@@ -29,6 +30,7 @@ declare const google: GoogleIdentityServices;
 export class GoogleAuthService {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly logger = inject(LogService);
 
   private isInitialized = false;
   private currentRedirectPath = '';
@@ -39,7 +41,11 @@ export class GoogleAuthService {
     redirectPath: string,
     errorSignal: WritableSignal<string | null>,
   ): void {
-    if (typeof google === 'undefined') return;
+    this.logger.info('Initializing Google Auth button');
+    if (typeof google === 'undefined') {
+      this.logger.warn('Google Identity Services not loaded');
+      return;
+    }
 
     // Update state for the callback
     this.currentRedirectPath = redirectPath;
@@ -68,8 +74,12 @@ export class GoogleAuthService {
     }
 
     this.authService.loginWithGoogle(credential).subscribe({
-      next: () => this.router.navigate([this.currentRedirectPath]),
+      next: () => {
+        this.logger.info('Google login successful');
+        this.router.navigate([this.currentRedirectPath]);
+      },
       error: (error: { error?: { message?: string } }) => {
+        this.logger.error('Google login failed', error);
         if (this.currentErrorSignal) {
           this.currentErrorSignal.set(
             error.error?.message ?? 'Google login failed. Please try again.',

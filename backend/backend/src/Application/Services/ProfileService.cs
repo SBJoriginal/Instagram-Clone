@@ -7,9 +7,10 @@ using UGram.src.Application.DTOs;
 using UGram.src.Application.Interfaces;
 using UGram.src.Domain.Exceptions;
 using UGram.src.Domain.Exceptions.Users;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using UGram.src.Application.Configuration;
 using System.ComponentModel.DataAnnotations;
+using UGram.src.Application.Configuration;
 
 namespace UGram.src.Application.Services
 {
@@ -19,17 +20,20 @@ namespace UGram.src.Application.Services
     private readonly AppDbContext _context;
     private readonly IImageStorageService _imageStorageService;
     private readonly FileUploadSettings _fileUploadSettings;
+    private readonly ILogger<ProfileService> _logger;
 
     public ProfileService(
       UserManager<ApplicationUser> userManager,
       AppDbContext context,
       IImageStorageService imageStorageService,
-      IOptions<FileUploadSettings> fileUploadSettings)
+      IOptions<FileUploadSettings> fileUploadSettings,
+      ILogger<ProfileService> logger)
     {
       _userManager = userManager;
       _context = context;
       _imageStorageService = imageStorageService;
       _fileUploadSettings = fileUploadSettings.Value;
+      _logger = logger;
     }
 
     public async Task<UserProfileResponseDto?> GetUserProfileAsync(string userId)
@@ -163,6 +167,7 @@ namespace UGram.src.Application.Services
       if (!result.Succeeded)
       {
         var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+        _logger.LogWarning("Failed to update username for user {UserId}. Errors: {Errors}", userId, errors);
         throw new ValidationException($"Username error: {errors}");
       }
 
@@ -179,6 +184,7 @@ namespace UGram.src.Application.Services
       _context.UserProfiles.Add(newProfile);
 
       await _context.SaveChangesAsync();
+      _logger.LogInformation("Profile completed for user {UserId} with username {UserName}", userId, userProfileDto.UserName);
     }
 
     public async Task<ProfilePictureResponseDto> UploadProfilePictureAsync(string userId, IFormFile file, string requesterUserId)
@@ -192,6 +198,7 @@ namespace UGram.src.Application.Services
       UserProfile userProfile = GetUserProfile(userId);
 
       ValidateImageFile(file);
+      _logger.LogInformation("Uploading profile picture for user {UserId}", userId);
 
       string imagePath = await _imageStorageService.SaveImageAsync(file, "images");
 
@@ -223,6 +230,7 @@ namespace UGram.src.Application.Services
 
       _context.Images.Add(image);
       await _context.SaveChangesAsync();
+      _logger.LogInformation("Profile picture successfully updated for user {UserId}. New path: {ImagePath}", userId, imagePath);
 
       return new ProfilePictureResponseDto
       {
