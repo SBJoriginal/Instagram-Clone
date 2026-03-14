@@ -52,9 +52,8 @@ mat-card-title {
   text-decoration: underline;
   display: block;
   margin-bottom: 4px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .settings-button {
@@ -81,9 +80,8 @@ mat-card-title {
   margin: 0 !important;
   line-height: 1.2 !important;
   color: #333 !important;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .name-subtitle {
@@ -93,6 +91,27 @@ mat-card-title {
 
 .settings-button mat-icon {
   color: #555;
+}
+
+@media (max-width: 480px) {
+  .large-avatar {
+    width: 70px !important;
+    height: 70px !important;
+    margin-right: 12px;
+  }
+
+  mat-card-header {
+    gap: 12px;
+  }
+
+  .profile-card {
+    padding: 16px;
+  }
+
+  .username-title,
+  .name-subtitle {
+    font-size: 1rem !important;
+  }
 }
 
 .deleted-account {
