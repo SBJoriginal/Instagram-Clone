@@ -13,6 +13,7 @@ import { ProfileService } from '../../../services/profile.service';
 import { environment } from '../../../../environments/environment';
 import { TokenService } from '../../../services/token.service';
 import { ProfileResponse } from '../../../models/auth.models';
+import { LogService } from '../../../services/log.service';
 
 @Component({
   selector: 'app-profile-header',
@@ -39,6 +40,7 @@ export class ProfileHeader implements OnInit {
   private readonly profileService = inject(ProfileService);
   private readonly tokenService = inject(TokenService);
   private readonly router = inject(Router);
+  private readonly logger = inject(LogService);
 
   protected readonly user = signal({
     username: '',
@@ -108,7 +110,7 @@ export class ProfileHeader implements OnInit {
         },
         error: (error) => {
           if (error.status !== 404) {
-            console.error('Failed to load profile:', error);
+            this.logger.error('Failed to load profile:', error);
           }
           const email = !this.isOtherUserProfile() ? this.tokenService.getEmailFromToken() : '';
           this.user.set({
@@ -128,7 +130,7 @@ export class ProfileHeader implements OnInit {
 
   private formatImageUrl(path: string): string {
     if (!path) return '/default-avatar.png';
-    if (path === '/default-avatar.png') return path; // ← AJOUTEZ
+    if (path === '/default-avatar.png') return path;
     if (path.startsWith('http') || path.startsWith('data:')) return path;
     const cleanPath = path.replace(/\\/g, '/');
     const baseUrl = environment.apiUrl.replace(/\/api$/, '');

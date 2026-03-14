@@ -33,6 +33,7 @@ services:
       - AWS_REGION=${AWS_REGION:-us-east-2}
       - S3__BucketName=${S3_BUCKET_NAME}
       - Google__ClientId=${GOOGLE_CLIENT_ID}
+      - SENTRY_DSN=${SENTRY_DSN}
     ports:
       - "8081:8080"
     volumes:

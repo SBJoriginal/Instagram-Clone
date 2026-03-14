@@ -1,5 +1,6 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { LogService } from '../services/log.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ImageUploadComponent, ImageUploadData } from '../image-upload/image-upload';
@@ -18,7 +19,7 @@ import { ImageUploadService } from '../services/image-upload.service';
     <mat-dialog-content>
       <div class="instructions">
         <p class="instruction-text">
-          <strong>Instructions:</strong> Select an image (JPG, PNG, GIF, or WebP, max 5MB), add a
+          <strong>Instructions: </strong> Select an image (JPG, PNG, GIF, or WebP, max 5MB), add a
           description, hashtags, and mentions, then click "Upload Image".
         </p>
       </div>
@@ -73,31 +74,27 @@ import { ImageUploadService } from '../services/image-upload.service';
 export class ImageUploadDialog {
   private readonly dialogRef = inject(MatDialogRef<ImageUploadDialog>);
   private readonly imageUploadService = inject(ImageUploadService);
+  private readonly logger = inject(LogService);
+
+  isUploading = false;
 
   close(): void {
     this.dialogRef.close();
   }
 
   protected handleUpload(data: ImageUploadData): void {
-    // console.log('=== Image Upload Data ===');
-    // console.log('File:', data.file);
-    // console.log('File Name:', data.file.name);
-    // console.log('File Size:', data.file.size, 'bytes');
-    // console.log('File Type:', data.file.type);
-    // console.log('Description:', data.description);
-    // console.log('Hashtags:', data.hashtags);
-    // console.log('Mentions:', data.mentions);
-    // console.log('========================');
+    this.logger.info('=== Image Upload Data ===');
+    this.logger.info('File Name:', data.file.name);
 
-    // Close dialog and return the data
-
+    this.isUploading = true;
     this.imageUploadService.uploadImage(data).subscribe({
       next: (response) => {
         this.imageUploadService.notifyImageCreated();
         this.dialogRef.close(response);
       },
       error: (error) => {
-        console.error('Image upload failed:', error);
+        this.logger.error('Image upload failed:', error);
+        this.isUploading = false;
       },
     });
   }

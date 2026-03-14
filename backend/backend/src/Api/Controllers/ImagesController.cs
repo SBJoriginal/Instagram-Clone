@@ -25,6 +25,7 @@ namespace Api.Controllers
     [DisableRequestSizeLimit]
     public async Task<IActionResult> Upload([FromForm] ImageUploadRequestDto upload)
     {
+      _logger.LogInformation("Received upload request in ImagesController");
       var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
       if (string.IsNullOrEmpty(userId))
         return Unauthorized();
@@ -81,6 +82,7 @@ namespace Api.Controllers
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] ImageUpdateDto update)
     {
+      _logger.LogInformation("Received update request for image {ImageId} in ImagesController", id);
       var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
       if (string.IsNullOrEmpty(currentUserId))
         return Unauthorized();
@@ -95,6 +97,7 @@ namespace Api.Controllers
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
+      _logger.LogInformation("Received delete request for image {ImageId} in ImagesController", id);
       var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
       if (string.IsNullOrEmpty(currentUserId))
         return Unauthorized();

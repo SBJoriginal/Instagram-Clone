@@ -6,6 +6,7 @@ using UGram.src.Application.Interfaces;
 using Microsoft.AspNetCore.Http;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
+using Microsoft.Extensions.Logging;
 
 namespace UGram.src.Application.Services
 {
@@ -13,15 +14,18 @@ namespace UGram.src.Application.Services
   {
     private readonly AppDbContext _context;
     private readonly IImageStorageService _imageStorageService;
+    private readonly ILogger<ImageService> _logger;
 
-    public ImageService(AppDbContext context, IImageStorageService imageStorageService)
+    public ImageService(AppDbContext context, IImageStorageService imageStorageService, ILogger<ImageService> logger)
     {
       _context = context;
       _imageStorageService = imageStorageService;
+      _logger = logger;
     }
 
     public async Task<ImageUploadResponseDto> UploadImageAsync(ImageUploadRequestDto upload, string userId)
     {
+      _logger.LogInformation("Starting image upload for user {UserId}. FileName: {FileName}", userId, upload.File?.FileName);
 
       if (upload.File == null || upload.File.Length == 0)
         throw new ArgumentException("No file uploaded.");
@@ -43,6 +47,7 @@ namespace UGram.src.Application.Services
 
         if (imageProcessor.Width > maxWidth || imageProcessor.Height > maxHeight)
         {
+          _logger.LogInformation("Resizing image for user {UserId}. Original size: {Width}x{Height}", userId, imageProcessor.Width, imageProcessor.Height);
           imageProcessor.Mutate(x => x.Resize(new SixLabors.ImageSharp.Processing.ResizeOptions
           {
             Size = new SixLabors.ImageSharp.Size(maxWidth, maxHeight),
@@ -80,6 +85,7 @@ namespace UGram.src.Application.Services
 
       _context.Images.Add(image);
       await _context.SaveChangesAsync();
+      _logger.LogInformation("Image successfully uploaded and saved for user {UserId}. ImageId: {ImageId}, Path: {Path}", userId, image.Id, filePath);
 
       var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
 
@@ -294,6 +300,7 @@ namespace UGram.src.Application.Services
 
       _context.Images.Remove(image);
       await _context.SaveChangesAsync();
+      _logger.LogInformation("Image deleted for user {UserId}. ImageId: {ImageId}", currentUserId, id);
       return true;
     }
 
