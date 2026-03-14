@@ -13,8 +13,11 @@ COPY . .
 
 # Inject environment variables
 ARG GOOGLE_CLIENT_ID
+ARG SENTRY_DSN
 RUN sed -i "s|GOOGLE_CLIENT_ID_PLACEHOLDER|$GOOGLE_CLIENT_ID|g" src/environments/environment.ts && \
-    sed -i "s|GOOGLE_CLIENT_ID_PLACEHOLDER|$GOOGLE_CLIENT_ID|g" src/environments/environment.development.ts
+    sed -i "s|GOOGLE_CLIENT_ID_PLACEHOLDER|$GOOGLE_CLIENT_ID|g" src/environments/environment.development.ts && \
+    sed -i "s|SENTRY_DSN_PLACEHOLDER|$SENTRY_DSN|g" src/environments/environment.ts && \
+    sed -i "s|SENTRY_DSN_PLACEHOLDER|$SENTRY_DSN|g" src/environments/environment.development.ts
 
 # Build the application
 RUN npm run build
