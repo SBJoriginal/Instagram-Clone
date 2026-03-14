@@ -298,6 +298,13 @@ namespace UGram.src.Application.Services
         await _imageStorageService.DeleteImageAsync(image.FilePath);
       }
 
+      // If this image was the user's profile picture, clear the profile picture URL
+      var userProfile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == currentUserId);
+      if (userProfile != null && userProfile.ProfilePictureUrl == image.FilePath)
+      {
+        userProfile.ProfilePictureUrl = null;
+      }
+
       _context.Images.Remove(image);
       await _context.SaveChangesAsync();
       _logger.LogInformation("Image deleted for user {UserId}. ImageId: {ImageId}", currentUserId, id);

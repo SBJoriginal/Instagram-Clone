@@ -1,8 +1,16 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy, Input } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  OnDestroy,
+  signal,
+  ChangeDetectionStrategy,
+  Input,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { switchMap } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { of, Subscription } from 'rxjs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,6 +22,7 @@ import { environment } from '../../../../environments/environment';
 import { TokenService } from '../../../services/token.service';
 import { ProfileResponse } from '../../../models/auth.models';
 import { LogService } from '../../../services/log.service';
+import { ImageUploadService } from '../../../services/image-upload.service';
 
 @Component({
   selector: 'app-profile-header',
@@ -33,7 +42,7 @@ import { LogService } from '../../../services/log.service';
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProfileHeader implements OnInit {
+export class ProfileHeader implements OnInit, OnDestroy {
   @Input() username?: string | null;
 
   private readonly dialog = inject(MatDialog);
@@ -41,6 +50,8 @@ export class ProfileHeader implements OnInit {
   private readonly tokenService = inject(TokenService);
   private readonly router = inject(Router);
   private readonly logger = inject(LogService);
+  private readonly imageService = inject(ImageUploadService);
+  private imageSubscription?: Subscription;
 
   protected readonly user = signal({
     username: '',
@@ -59,6 +70,13 @@ export class ProfileHeader implements OnInit {
 
   ngOnInit(): void {
     this.loadProfile();
+    this.imageSubscription = this.imageService.imageCreated$.subscribe(() => {
+      this.loadProfile();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.imageSubscription?.unsubscribe();
   }
 
   private loadProfile(): void {

@@ -114,6 +114,7 @@ export class Profile {
   deleteImage(image: ImageResponse): void {
     if (confirm('Are you sure you want to delete this image?')) {
       this.imageUploadService.deleteImage(image.id).subscribe(() => {
+        this.imageUploadService.notifyImageCreated();
         this.refresh$.next();
       });
     }
