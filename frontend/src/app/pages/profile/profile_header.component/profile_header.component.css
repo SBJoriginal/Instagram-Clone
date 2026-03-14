@@ -31,6 +31,8 @@ mat-card-header {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  min-width: 0;
+  overflow: hidden;
 }
 
 mat-card-title {
@@ -42,6 +44,7 @@ mat-card-title {
   font-size: 16px;
   color: #333;
   line-height: 1.5;
+  overflow: hidden;
 }
 
 .user-email {
@@ -49,6 +52,9 @@ mat-card-title {
   text-decoration: underline;
   display: block;
   margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .settings-button {
@@ -75,6 +81,9 @@ mat-card-title {
   margin: 0 !important;
   line-height: 1.2 !important;
   color: #333 !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .name-subtitle {
