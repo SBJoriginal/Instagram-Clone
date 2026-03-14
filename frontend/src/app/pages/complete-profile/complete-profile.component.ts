@@ -41,12 +41,16 @@ export class CompleteProfileComponent implements OnInit {
   ngOnInit(): void {
     // Check if profile already exists
     this.profileService.getProfile().subscribe({
-      next: () => {
-        this.profileAlreadyExists.set(true);
-        this.errorMessage.set('A profile already exists for your account. Please sign in instead.');
+      next: (profile) => {
+        if (profile) {
+          this.profileAlreadyExists.set(true);
+          this.errorMessage.set(
+            'A profile already exists for your account. Please sign in instead.',
+          );
+        }
       },
       error: () => {
-        // 404 = no profile yet, show the form normally
+        // Other errors handled by interceptor or ignored
       },
     });
 

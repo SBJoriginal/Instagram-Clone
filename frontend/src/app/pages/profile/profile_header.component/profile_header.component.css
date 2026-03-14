@@ -31,6 +31,8 @@ mat-card-header {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  min-width: 0;
+  overflow: hidden;
 }
 
 mat-card-title {
@@ -42,6 +44,7 @@ mat-card-title {
   font-size: 16px;
   color: #333;
   line-height: 1.5;
+  overflow: hidden;
 }
 
 .user-email {
@@ -49,6 +52,8 @@ mat-card-title {
   text-decoration: underline;
   display: block;
   margin-bottom: 4px;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .settings-button {
@@ -75,6 +80,8 @@ mat-card-title {
   margin: 0 !important;
   line-height: 1.2 !important;
   color: #333 !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .name-subtitle {
@@ -84,6 +91,27 @@ mat-card-title {
 
 .settings-button mat-icon {
   color: #555;
+}
+
+@media (max-width: 480px) {
+  .large-avatar {
+    width: 70px !important;
+    height: 70px !important;
+    margin-right: 12px;
+  }
+
+  mat-card-header {
+    gap: 12px;
+  }
+
+  .profile-card {
+    padding: 16px;
+  }
+
+  .username-title,
+  .name-subtitle {
+    font-size: 1rem !important;
+  }
 }
 
 .deleted-account {

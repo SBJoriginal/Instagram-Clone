@@ -48,7 +48,7 @@ namespace UGram.src.Application.Services
     }
 
 
-    public Task<string> GetImageUrlAsync(string filePath)
+    public Task<string> GetImageUrlAsync(string? filePath)
     {
       if (string.IsNullOrEmpty(filePath))
         return Task.FromResult(string.Empty);

@@ -4,10 +4,12 @@ import { Observable } from 'rxjs';
 import { User } from '../models/user.model';
 import { ImagePost } from '../models/image.model';
 import { environment } from '../../environments/environment';
+import { LogService } from './log.service';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private http = inject(HttpClient);
+  private logger = inject(LogService);
   private apiUrl = environment.apiUrl;
 
   getUsers(): Observable<User[]> {

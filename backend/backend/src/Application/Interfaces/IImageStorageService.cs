@@ -5,6 +5,6 @@ namespace UGram.src.Application.Interfaces
   {
     Task<string> SaveImageAsync(IFormFile file, string folder);
     Task DeleteImageAsync(string filePath);
-    Task<string> GetImageUrlAsync(string filePath);
+    Task<string> GetImageUrlAsync(string? filePath);
   }
 }

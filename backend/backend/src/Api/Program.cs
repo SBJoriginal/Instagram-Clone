@@ -4,7 +4,6 @@ using UGram.src.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Infrastructure.Persistence;
 using UGram.src.Application.Configuration;
-using UGram.src.Application.Configuration;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Http.Features;
@@ -13,6 +12,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration
     .AddEnvironmentVariables();
+
+var sentryDsn = Environment.GetEnvironmentVariable("SENTRY_DSN");
+
+builder.WebHost.UseSentry(options =>
+{
+  // If no DSN is provided (e.g. during EF Core migrations in CI), explicitly
+  // setting it to an empty string safely disables Sentry and prevents exceptions.
+  options.Dsn = string.IsNullOrWhiteSpace(sentryDsn) ? "" : sentryDsn;
+  options.TracesSampleRate = 0.1; // Capture 10% of requests
+});
 
 builder.Services.Configure<FileUploadSettings>(
     builder.Configuration.GetSection("FileUpload"));

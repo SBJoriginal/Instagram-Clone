@@ -84,7 +84,7 @@ export class Profile {
 
     this.profileService.getProfile().subscribe({
       next: (profile) => {
-        this.currentUsername.set(profile.userName || null);
+        this.currentUsername.set(profile?.userName || null);
       },
       error: () => {
         this.currentUsername.set(null);
