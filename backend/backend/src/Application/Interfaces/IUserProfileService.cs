@@ -6,7 +6,7 @@ namespace UGram.src.Application.Interfaces
   {
     Task CompleteProfileAsync(string userId, UserProfileRequestDto userProfileDto, string requesterUserId);
 
-    Task<UserProfileResponseDto> GetUserProfileAsync(string userId);
+    Task<UserProfileResponseDto?> GetUserProfileAsync(string userId);
     Task<List<UserProfileResponseDto>> GetAllProfilesAsync();
     Task<UserProfileResponseDto?> GetProfileByIdAsync(string userId);
     Task<UserProfileResponseDto?> GetProfileByUsernameAsync(string username);

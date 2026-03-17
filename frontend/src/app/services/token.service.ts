@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 
 const ACCESS_TOKEN_KEY = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
@@ -10,10 +10,13 @@ interface DecodedToken {
   [key: string]: unknown;
 }
 
+import { LogService } from './log.service';
+
 @Injectable({
   providedIn: 'root',
 })
 export class TokenService {
+  private readonly logger = inject(LogService);
   private readonly hasToken = signal(!!this.getAccessToken());
 
   isAuthenticated = this.hasToken.asReadonly();
@@ -44,7 +47,7 @@ export class TokenService {
       const decoded = atob(payload);
       return JSON.parse(decoded) as DecodedToken;
     } catch (error) {
-      console.error('Failed to decode token:', error);
+      this.logger.error('Failed to decode token:', error);
       return null;
     }
   }

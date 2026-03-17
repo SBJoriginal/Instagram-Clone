@@ -1,8 +1,16 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy, Input } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  OnDestroy,
+  signal,
+  ChangeDetectionStrategy,
+  Input,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { switchMap, tap } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
+import { of, Subscription } from 'rxjs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,6 +21,8 @@ import { ProfileService } from '../../../services/profile.service';
 import { environment } from '../../../../environments/environment';
 import { TokenService } from '../../../services/token.service';
 import { ProfileResponse } from '../../../models/auth.models';
+import { LogService } from '../../../services/log.service';
+import { ImageUploadService } from '../../../services/image-upload.service';
 
 @Component({
   selector: 'app-profile-header',
@@ -32,13 +42,16 @@ import { ProfileResponse } from '../../../models/auth.models';
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProfileHeader implements OnInit {
+export class ProfileHeader implements OnInit, OnDestroy {
   @Input() username?: string | null;
 
   private readonly dialog = inject(MatDialog);
   private readonly profileService = inject(ProfileService);
   private readonly tokenService = inject(TokenService);
   private readonly router = inject(Router);
+  private readonly logger = inject(LogService);
+  private readonly imageService = inject(ImageUploadService);
+  private imageSubscription?: Subscription;
 
   protected readonly user = signal({
     username: '',
@@ -57,25 +70,46 @@ export class ProfileHeader implements OnInit {
 
   ngOnInit(): void {
     this.loadProfile();
+    this.imageSubscription = this.imageService.imageCreated$.subscribe(() => {
+      this.loadProfile();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.imageSubscription?.unsubscribe();
   }
 
   private loadProfile(): void {
     this.profileService
       .getProfile()
       .pipe(
-        tap((profile) => {
-          const isOtherUser = !!this.username && this.username !== profile.userName;
-          this.isOtherUserProfile.set(isOtherUser);
-        }),
         switchMap((profile) => {
-          const isOtherUser = !!this.username && this.username !== profile.userName;
-          return isOtherUser
-            ? this.profileService.getUserProfileByUsername(this.username!)
-            : of(profile);
+          const isOtherUser = !!this.username && this.username !== profile?.userName;
+          this.isOtherUserProfile.set(isOtherUser);
+
+          if (isOtherUser) {
+            return this.profileService.getUserProfileByUsername(this.username!);
+          }
+          return of(profile);
         }),
       )
       .subscribe({
-        next: (profile: ProfileResponse) => {
+        next: (profile: ProfileResponse | null) => {
+          if (!profile) {
+            const email = !this.isOtherUserProfile() ? this.tokenService.getEmailFromToken() : '';
+            this.user.set({
+              username: '',
+              firstName: '',
+              lastName: '',
+              email: email || '',
+              phone: '',
+              memberSince: '',
+              profilePictureUrl: '',
+            });
+            this.isLoading.set(false);
+            return;
+          }
+
           if (profile.isDeleted && this.isOtherUserProfile()) {
             this.isDeletedAccount.set(true);
             this.isLoading.set(false);
@@ -94,7 +128,7 @@ export class ProfileHeader implements OnInit {
         },
         error: (error) => {
           if (error.status !== 404) {
-            console.error('Failed to load profile:', error);
+            this.logger.error('Failed to load profile:', error);
           }
           const email = !this.isOtherUserProfile() ? this.tokenService.getEmailFromToken() : '';
           this.user.set({
@@ -114,7 +148,7 @@ export class ProfileHeader implements OnInit {
 
   private formatImageUrl(path: string): string {
     if (!path) return '/default-avatar.png';
-    if (path === '/default-avatar.png') return path; // ← AJOUTEZ
+    if (path === '/default-avatar.png') return path;
     if (path.startsWith('http') || path.startsWith('data:')) return path;
     const cleanPath = path.replace(/\\/g, '/');
     const baseUrl = environment.apiUrl.replace(/\/api$/, '');
@@ -141,7 +175,7 @@ export class ProfileHeader implements OnInit {
 
         if (!this.isOtherUserProfile() && result.newUsername) {
           setTimeout(() => {
-            this.router.navigate(['/home/profile', result.newUsername]);
+            this.router.navigate(['/profile', result.newUsername]);
           }, 100);
         }
       }

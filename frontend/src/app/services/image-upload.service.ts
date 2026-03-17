@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { ImageUploadData } from '../image-upload/image-upload';
 import { Subject } from 'rxjs';
+import { LogService } from './log.service';
 
 export interface ImageResponse {
   id: number;
@@ -34,11 +35,13 @@ export interface ImageUpdateData {
 })
 export class ImageUploadService {
   private readonly http = inject(HttpClient);
+  private readonly logger = inject(LogService);
   private readonly apiUrl = `${environment.apiUrl}/images`;
   private imageCreatedSource = new Subject<void>();
   imageCreated$ = this.imageCreatedSource.asObservable();
 
   uploadImage(data: ImageUploadData): Observable<ImageResponse> {
+    this.logger.info('Beginning image upload to:', this.apiUrl);
     const formData = new FormData();
     formData.append('File', data.file);
     formData.append('Description', data.description);
@@ -48,7 +51,12 @@ export class ImageUploadService {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    return this.http.post<ImageResponse>(this.apiUrl, formData, { headers });
+    return this.http.post<ImageResponse>(this.apiUrl, formData, { headers }).pipe(
+      tap({
+        next: () => this.logger.info('Upload successful'),
+        error: (err) => this.logger.error('Upload failed', err),
+      }),
+    );
   }
 
   notifyImageCreated() {

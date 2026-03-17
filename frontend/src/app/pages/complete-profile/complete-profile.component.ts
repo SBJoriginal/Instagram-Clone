@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,6 +11,7 @@ import { ProfileService } from '../../services/profile.service';
 import { TokenService } from '../../services/token.service';
 import { BackArrowComponent } from '../../shared/ui/back-arrow/back-arrow.component';
 import { LogoComponent } from '../../shared/ui/logo/logo.component';
+import { ProfileValidators } from '../../validators/profile.validators';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
@@ -40,12 +41,16 @@ export class CompleteProfileComponent implements OnInit {
   ngOnInit(): void {
     // Check if profile already exists
     this.profileService.getProfile().subscribe({
-      next: () => {
-        this.profileAlreadyExists.set(true);
-        this.errorMessage.set('A profile already exists for your account. Please sign in instead.');
+      next: (profile) => {
+        if (profile) {
+          this.profileAlreadyExists.set(true);
+          this.errorMessage.set(
+            'A profile already exists for your account. Please sign in instead.',
+          );
+        }
       },
       error: () => {
-        // 404 = no profile yet, show the form normally
+        // Other errors handled by interceptor or ignored
       },
     });
 
@@ -62,10 +67,10 @@ export class CompleteProfileComponent implements OnInit {
   }
 
   protected readonly profileForm = this.fb.group({
-    username: ['', [Validators.required]],
-    firstName: ['', [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)]],
-    lastName: ['', [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)]],
-    phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{3}-\d{3}-\d{4}$/)]],
+    username: ['', ProfileValidators.username],
+    firstName: ['', ProfileValidators.name],
+    lastName: ['', ProfileValidators.name],
+    phoneNumber: ['', ProfileValidators.phone],
   });
 
   protected onPhoneInput(event: Event): void {
@@ -108,7 +113,7 @@ export class CompleteProfileComponent implements OnInit {
       this.profileService.completeProfile(profileData).subscribe({
         next: () => {
           this.isLoading.set(false);
-          this.router.navigate(['/home']);
+          this.router.navigate(['/explore']);
         },
         error: (error: HttpErrorResponse) => {
           this.isLoading.set(false);

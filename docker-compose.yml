@@ -36,6 +36,7 @@ services:
       - AWS_REGION=${AWS_REGION:-us-east-2}
       - S3__BucketName=${S3_BUCKET_NAME}
       - Google__ClientId=${GOOGLE_CLIENT_ID}
+      - SENTRY_DSN=${SENTRY_DSN}
     ports:
       - "8081:8080"
     volumes:
@@ -60,6 +61,7 @@ services:
       dockerfile: ../docker/frontend.Dockerfile
       args:
         - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+        - SENTRY_DSN=${SENTRY_DSN}
     container_name: ugram_frontend
     ports:
       - "4200:80"

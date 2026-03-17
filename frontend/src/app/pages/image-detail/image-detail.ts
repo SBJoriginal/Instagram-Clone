@@ -12,8 +12,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { CommonModule, Location } from '@angular/common';
-
 import { ReactionService } from '../../services/reaction.service';
+import { LogService } from '../../services/log.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-image-detail',
@@ -35,6 +36,8 @@ import { ReactionService } from '../../services/reaction.service';
 export class ImageDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly logger = inject(LogService);
+  private readonly userService = inject(UserService);
   private readonly imageService = inject(ImageUploadService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly location = inject(Location);
@@ -70,7 +73,7 @@ export class ImageDetail implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Failed to load image details:', err);
+        this.logger.error('Failed to load image details:', err);
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -139,7 +142,9 @@ export class ImageDetail implements OnInit {
     if (username) {
       // Clean @ if present
       const cleanName = username.startsWith('@') ? username.substring(1) : username;
-      this.router.navigate(['/home/profile', cleanName.trim()]);
+      if (cleanName) {
+        this.router.navigate(['/profile', cleanName.trim()]);
+      }
     }
   }
 

@@ -92,7 +92,7 @@ export class Profile {
 
     this.profileService.getProfile().subscribe({
       next: (profile) => {
-        this.currentUsername.set(profile.userName || null);
+        this.currentUsername.set(profile?.userName || null);
       },
       error: () => {
         this.currentUsername.set(null);
@@ -101,7 +101,7 @@ export class Profile {
   }
 
   openImageDetail(image: ImageResponse): void {
-    this.router.navigate(['/home/image', image.id]);
+    this.router.navigate(['/image', image.id]);
   }
 
   openEditDialog(image: ImageResponse): void {
@@ -122,6 +122,7 @@ export class Profile {
   deleteImage(image: ImageResponse): void {
     if (confirm('Are you sure you want to delete this image?')) {
       this.imageUploadService.deleteImage(image.id).subscribe(() => {
+        this.imageUploadService.notifyImageCreated();
         this.refresh$.next();
       });
     }

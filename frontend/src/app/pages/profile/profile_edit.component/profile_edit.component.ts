@@ -1,4 +1,6 @@
 import { Component, inject, ChangeDetectionStrategy, signal, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { LogService } from '../../../services/log.service';
 import { CommonModule } from '@angular/common';
 import {
   MatDialogModule,
@@ -10,7 +12,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
+import { ProfileValidators } from '../../../validators/profile.validators';
 import { ProfileEditData } from '../profile.model';
 import { ProfileService } from '../../../services/profile.service';
 import { debounceTime, distinctUntilChanged, take } from 'rxjs';
@@ -39,36 +42,22 @@ export class ProfileEditComponent implements OnInit {
   public data: ProfileEditData = inject(MAT_DIALOG_DATA);
   private profileService = inject(ProfileService);
   private imageService = inject(ImageUploadService);
+  private readonly logger = inject(LogService);
+  private readonly router = inject(Router);
   protected readonly generalError = signal<string | null>(null);
   protected readonly isSaving = signal(false);
   private dialog = inject(MatDialog);
   private authService = inject(AuthService);
 
-  tempAvatarUrl = signal<string | null>(this.data.avatarUrl);
+  tempAvatarUrl = signal<string | null>(this.data.avatarUrl || '/default-avatar.png');
   selectedFile = signal<File | null>(null);
 
   editForm = this.fb.group({
-    username: [
-      this.data.username,
-      [Validators.required, Validators.minLength(3), Validators.pattern(/^[a-zA-Z0-9_]+$/)],
-    ],
-    firstName: [
-      this.data.firstName,
-      [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)],
-    ],
-    lastName: [this.data.lastName, [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)]],
-    email: [
-      this.data.email,
-      [
-        Validators.required,
-        Validators.email,
-        Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
-      ],
-    ],
-    phone: [
-      this.data.phone?.includes('X') ? '' : this.data.phone,
-      [Validators.required, Validators.pattern(/^\d{3}-\d{3}-\d{4}$/)],
-    ],
+    username: [this.data.username, ProfileValidators.username],
+    firstName: [this.data.firstName, ProfileValidators.name],
+    lastName: [this.data.lastName, ProfileValidators.name],
+    email: [this.data.email, ProfileValidators.email],
+    phone: [this.data.phone?.includes('X') ? '' : this.data.phone, ProfileValidators.phone],
   });
 
   ngOnInit(): void {
@@ -97,7 +86,7 @@ export class ProfileEditComponent implements OnInit {
 
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif'];
       if (!allowedTypes.includes(file.type)) {
-        console.error('Invalid file type');
+        this.logger.error('Invalid file type. Allowed types: ' + allowedTypes.join(', '));
         return;
       }
 
@@ -233,7 +222,7 @@ export class ProfileEditComponent implements OnInit {
       if (confirmed) {
         this.authService.deleteAccount().subscribe({
           error: (err: unknown) => {
-            console.error('Failed to delete account:', err);
+            this.logger.error('Failed to delete account:', err);
           },
         });
       }

@@ -26,6 +26,7 @@ import { UserService } from '../services/user.service';
 import { ProfileService } from '../services/profile.service';
 import { environment } from '../../environments/environment';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { ImageCompressionService } from '../services/image-compression.service';
 
 export interface ImageUploadData {
   file: File;
@@ -62,6 +63,7 @@ export class ImageUploadComponent implements OnInit {
   protected readonly previewUrl = signal<string | null>(null);
   protected readonly validationError = signal<string | null>(null);
   protected readonly allUsernames = signal<string[]>([]);
+  protected readonly isCompressing = signal<boolean>(false);
 
   protected readonly selectedMentions = signal<string[]>([]);
 
@@ -72,6 +74,7 @@ export class ImageUploadComponent implements OnInit {
   private readonly hashtagPipe = inject(HashtagPipe);
   private readonly mentionPipe = inject(MentionPipe);
   private readonly fileSizePipe = inject(FileSizePipe);
+  private readonly compressionService = inject(ImageCompressionService);
 
   private existingUsernames = new Set<string>();
   private currentUsername: string | null = null;
@@ -90,7 +93,7 @@ export class ImageUploadComponent implements OnInit {
     mentions: new FormControl('', {
       nonNullable: true,
       // Mentions are already controlled so this is a "fail-safe"
-      validators: [Validators.pattern(/^(@[a-zA-Z0-9_]+\s*)*$/)],
+      validators: [Validators.pattern(/^(@[a-zA-Z0-9_\-.]+\s*)*$/)],
     }),
   });
 
@@ -197,7 +200,7 @@ export class ImageUploadComponent implements OnInit {
   ngOnInit(): void {
     this.profileService.getProfile().subscribe({
       next: (profile) => {
-        this.currentUsername = profile.userName || null;
+        this.currentUsername = profile?.userName || null;
       },
     });
 
@@ -312,12 +315,22 @@ export class ImageUploadComponent implements OnInit {
     }
   }
 
-  protected onSubmit(): void {
+  protected async onSubmit(): Promise<void> {
     const isEditMode = !!this.editData();
-    const file = this.selectedFile();
+    let file = this.selectedFile();
 
     if (this.uploadForm.invalid) {
-      this.validationError.set('Please fix the errors in the form before saving.');
+      if (this.uploadForm.controls.mentions.invalid) {
+        this.validationError.set(
+          'Invalid mention format. Mentions must start with @ and only contain letters, numbers, underscores, hyphens, and dots.',
+        );
+      } else if (this.uploadForm.controls.hashtags.invalid) {
+        this.validationError.set(
+          'Invalid hashtag format. Only letters, numbers, and # are allowed.',
+        );
+      } else {
+        this.validationError.set('Please fix the errors in the form before saving.');
+      }
       return;
     }
 
@@ -341,6 +354,32 @@ export class ImageUploadComponent implements OnInit {
         );
       }
       return;
+    }
+
+    // Compress file if in upload mode
+    if (!isEditMode && file) {
+      try {
+        this.isCompressing.set(true);
+        const compressedBlob = await this.compressionService.compressImage(file);
+        // Ensure the filename ends in .jpg since we compressed it to image/jpeg
+        const originalName = file.name;
+        const lastDotIndex = originalName.lastIndexOf('.');
+        const nameWithoutExtension =
+          lastDotIndex !== -1 ? originalName.substring(0, lastDotIndex) : originalName;
+        const newFileName = `${nameWithoutExtension}.jpg`;
+
+        file = new File([compressedBlob], newFileName, {
+          type: 'image/jpeg',
+          lastModified: Date.now(),
+        });
+      } catch (error) {
+        console.error('Compression failed:', error);
+        this.validationError.set('Failed to process image. Please try again.');
+        this.isCompressing.set(false);
+        return;
+      } finally {
+        this.isCompressing.set(false);
+      }
     }
 
     const formValue = this.uploadForm.getRawValue();
