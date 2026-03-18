@@ -1,9 +1,9 @@
-using UGram.src.Api.Hubs;
 using Application.Interfaces;
 using Domain.Entities;
 using Infrastructure.Persistence;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using UGram.src.Api.Hubs;
 using UGram.src.Application.DTOs;
 using UGram.src.Application.Interfaces;
 
@@ -55,7 +55,7 @@ namespace Application.Services
         .Select(p => new { p.UserName, p.ProfilePictureUrl })
         .FirstOrDefaultAsync();
 
-      var actionText = type == "Like" ? "aimé" : "commenté";
+      var actionText = type == "Like" ? "liked" : "commented on";
       var dto = new NotificationDto
       {
         Id = notification.Id,
@@ -67,7 +67,7 @@ namespace Application.Services
         Type = type,
         IsRead = false,
         CreatedAt = notification.CreatedAt,
-        Message = $"{actorProfile?.UserName ?? "User"} a {actionText} on your post",
+        Message = $"{actorProfile?.UserName ?? "User"} {actionText} your post",
       };
 
       // envoi temps réel au destinataire
@@ -90,7 +90,7 @@ namespace Application.Services
           .Select(p => new { p.UserName, p.ProfilePictureUrl })
           .FirstOrDefaultAsync();
 
-        var actionText = n.Type == "Like" ? "aimé" : "commenté";
+        var actionText = n.Type == "Like" ? "liked" : "commented on";
         result.Add(
           new NotificationDto
           {
