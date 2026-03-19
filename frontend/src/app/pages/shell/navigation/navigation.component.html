@@ -38,5 +38,6 @@
   </nav>
 </aside>
 @if (isPanelOpen()) {
+  <div class="backdrop" (click)="isPanelOpen.set(false)" aria-hidden="true"></div>
   <app-notification-panel (close)="isPanelOpen.set(false)" />
 }

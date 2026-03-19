@@ -48,7 +48,10 @@ export class NotificationService {
       this._notifications.update((current) => [notification, ...current]);
     });
 
-    this.hubConnection.start().catch((err) => console.error('SignalR error:', err));
+    this.hubConnection
+      .start()
+      .then(() => this.loadNotifications())
+      .catch((err) => console.error('SignalR error:', err));
   }
 
   stopConnection(): void {

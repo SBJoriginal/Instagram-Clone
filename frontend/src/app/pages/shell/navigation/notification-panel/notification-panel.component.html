@@ -1,4 +1,4 @@
-<div class="panel">
+<div class="panel" role="dialog" aria-label="Notifications">
   <div class="panel-header">
     <h3>Notifications</h3>
     <button mat-icon-button (click)="close.emit()" aria-label="Close notifications">
@@ -8,7 +8,10 @@
 
   <div class="panel-body">
     @if (notificationService.notifications().length === 0) {
-      <p class="empty">No notifications yet.</p>
+      <div class="empty">
+        <mat-icon class="empty-icon">notifications_none</mat-icon>
+        <p>No notifications yet</p>
+      </div>
     }
 
     @for (n of notificationService.notifications(); track n.id) {
@@ -16,6 +19,8 @@
         class="notification-item"
         [class.unread]="!n.isRead"
         (click)="onNotificationClick(n.id, n.imageId)"
+        role="button"
+        [attr.aria-label]="n.message"
       >
         @if (n.actorProfilePictureUrl) {
           <img class="avatar" [src]="n.actorProfilePictureUrl" alt="avatar" />
@@ -25,11 +30,13 @@
 
         <div class="content">
           <p class="message">{{ n.message }}</p>
-          <p class="time">{{ n.createdAt | date: 'short' }}</p>
+          <p class="time">
+            {{ n.createdAt | date: 'shortTime' }} · {{ n.createdAt | date: 'mediumDate' }}
+          </p>
         </div>
 
         @if (!n.isRead) {
-          <span class="dot"></span>
+          <span class="dot" aria-hidden="true"></span>
         }
       </div>
     }
