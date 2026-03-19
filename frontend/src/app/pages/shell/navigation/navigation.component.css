@@ -1,6 +1,7 @@
 :host {
   display: block;
   height: 100%;
+  position: relative;
 }
 
 .sidebar {
@@ -8,11 +9,11 @@
   flex-direction: column;
   width: 245px;
   border-right: 1px solid #dbdbdb;
-  /* Instagram-like border */
   padding: 8px 12px 20px;
   background-color: var(--background, #fff);
   height: 100%;
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .sidebar-header {
@@ -40,13 +41,11 @@
   font-weight: 400;
   text-transform: none;
   text-decoration: none;
-  /* Override Material button defaults */
   transition: background-color 0.2s;
 }
 
 .nav-item:hover {
   background-color: rgba(0, 0, 0, 0.05);
-  /* Subtle hover */
 }
 
 /* Material Icon styling inside button */
@@ -68,4 +67,27 @@
 
 .active {
   font-weight: 700;
+}
+
+.bell-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.badge {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  background-color: #e33;
+  color: white;
+  border-radius: 50%;
+  font-size: 11px;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  font-weight: bold;
 }

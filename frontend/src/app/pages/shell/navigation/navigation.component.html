@@ -18,6 +18,15 @@
       <mat-icon>add_box</mat-icon>
       <span>Create</span>
     </button>
+    <button mat-button class="nav-item" (click)="togglePanel()">
+      <div class="bell-wrapper">
+        <mat-icon>notifications</mat-icon>
+        @if (notificationService.unreadCount() > 0) {
+          <span class="badge">{{ notificationService.unreadCount() }}</span>
+        }
+      </div>
+      <span>Notifications</span>
+    </button>
     <button mat-button class="nav-item" routerLink="/profile" routerLinkActive="active">
       <mat-icon>account_circle</mat-icon>
       <span>Profile</span>
@@ -28,3 +37,6 @@
     </button>
   </nav>
 </aside>
+@if (isPanelOpen()) {
+  <app-notification-panel (close)="isPanelOpen.set(false)" />
+}
