@@ -1,6 +1,6 @@
 import {
   Component,
-  Inject,
+  inject,
   ViewChild,
   ElementRef,
   AfterViewInit,
@@ -75,10 +75,8 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
   selectedFilter = 'normal';
   selectedFrame = 'none';
 
-  constructor(
-    public dialogRef: MatDialogRef<ImageFilterDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ImageEditorData,
-  ) {}
+  dialogRef = inject(MatDialogRef<ImageFilterDialogComponent>);
+  data = inject<ImageEditorData>(MAT_DIALOG_DATA);
 
   ngAfterViewInit() {
     this.dialogRef.updateSize('90vw', '85vh');

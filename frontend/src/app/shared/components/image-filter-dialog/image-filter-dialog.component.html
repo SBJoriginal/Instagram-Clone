@@ -18,38 +18,48 @@
       <section class="tool-section">
         <h3>🖼️ Frames</h3>
         <div class="frames-grid">
-          <button
-            mat-flat-button
-            *ngFor="let f of frames"
-            [color]="selectedFrame === f.value ? 'primary' : ''"
-            (click)="applyFrame(f.value)"
-          >
-            {{ f.name }}
-          </button>
+          @for (f of frames; track f.value) {
+            <button
+              mat-flat-button
+              [color]="selectedFrame === f.value ? 'primary' : ''"
+              (click)="applyFrame(f.value)"
+            >
+              {{ f.name }}
+            </button>
+          }
         </div>
       </section>
 
       <section class="tool-section">
         <h3>✨ Filters</h3>
         <div class="filters-grid">
-          <button
-            mat-flat-button
-            *ngFor="let f of filters"
-            [color]="selectedFilter === f.value ? 'primary' : ''"
-            (click)="applyFilter(f.value)"
-          >
-            {{ f.name }}
-          </button>
+          @for (f of filters; track f.value) {
+            <button
+              mat-flat-button
+              [color]="selectedFilter === f.value ? 'primary' : ''"
+              (click)="applyFilter(f.value)"
+            >
+              {{ f.name }}
+            </button>
+          }
         </div>
       </section>
 
       <section class="tool-section">
         <h3>🎭 Stickers</h3>
         <div class="stickers-grid">
-          <div *ngFor="let s of stickers" class="sticker-item" (click)="addSticker(s.url)">
-            <img [src]="s.url" [alt]="s.name" />
-            <span>{{ s.name }}</span>
-          </div>
+          @for (s of stickers; track s.url) {
+            <div
+              class="sticker-item"
+              (click)="addSticker(s.url)"
+              (keydown.enter)="addSticker(s.url)"
+              tabindex="0"
+              role="button"
+            >
+              <img [src]="s.url" [alt]="s.name" />
+              <span>{{ s.name }}</span>
+            </div>
+          }
         </div>
       </section>
     </div>
