@@ -49,7 +49,6 @@ export interface ImageUploadData {
     MatIconModule,
     MatAutocompleteModule,
     MatChipsModule,
-    ImageFilterDialogComponent,
   ],
   templateUrl: './image-upload.html',
   styleUrl: './image-upload.css',

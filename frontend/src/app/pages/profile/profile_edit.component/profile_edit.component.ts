@@ -32,7 +32,6 @@ import { ImageFilterDialogComponent } from '../../../shared/components/image-fil
     MatButtonModule,
     MatIconModule,
     ReactiveFormsModule,
-    ImageFilterDialogComponent,
   ],
   templateUrl: './profile_edit.component.html',
   styleUrls: ['./profile_edit.component.css'],
