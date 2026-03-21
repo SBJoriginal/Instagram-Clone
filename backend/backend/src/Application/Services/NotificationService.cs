@@ -103,7 +103,7 @@ namespace Application.Services
             Type = n.Type,
             IsRead = n.IsRead,
             CreatedAt = n.CreatedAt,
-            Message = $"{actorProfile?.UserName ?? "User"} {actionText} your post",
+            Message = $"{actorProfile?.UserName ?? "User "} a {actionText} on your post",
           }
         );
       }
