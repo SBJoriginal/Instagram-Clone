@@ -15,7 +15,7 @@ export class NotificationPanelComponent implements OnInit {
   readonly notificationService = inject(NotificationService);
   private readonly router = inject(Router);
 
-  close = output<void>();
+  panelClose = output<void>();
 
   ngOnInit(): void {
     this.notificationService.loadNotifications();
@@ -24,6 +24,6 @@ export class NotificationPanelComponent implements OnInit {
   onNotificationClick(id: number, imageId: number): void {
     this.notificationService.markAsRead(id);
     this.router.navigate(['/image', imageId]);
-    this.close.emit();
+    this.panelClose.emit();
   }
 }
