@@ -35,6 +35,7 @@ export class NavigationComponent implements OnInit {
 
   ngOnInit(): void {
     this.notificationService.startConnection();
+    this.notificationService.loadNotifications();
   }
 
   togglePanel(): void {

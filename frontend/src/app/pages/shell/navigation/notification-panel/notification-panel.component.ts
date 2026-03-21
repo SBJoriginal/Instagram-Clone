@@ -15,7 +15,6 @@ export class NotificationPanelComponent implements OnInit {
   readonly notificationService = inject(NotificationService);
   private readonly router = inject(Router);
 
-  // Event envoyé au parent pour fermer le panel
   close = output<void>();
 
   ngOnInit(): void {

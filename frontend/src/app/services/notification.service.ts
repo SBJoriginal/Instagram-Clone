@@ -39,6 +39,13 @@ export class NotificationService {
     const token = this.tokenService.getAccessToken();
     if (!token) return;
 
+    if (
+      this.hubConnection?.state === signalR.HubConnectionState.Connected ||
+      this.hubConnection?.state === signalR.HubConnectionState.Connecting
+    ) {
+      return;
+    }
+
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(`${environment.apiUrl.replace('/api', '')}/hubs/notifications?access_token=${token}`)
       .withAutomaticReconnect()

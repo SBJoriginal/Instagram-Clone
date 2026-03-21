@@ -16,7 +16,14 @@ namespace UGram.src.Api
     {
       services.AddCors(options =>
       {
-        options.AddPolicy("AllowAll", p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+        options.AddPolicy(
+          "AllowAll",
+          p =>
+            p.WithOrigins("http://localhost:4200", "http://localhost:8081")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials()
+        );
       });
 
       services
