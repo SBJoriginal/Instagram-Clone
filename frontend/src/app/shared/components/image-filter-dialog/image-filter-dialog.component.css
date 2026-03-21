@@ -1,0 +1,141 @@
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  background: white;
+}
+
+.editor-layout {
+  display: flex;
+  flex: 1; /* Take all available space */
+  gap: 24px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.canvas-wrapper {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #f0f0f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.konva-wrapper {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.canvas-hint {
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.05);
+  font-size: 12px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editor-sidebar {
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  overflow-y: auto;
+  max-height: 600px; /* Ensure scrolling within dialog */
+  padding-right: 12px;
+}
+
+/* Make scrollbar always visible for clarity */
+.editor-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+.editor-sidebar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+.editor-sidebar::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+.editor-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+.tool-section h3 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #555;
+  letter-spacing: 0.5px;
+}
+
+.filters-grid,
+.frames-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.filters-grid button {
+  font-size: 12px;
+  height: 36px;
+}
+
+.stickers-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.sticker-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  cursor: pointer;
+  background: white;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sticker-item:hover {
+  border-color: #3f51b5;
+  background: #f5f6ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(63, 81, 181, 0.12);
+}
+
+.sticker-item img {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 6px;
+  object-fit: contain;
+}
+
+.sticker-item span {
+  font-size: 11px;
+  color: #777;
+}
+
+/* Scope mat-dialog-content overrides to THIS component's host context only */
+:host ::ng-deep mat-dialog-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+:host ::ng-deep .mat-mdc-dialog-surface {
+  display: flex;
+  flex-direction: column;
+  height: 100% !important;
+}

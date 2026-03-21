@@ -20,6 +20,7 @@ import { debounceTime, distinctUntilChanged, take } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
 import { ConfirmDeleteDialogComponent } from './confirm_delete_dialog.component';
 import { ImageUploadService } from '../../../services/image-upload.service';
+import { ImageFilterDialogComponent } from '../../../shared/components/image-filter-dialog/image-filter-dialog.component';
 
 @Component({
   selector: 'app-profile-edit',
@@ -31,6 +32,7 @@ import { ImageUploadService } from '../../../services/image-upload.service';
     MatButtonModule,
     MatIconModule,
     ReactiveFormsModule,
+    ImageFilterDialogComponent,
   ],
   templateUrl: './profile_edit.component.html',
   styleUrls: ['./profile_edit.component.css'],
@@ -90,11 +92,25 @@ export class ProfileEditComponent implements OnInit {
         return;
       }
 
-      this.selectedFile.set(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         const url = e.target?.result as string;
-        this.tempAvatarUrl.set(url);
+
+        const dialogRef = this.dialog.open(ImageFilterDialogComponent, {
+          width: '900px',
+          maxWidth: '95vw',
+          maxHeight: '95vh',
+          data: { imageUrl: url },
+        });
+
+        dialogRef.afterClosed().subscribe((editedFile: File | undefined) => {
+          if (editedFile) {
+            // Always use .jpg extension to match the JPEG canvas export (magic bytes check on backend)
+            const finalFile = new File([editedFile], 'edited_image.jpg', { type: 'image/jpeg' });
+            this.selectedFile.set(finalFile);
+            this.tempAvatarUrl.set(URL.createObjectURL(finalFile));
+          }
+        });
       };
       reader.readAsDataURL(file);
     }

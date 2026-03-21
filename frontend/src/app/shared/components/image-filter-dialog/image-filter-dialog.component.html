@@ -1,0 +1,62 @@
+<div class="editor-header">
+  <h2 mat-dialog-title>📸 Edit Photo</h2>
+  <button mat-icon-button (click)="onCancel()" class="close-button">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content>
+  <div class="editor-layout">
+    <div class="canvas-wrapper">
+      <div #editorContainer class="konva-wrapper"></div>
+      <div class="canvas-hint">
+        <mat-icon>mouse</mat-icon> Click a sticker to modify. <b>Delete</b> key to remove.
+      </div>
+    </div>
+
+    <div class="editor-sidebar">
+      <section class="tool-section">
+        <h3>🖼️ Frames</h3>
+        <div class="frames-grid">
+          <button
+            mat-flat-button
+            *ngFor="let f of frames"
+            [color]="selectedFrame === f.value ? 'primary' : ''"
+            (click)="applyFrame(f.value)"
+          >
+            {{ f.name }}
+          </button>
+        </div>
+      </section>
+
+      <section class="tool-section">
+        <h3>✨ Filters</h3>
+        <div class="filters-grid">
+          <button
+            mat-flat-button
+            *ngFor="let f of filters"
+            [color]="selectedFilter === f.value ? 'primary' : ''"
+            (click)="applyFilter(f.value)"
+          >
+            {{ f.name }}
+          </button>
+        </div>
+      </section>
+
+      <section class="tool-section">
+        <h3>🎭 Stickers</h3>
+        <div class="stickers-grid">
+          <div *ngFor="let s of stickers" class="sticker-item" (click)="addSticker(s.url)">
+            <img [src]="s.url" [alt]="s.name" />
+            <span>{{ s.name }}</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSaveClick()">Apply Changes</button>
+</mat-dialog-actions>
