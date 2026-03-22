@@ -21,6 +21,7 @@ import { AuthService } from '../../../services/auth.service';
 import { ConfirmDeleteDialogComponent } from './confirm_delete_dialog.component';
 import { ImageUploadService } from '../../../services/image-upload.service';
 import { ImageFilterDialogComponent } from '../../../shared/components/image-filter-dialog/image-filter-dialog.component';
+import { IMAGE_EDITOR_DIALOG_CONFIG } from '../../../config/image-editor.config';
 
 @Component({
   selector: 'app-profile-edit',
@@ -96,16 +97,18 @@ export class ProfileEditComponent implements OnInit {
         const url = e.target?.result as string;
 
         const dialogRef = this.dialog.open(ImageFilterDialogComponent, {
-          width: '900px',
-          maxWidth: '95vw',
-          maxHeight: '95vh',
+          width: IMAGE_EDITOR_DIALOG_CONFIG.width,
+          maxWidth: IMAGE_EDITOR_DIALOG_CONFIG.maxWidth,
+          maxHeight: IMAGE_EDITOR_DIALOG_CONFIG.maxHeight,
           data: { imageUrl: url },
         });
 
         dialogRef.afterClosed().subscribe((editedFile: File | undefined) => {
           if (editedFile) {
             // Always use .jpg extension to match the JPEG canvas export (magic bytes check on backend)
-            const finalFile = new File([editedFile], 'edited_image.jpg', { type: 'image/jpeg' });
+            const finalFile = new File([editedFile], 'edited_image.jpg', {
+              type: IMAGE_EDITOR_DIALOG_CONFIG.mimeType,
+            });
             this.selectedFile.set(finalFile);
             this.tempAvatarUrl.set(URL.createObjectURL(finalFile));
           }

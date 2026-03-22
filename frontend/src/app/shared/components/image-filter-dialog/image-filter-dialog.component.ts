@@ -12,7 +12,12 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSliderModule } from '@angular/material/slider';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatCardModule } from '@angular/material/card';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatRippleModule } from '@angular/material/core';
 import Konva from 'konva';
+import { STICKERS } from '../../../config/image-editor.config';
 
 export interface ImageEditorData {
   imageUrl: string;
@@ -21,7 +26,17 @@ export interface ImageEditorData {
 @Component({
   selector: 'app-image-filter-dialog',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule, MatSliderModule],
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSliderModule,
+    MatGridListModule,
+    MatCardModule,
+    MatExpansionModule,
+    MatRippleModule,
+  ],
   templateUrl: './image-filter-dialog.component.html',
   styleUrls: ['./image-filter-dialog.component.css'],
 })
@@ -32,19 +47,7 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
   private transformer!: Konva.Transformer;
   private mainImage!: Konva.Image;
 
-  stickers = [
-    { name: 'Smiley', url: '/assets/stickers/smiley.svg' },
-    { name: 'Heart', url: '/assets/stickers/heart.svg' },
-    { name: 'Star', url: '/assets/stickers/star.svg' },
-    { name: 'Rocket', url: '/assets/stickers/rocket.svg' },
-    { name: 'Fire', url: '/assets/stickers/fire.svg' },
-    { name: 'Pizza', url: '/assets/stickers/pizza.svg' },
-    { name: 'Beer', url: '/assets/stickers/beer.svg' },
-    { name: 'Cat', url: '/assets/stickers/cat.svg' },
-    { name: 'Dog', url: '/assets/stickers/dog.svg' },
-    { name: 'Christmas', url: '/assets/stickers/christmas.svg' },
-    { name: 'Party', url: '/assets/stickers/party.svg' },
-  ];
+  stickers = STICKERS;
 
   filters = [
     { name: 'Normal', value: 'normal' },

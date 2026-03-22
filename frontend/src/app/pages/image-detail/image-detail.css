@@ -1,4 +1,3 @@
-/* ── Container & Card ── */
 .image-detail-container {
   position: fixed;
   inset: 0;
@@ -12,23 +11,11 @@
   overflow: hidden;
 }
 
-.image-detail-card {
-  display: flex;
-  background: #fff;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 1100px;
-  height: 85vh;
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
-  overflow: hidden;
-}
-
-/* ── Close Button ── */
 .close-btn {
   position: absolute;
   top: 1.5rem;
   right: 1.5rem;
-  color: #fff;
+  color: white;
   background: rgba(255, 255, 255, 0.1);
   border: none;
   border-radius: 50%;
@@ -40,12 +27,24 @@
   cursor: pointer;
   transition: all 0.2s;
 }
+
 .close-btn:hover {
   background: rgba(255, 255, 255, 0.2);
   transform: rotate(90deg);
 }
 
-/* ── Left: Image ── */
+.image-detail-card {
+  display: flex;
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 1100px;
+  height: 85vh;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+/* LEFT SIDE: IMAGE */
 .image-display-side {
   flex: 1.2;
   background: #000;
@@ -54,13 +53,14 @@
   justify-content: center;
   border-right: 1px solid #efefef;
 }
+
 .image-display-side img {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
 }
 
-/* ── Right: Sidebar ── */
+/* RIGHT SIDE: SIDEBAR */
 .info-sidebar {
   flex: 0.8;
   display: flex;
@@ -88,12 +88,14 @@
   justify-content: center;
   cursor: pointer;
 }
+
 .avatar-container mat-icon {
   font-size: 32px;
   width: 32px;
   height: 32px;
   color: #dbdbdb;
 }
+
 .avatar-img {
   width: 100%;
   height: 100%;
@@ -109,11 +111,12 @@
   cursor: pointer;
   color: #262626;
 }
+
 .username-btn:hover {
   color: #8e8e8e;
 }
 
-/* ── Description ── */
+/* MAIN CONTENT (Description & Comments) */
 .sidebar-main {
   flex: 1;
   overflow: hidden;
@@ -132,10 +135,12 @@
   margin: 0;
   color: #262626;
 }
+
 .username-inline {
   font-weight: 600;
   margin-right: 6px;
 }
+
 .hashtags-container {
   margin-top: 8px;
   color: #00376b;
@@ -148,6 +153,7 @@
   flex-wrap: wrap;
   gap: 4px;
 }
+
 .mention-link {
   color: #00376b;
   font-size: 14px;
@@ -165,7 +171,7 @@
   letter-spacing: 0.5px;
 }
 
-/* ── Comments ── */
+/* SCROLLABLE COMMENTS */
 .comments-scroll-area {
   flex: 1;
   overflow-y: auto;
@@ -180,6 +186,7 @@
   gap: 12px;
   animation: fadeIn 0.3s ease-out;
 }
+
 .comment-content-wrap {
   flex: 1;
   display: flex;
@@ -192,6 +199,7 @@
     opacity: 0;
     transform: translateY(4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -203,35 +211,40 @@
   justify-content: space-between;
   align-items: baseline;
 }
+
 .comment-username {
   font-weight: 600;
   font-size: 13px;
   color: #262626;
   cursor: pointer;
 }
+
 .comment-timestamp {
   font-size: 11px;
   color: #8e8e8e;
 }
+
 .comment-body {
   font-size: 14px;
   color: #262626;
   line-height: 1.4;
   word-break: break-word;
 }
+
 .empty-comments-msg {
   text-align: center;
   color: #8e8e8e;
   font-size: 13px;
   margin-top: 2rem;
 }
+
 .load-more-comments {
   margin: 8px auto;
   font-size: 12px;
   color: #8e8e8e;
 }
 
-/* ── Footer ── */
+/* SIDEBAR FOOTER (Interactions & Input) */
 .sidebar-footer {
   border-top: 1px solid #efefef;
   background: #fff;
@@ -242,6 +255,7 @@
   display: flex;
   gap: 16px;
 }
+
 .count-item {
   display: flex;
   align-items: center;
@@ -250,11 +264,13 @@
   font-weight: 600;
   color: #262626;
 }
+
 .count-item mat-icon {
   font-size: 20px;
   width: 20px;
   height: 20px;
 }
+
 .count-item mat-icon.liked {
   color: #ff2d55;
 }
@@ -266,9 +282,11 @@
   gap: 12px;
   border-top: 1px solid #efefef;
 }
+
 .comment-field {
   flex: 1;
   margin-bottom: -1.25em;
+  /* Compensate for Material padding */
 }
 
 .post-btn {
@@ -276,53 +294,146 @@
   color: #0095f6 !important;
   min-width: unset !important;
 }
+
 .post-btn:disabled {
-  color: rgba(0, 149, 246, 0.3) !important;
+  color: rgb(0, 149, 246, 0.3) !important;
 }
 
-/* ── Responsive ── */
+/* RESPONSIVE */
 @media (max-width: 900px) {
   .image-detail-container {
     padding: 0;
   }
+
   .image-detail-card {
     flex-direction: column;
     height: 100vh;
     border-radius: 0;
     max-width: none;
   }
+
   .image-display-side {
     flex: none;
     height: 40vh;
+    /* Set a specific height for the image area to allow space for comments */
     border-right: none;
     border-bottom: 1px solid #efefef;
   }
+
   .info-sidebar {
     flex: 1;
     min-width: 0;
     height: 60vh;
+    /* Remaining height for sidebar */
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    /* Important: prevent sidebar from expanding beyond its container */
   }
+
   .sidebar-main {
     flex: 1;
     overflow-y: hidden;
+    /* The main container hides overflow, inner elements scroll */
     display: flex;
     flex-direction: column;
   }
+
   .comments-scroll-area {
     flex: 1;
     overflow-y: auto;
+    /* Ensure comments scroll */
   }
+
   .sidebar-footer {
     flex-shrink: 0;
+    /* Important: prevent footer from shrinking */
     margin-bottom: env(safe-area-inset-bottom, 0);
+    /* Add safe area padding for modern phones */
   }
+
   .close-btn {
     top: 10px;
     left: 10px;
     right: auto;
     background: rgba(0, 0, 0, 0.5);
+  }
+}
+
+.image-display {
+  padding: 0;
+  background-color: #000000;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  width: 100%;
+}
+
+.image-display img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.section {
+  width: 100%;
+  border-bottom: 0.063rem solid #000;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.section.image-display {
+  padding: 0;
+}
+
+.close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  box-shadow: 0 0.125rem 0.313rem rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+  .image-detail-container {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .image-detail-card {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  .section {
+    padding: 0.5rem 1rem;
+
+    justify-content: center;
+    text-align: center;
+  }
+
+  .user-header {
+    height: 50px;
+    flex: 0 0 50px;
+    justify-content: center;
+  }
+
+  .image-display {
+    flex: 1 1 auto;
   }
 }

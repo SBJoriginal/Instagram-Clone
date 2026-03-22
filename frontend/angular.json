@@ -31,11 +31,6 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              },
-              {
-                "glob": "**/*",
-                "input": "node_modules/tui-image-editor/dist/svg",
-                "output": "/assets/tui-svg"
               }
             ],
             "styles": [

@@ -7,6 +7,7 @@
 
 <mat-dialog-content>
   <div class="editor-layout">
+    <!-- CANVAS AREA -->
     <div class="canvas-wrapper">
       <div #editorContainer class="konva-wrapper"></div>
       <div class="canvas-hint">
@@ -14,54 +15,76 @@
       </div>
     </div>
 
+    <!-- SIDEBAR WITH TOOLS -->
     <div class="editor-sidebar">
-      <section class="tool-section">
-        <h3>🖼️ Frames</h3>
-        <div class="frames-grid">
+      <!-- FRAMES SECTION -->
+      <mat-expansion-panel expanded panelClass="editor-panel">
+        <mat-expansion-panel-header panelClass="editor-panel-header">
+          <mat-panel-title>🖼️ Frames</mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <mat-grid-list cols="2" rowHeight="40px" gutterSize="8px" class="editor-grid-list">
           @for (f of frames; track f.value) {
-            <button
-              mat-flat-button
-              [color]="selectedFrame === f.value ? 'primary' : ''"
-              (click)="applyFrame(f.value)"
-            >
-              {{ f.name }}
-            </button>
+            <mat-grid-tile>
+              <button
+                mat-flat-button
+                [color]="selectedFrame === f.value ? 'primary' : ''"
+                (click)="applyFrame(f.value)"
+                class="full-width-button"
+              >
+                {{ f.name }}
+              </button>
+            </mat-grid-tile>
           }
-        </div>
-      </section>
+        </mat-grid-list>
+      </mat-expansion-panel>
 
-      <section class="tool-section">
-        <h3>✨ Filters</h3>
-        <div class="filters-grid">
+      <!-- FILTERS SECTION -->
+      <mat-expansion-panel expanded panelClass="editor-panel">
+        <mat-expansion-panel-header panelClass="editor-panel-header">
+          <mat-panel-title>✨ Filters</mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <mat-grid-list cols="2" rowHeight="40px" gutterSize="8px" class="editor-grid-list">
           @for (f of filters; track f.value) {
-            <button
-              mat-flat-button
-              [color]="selectedFilter === f.value ? 'primary' : ''"
-              (click)="applyFilter(f.value)"
-            >
-              {{ f.name }}
-            </button>
+            <mat-grid-tile>
+              <button
+                mat-flat-button
+                [color]="selectedFilter === f.value ? 'primary' : ''"
+                (click)="applyFilter(f.value)"
+                class="full-width-button"
+              >
+                {{ f.name }}
+              </button>
+            </mat-grid-tile>
           }
-        </div>
-      </section>
+        </mat-grid-list>
+      </mat-expansion-panel>
 
-      <section class="tool-section">
-        <h3>🎭 Stickers</h3>
+      <!-- STICKERS SECTION -->
+      <mat-expansion-panel expanded panelClass="editor-panel">
+        <mat-expansion-panel-header panelClass="editor-panel-header">
+          <mat-panel-title>🎭 Stickers</mat-panel-title>
+        </mat-expansion-panel-header>
+
         <div class="stickers-grid">
           @for (s of stickers; track s.url) {
-            <div
-              class="sticker-item"
+            <mat-card
               (click)="addSticker(s.url)"
               (keydown.enter)="addSticker(s.url)"
               tabindex="0"
               role="button"
+              class="sticker-card"
+              matRipple
             >
-              <img [src]="s.url" [alt]="s.name" />
-              <span>{{ s.name }}</span>
-            </div>
+              <mat-card-content class="sticker-card-content">
+                <img [src]="s.url" [alt]="s.name" />
+                <span>{{ s.name }}</span>
+              </mat-card-content>
+            </mat-card>
           }
         </div>
-      </section>
+      </mat-expansion-panel>
     </div>
   </div>
 </mat-dialog-content>

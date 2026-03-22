@@ -29,6 +29,7 @@ import { environment } from '../../environments/environment';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { ImageCompressionService } from '../services/image-compression.service';
 import { ImageFilterDialogComponent } from '../shared/components/image-filter-dialog/image-filter-dialog.component';
+import { IMAGE_EDITOR_DIALOG_CONFIG } from '../config/image-editor.config';
 
 export interface ImageUploadData {
   file: File;
@@ -290,15 +291,17 @@ export class ImageUploadComponent implements OnInit {
       const url = e.target?.result as string;
 
       const dialogRef = this.dialog.open(ImageFilterDialogComponent, {
-        width: '900px',
-        maxWidth: '95vw',
-        maxHeight: '95vh',
+        width: IMAGE_EDITOR_DIALOG_CONFIG.width,
+        maxWidth: IMAGE_EDITOR_DIALOG_CONFIG.maxWidth,
+        maxHeight: IMAGE_EDITOR_DIALOG_CONFIG.maxHeight,
         data: { imageUrl: url },
       });
 
       dialogRef.afterClosed().subscribe((editedBlob: Blob | undefined) => {
         if (editedBlob) {
-          const editedFile = new File([editedBlob], file.name, { type: 'image/jpeg' });
+          const editedFile = new File([editedBlob], file.name, {
+            type: IMAGE_EDITOR_DIALOG_CONFIG.mimeType,
+          });
           this.selectedFile.set(editedFile);
           this.previewUrl.set(URL.createObjectURL(editedFile));
         }
