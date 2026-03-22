@@ -105,12 +105,8 @@ export class ProfileEditComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe((editedFile: File | undefined) => {
           if (editedFile) {
-            // Always use .jpg extension to match the JPEG canvas export (magic bytes check on backend)
-            const finalFile = new File([editedFile], 'edited_image.jpg', {
-              type: IMAGE_EDITOR_DIALOG_CONFIG.mimeType,
-            });
-            this.selectedFile.set(finalFile);
-            this.tempAvatarUrl.set(URL.createObjectURL(finalFile));
+            this.selectedFile.set(editedFile);
+            this.tempAvatarUrl.set(URL.createObjectURL(editedFile));
           }
         });
       };

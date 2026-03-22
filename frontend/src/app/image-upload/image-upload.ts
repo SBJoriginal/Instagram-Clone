@@ -297,23 +297,12 @@ export class ImageUploadComponent implements OnInit {
         data: { imageUrl: url },
       });
 
-      dialogRef.afterClosed().subscribe((editedBlob: Blob | undefined) => {
-        if (editedBlob) {
-          const editedFile = new File([editedBlob], file.name, {
-            type: IMAGE_EDITOR_DIALOG_CONFIG.mimeType,
-          });
+      dialogRef.afterClosed().subscribe((editedFile: File | undefined) => {
+        if (editedFile) {
           this.selectedFile.set(editedFile);
           this.previewUrl.set(URL.createObjectURL(editedFile));
         }
       });
-    };
-    reader.readAsDataURL(file);
-  }
-
-  private createPreview(file: File): void {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      this.previewUrl.set(e.target?.result as string);
     };
     reader.readAsDataURL(file);
   }
