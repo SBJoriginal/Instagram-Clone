@@ -1,4 +1,5 @@
 using Application.Interfaces;
+using System.Net;
 using Domain.Entities;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +31,7 @@ namespace Application.Services
       {
         ImageId = createCommentDto.ImageId,
         UserId = userId,
-        Content = createCommentDto.Content,
+        Content = WebUtility.HtmlEncode(createCommentDto.Content),
         CreatedAt = DateTime.UtcNow,
       };
 
