@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using UGram.src.Application.Interfaces;
 
 namespace Api.Controllers;
@@ -17,6 +18,7 @@ public class ReactionsController : ControllerBase
   }
 
   [Authorize]
+  [EnableRateLimiting("InteractionPolicy")]
   [HttpPost]
   public async Task<IActionResult> Toggle(int imageId)
   {
