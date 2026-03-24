@@ -101,13 +101,20 @@ export class ImageDetail implements OnInit {
   }
 
   addComment(): void {
-    if (!this.image || !this.newCommentContent().trim() || this.isAddingComment()) return;
+    const trimmedContent = this.newCommentContent().trim();
+    if (
+      !this.image ||
+      !trimmedContent ||
+      trimmedContent.length > this.maxLength ||
+      this.isAddingComment()
+    )
+      return;
 
     this.isAddingComment.set(true);
     this.commentService
       .addComment({
         imageId: this.image.id,
-        content: this.newCommentContent().trim(),
+        content: trimmedContent,
       })
       .subscribe({
         next: (comment) => {
