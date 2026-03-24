@@ -51,9 +51,9 @@
 /* Material Icon styling inside button */
 ::ng-deep .nav-item .mat-icon {
   margin-right: 16px;
-  font-size: 24px;
-  width: 24px;
-  height: 24px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
   color: inherit;
 }
 
