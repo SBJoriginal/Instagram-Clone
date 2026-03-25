@@ -1,6 +1,7 @@
 using Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 using UGram.src.Application.DTOs;
 
@@ -17,8 +18,9 @@ namespace Api.Controllers
       _commentService = commentService;
     }
 
-    [HttpPost]
     [Authorize]
+    [EnableRateLimiting("InteractionPolicy")]
+    [HttpPost]
     public async Task<ActionResult<CommentDto>> AddComment([FromBody] CreateCommentDto createCommentDto)
     {
       var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

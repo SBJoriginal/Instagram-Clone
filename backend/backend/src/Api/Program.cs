@@ -55,6 +55,13 @@ builder.Services.AddRateLimiter(options =>
      opt.QueueLimit = 0;
      opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
    });
+  options.AddFixedWindowLimiter("InteractionPolicy", opt =>
+  {
+    opt.PermitLimit = 10;
+    opt.Window = TimeSpan.FromMinutes(1);
+    opt.QueueLimit = 0;
+    opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+  });
 });
 
 var app = builder.Build();
