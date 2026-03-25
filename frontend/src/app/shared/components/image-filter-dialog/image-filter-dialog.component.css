@@ -168,8 +168,8 @@
 
   .canvas-wrapper {
     flex: none;
-    height: 30vh;
-    min-height: 30vh;
+    height: 40vh;
+    min-height: 40vh;
   }
 
   .konva-wrapper {
@@ -186,7 +186,7 @@
   .editor-sidebar {
     width: 100%;
     max-height: none;
-    height: 50vh;
+    height: 45vh;
     overflow-y: auto;
     padding-right: 0;
   }

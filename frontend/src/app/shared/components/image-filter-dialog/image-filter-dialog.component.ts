@@ -120,6 +120,23 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
       anchorFill: '#3f51b5',
       anchorSize: 10,
       enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
+      flipEnabled: false,
+      boundBoxFunc: (oldBox, newBox) => {
+        if (newBox.width <= 0 || newBox.height <= 0) {
+          return oldBox;
+        }
+        if (!this.mainImage) return newBox;
+        const { x, y, w, h } = this.getImageBounds();
+        if (
+          newBox.x < x ||
+          newBox.y < y ||
+          newBox.x + newBox.width > x + w ||
+          newBox.y + newBox.height > y + h
+        ) {
+          return oldBox;
+        }
+        return newBox;
+      },
     });
     this.layer.add(this.transformer);
 
@@ -194,11 +211,13 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
         height: 100,
         x: this.stage.width() / 2 - 50,
         y: this.stage.height() / 2 - 50,
-        dragBoundFunc: (pos) => {
+        dragBoundFunc: (pos: { x: number; y: number }): { x: number; y: number } => {
           const { x, y, w, h } = this.getImageBounds();
+          const stickerW = sticker.width() * sticker.scaleX();
+          const stickerH = sticker.height() * sticker.scaleY();
           return {
-            x: Math.max(x, Math.min(pos.x, x + w - 100)),
-            y: Math.max(y, Math.min(pos.y, y + h - 100)),
+            x: Math.max(x, Math.min(pos.x, x + w - stickerW)),
+            y: Math.max(y, Math.min(pos.y, y + h - stickerH)),
           };
         },
       });
@@ -210,10 +229,10 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
 
       sticker.on('transform', () => {
         const { x, y, w, h } = this.getImageBounds();
-        sticker.x(Math.max(x, Math.min(sticker.x(), x + w - sticker.width() * sticker.scaleX())));
-        sticker.y(Math.max(y, Math.min(sticker.y(), y + h - sticker.height() * sticker.scaleY())));
-        sticker.scaleX(Math.min(sticker.scaleX(), (x + w - sticker.x()) / sticker.width()));
-        sticker.scaleY(Math.min(sticker.scaleY(), (y + h - sticker.y()) / sticker.height()));
+        const stickerW = sticker.width() * sticker.scaleX();
+        const stickerH = sticker.height() * sticker.scaleY();
+        sticker.x(Math.max(x, Math.min(sticker.x(), x + w - stickerW)));
+        sticker.y(Math.max(y, Math.min(sticker.y(), y + h - stickerH)));
         this.layer.draw();
       });
 
