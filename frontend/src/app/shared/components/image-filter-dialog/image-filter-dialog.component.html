@@ -11,7 +11,15 @@
     <div class="canvas-wrapper">
       <div #editorContainer class="konva-wrapper"></div>
       <div class="canvas-hint">
-        <mat-icon>mouse</mat-icon> Click a sticker to modify. <b>Delete</b> key to remove.
+        <span>Select a sticker to modify</span>
+        <button
+          mat-stroked-button
+          color="warn"
+          [disabled]="!hasSelectedSticker()"
+          (click)="deleteSelectedSticker()"
+        >
+          <mat-icon>delete</mat-icon> Delete
+        </button>
       </div>
     </div>
 

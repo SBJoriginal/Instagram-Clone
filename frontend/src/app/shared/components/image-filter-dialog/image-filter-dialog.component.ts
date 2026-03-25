@@ -150,7 +150,7 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
     const img = this.mainImage.image() as HTMLImageElement;
     if (!img) return;
 
-    const margin = 60;
+    const margin = window.innerWidth <= 768 ? 20 : 60;
     const scale = Math.min((stageW - margin * 2) / img.width, (stageH - margin * 2) / img.height);
 
     this.mainImage.scale({ x: scale, y: scale });
@@ -194,16 +194,47 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
         height: 100,
         x: this.stage.width() / 2 - 50,
         y: this.stage.height() / 2 - 50,
+        dragBoundFunc: (pos) => {
+          const { x, y, w, h } = this.getImageBounds();
+          return {
+            x: Math.max(x, Math.min(pos.x, x + w - 100)),
+            y: Math.max(y, Math.min(pos.y, y + h - 100)),
+          };
+        },
       });
+
       sticker.on('click tap', () => {
         this.transformer.nodes([sticker]);
         this.layer.draw();
       });
+
+      sticker.on('transform', () => {
+        const { x, y, w, h } = this.getImageBounds();
+        sticker.x(Math.max(x, Math.min(sticker.x(), x + w - sticker.width() * sticker.scaleX())));
+        sticker.y(Math.max(y, Math.min(sticker.y(), y + h - sticker.height() * sticker.scaleY())));
+        sticker.scaleX(Math.min(sticker.scaleX(), (x + w - sticker.x()) / sticker.width()));
+        sticker.scaleY(Math.min(sticker.scaleY(), (y + h - sticker.y()) / sticker.height()));
+        this.layer.draw();
+      });
+
       this.layer.add(sticker);
       this.transformer.nodes([sticker]);
       this.layer.draw();
     };
     stickerObj.src = url;
+  }
+
+  hasSelectedSticker(): boolean {
+    return this.transformer?.nodes().length > 0;
+  }
+
+  deleteSelectedSticker(): void {
+    const selectedNodes = this.transformer.nodes();
+    if (selectedNodes.length > 0) {
+      selectedNodes.forEach((node) => node.destroy());
+      this.transformer.nodes([]);
+      this.layer.draw();
+    }
   }
 
   // ─── Filters ──────────────────────────────────────────────────────────────
@@ -492,12 +523,13 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
     this.layer.draw();
 
     const { x, y, w, h } = this.getImageBounds();
+    const padding = 30;
     const stageCanvas = this.stage.toCanvas({
       pixelRatio: 2,
-      x,
-      y,
-      width: w,
-      height: h,
+      x: x - padding,
+      y: y - padding,
+      width: w + padding * 2,
+      height: h + padding * 2,
     }) as HTMLCanvasElement;
 
     stageCanvas.toBlob(
