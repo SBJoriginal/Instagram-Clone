@@ -59,7 +59,7 @@ namespace UGram.src.Application.Services
       await _s3Client.DeleteObjectAsync(deleteRequest);
     }
 
-    public async Task<string> GetImageUrlAsync(string filePath)
+    public async Task<string> GetImageUrlAsync(string? filePath)
     {
       if (string.IsNullOrEmpty(filePath))
         return string.Empty;
