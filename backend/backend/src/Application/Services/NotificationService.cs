@@ -33,7 +33,6 @@ namespace Application.Services
       string type
     )
     {
-      // ne pas notifier si l'utilisateur réagit à sa propre publication
       if (recipientUserId == actorUserId)
         return;
 
@@ -70,7 +69,6 @@ namespace Application.Services
         Message = $"{actorProfile?.UserName ?? "User"} {actionText} your post",
       };
 
-      // envoi temps réel au destinataire
       await _hubContext.Clients.Group(recipientUserId).SendAsync("ReceiveNotification", dto);
     }
 

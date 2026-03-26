@@ -60,7 +60,7 @@ export class NotificationService {
     this.hubConnection
       .start()
       .then(() => this.loadNotifications())
-      .catch((err) => this.logger.error('SignalR error:', err));
+      .catch((err: unknown) => this.logger.error('SignalR error:', err));
   }
 
   stopConnection(): void {
