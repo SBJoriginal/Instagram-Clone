@@ -30,7 +30,6 @@ interface ImageBounds {
 
 @Component({
   selector: 'app-image-filter-dialog',
-  standalone: true,
   imports: [
     CommonModule,
     MatDialogModule,
