@@ -1,12 +1,4 @@
-import {
-  Component,
-  inject,
-  ViewChild,
-  ElementRef,
-  AfterViewInit,
-  OnDestroy,
-  HostListener,
-} from '@angular/core';
+import { Component, inject, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -52,6 +44,10 @@ interface ImageBounds {
   ],
   templateUrl: './image-filter-dialog.component.html',
   styleUrls: ['./image-filter-dialog.component.css'],
+  host: {
+    '(window:resize)': 'onResize()',
+    '(window:keydown)': 'onKeyDown($event)',
+  },
 })
 export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
   @ViewChild('editorContainer') editorContainer!: ElementRef<HTMLDivElement>;
@@ -568,7 +564,6 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
 
   // ─── Event Listeners ──────────────────────────────────────────────────────
 
-  @HostListener('window:resize')
   onResize() {
     if (!this.stage) return;
     const container = this.editorContainer.nativeElement;
@@ -577,7 +572,6 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
     this.refreshImageScale();
   }
 
-  @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
     const selectedNodes = this.transformer.nodes();
     if (selectedNodes.length > 0 && (event.key === 'Delete' || event.key === 'Backspace')) {
