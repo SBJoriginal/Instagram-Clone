@@ -9,9 +9,17 @@
   <div class="editor-layout">
     <!-- CANVAS AREA -->
     <div class="canvas-wrapper">
-      <div #editorContainer class="konva-wrapper"></div>
+      <div
+        #editorContainer
+        class="konva-wrapper"
+        [style.cursor]="drawMode() !== 'off' ? 'crosshair' : 'default'"
+      ></div>
       <div class="canvas-hint">
-        <span>Select a sticker to modify</span>
+        <span>{{
+          drawMode() !== 'off'
+            ? 'Drawing mode active — click &amp; drag to draw'
+            : 'Select a sticker to modify'
+        }}</span>
         <button
           mat-stroked-button
           color="warn"
@@ -91,6 +99,71 @@
               </mat-card-content>
             </mat-card>
           }
+        </div>
+      </mat-expansion-panel>
+
+      <!-- DRAW SECTION -->
+      <mat-expansion-panel expanded panelClass="editor-panel">
+        <mat-expansion-panel-header panelClass="editor-panel-header">
+          <mat-panel-title>✏️ Draw</mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="draw-controls">
+          <!-- Tool toggle buttons (mat-flat-button — same pattern as Filters/Frames) -->
+          <div class="draw-tool-row">
+            <button
+              mat-flat-button
+              [color]="drawMode() === 'pen' ? 'primary' : ''"
+              (click)="activateDrawMode('pen')"
+              class="draw-tool-btn"
+              aria-label="Pen tool"
+            >
+              <mat-icon>edit</mat-icon> Pen
+            </button>
+            <button
+              mat-flat-button
+              [color]="drawMode() === 'eraser' ? 'accent' : ''"
+              (click)="activateDrawMode('eraser')"
+              class="draw-tool-btn"
+              aria-label="Eraser tool"
+            >
+              <mat-icon>auto_fix_normal</mat-icon> Eraser
+            </button>
+          </div>
+
+          <!-- Color palette — uses mat-icon-button for the circle swatches -->
+          <div class="draw-section-label">Color</div>
+          <div class="color-palette">
+            @for (color of drawColors; track color) {
+              <button
+                mat-icon-button
+                class="color-swatch"
+                [class.color-swatch--selected]="brushColor() === color"
+                [style.background-color]="color"
+                (click)="setBrushColor(color)"
+                [attr.aria-label]="'Select color ' + color"
+              ></button>
+            }
+            <input
+              type="color"
+              [value]="brushColor()"
+              (input)="onCustomColorChange($event)"
+              class="color-custom-input"
+              title="Custom color"
+              aria-label="Custom color picker"
+            />
+          </div>
+
+          <!-- Brush size — mat-slider, same as used elsewhere in Material apps -->
+          <div class="draw-section-label">Brush Size: {{ brushSize() }}px</div>
+          <mat-slider min="1" max="40" step="1" class="draw-slider" color="primary">
+            <input matSliderThumb [value]="brushSize()" (valueChange)="onBrushSizeChange($event)" />
+          </mat-slider>
+
+          <!-- Clear all drawings -->
+          <button mat-stroked-button color="warn" (click)="clearDrawing()" class="clear-draw-btn">
+            <mat-icon>layers_clear</mat-icon> Clear Drawing
+          </button>
         </div>
       </mat-expansion-panel>
     </div>
