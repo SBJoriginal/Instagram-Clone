@@ -50,7 +50,7 @@ export class ProfileService {
   uploadProfilePicture(file: File): Observable<{ profilePictureUrl: string }> {
     this.logger.info('Uploading profile picture');
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('File', file);
     return this.http
       .post<{ profilePictureUrl: string }>(`${this.apiUrl}/profile-picture`, formData)
       .pipe(

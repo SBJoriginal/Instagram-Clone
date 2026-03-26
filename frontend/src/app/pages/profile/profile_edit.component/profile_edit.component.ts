@@ -20,6 +20,8 @@ import { debounceTime, distinctUntilChanged, take } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
 import { ConfirmDeleteDialogComponent } from './confirm_delete_dialog.component';
 import { ImageUploadService } from '../../../services/image-upload.service';
+import { ImageFilterDialogComponent } from '../../../shared/components/image-filter-dialog/image-filter-dialog.component';
+import { IMAGE_EDITOR_DIALOG_CONFIG } from '../../../config/image-editor.config';
 
 @Component({
   selector: 'app-profile-edit',
@@ -90,11 +92,23 @@ export class ProfileEditComponent implements OnInit {
         return;
       }
 
-      this.selectedFile.set(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         const url = e.target?.result as string;
-        this.tempAvatarUrl.set(url);
+
+        const dialogRef = this.dialog.open(ImageFilterDialogComponent, {
+          width: IMAGE_EDITOR_DIALOG_CONFIG.width,
+          maxWidth: IMAGE_EDITOR_DIALOG_CONFIG.maxWidth,
+          maxHeight: IMAGE_EDITOR_DIALOG_CONFIG.maxHeight,
+          data: { imageUrl: url },
+        });
+
+        dialogRef.afterClosed().subscribe((editedFile: File | undefined) => {
+          if (editedFile) {
+            this.selectedFile.set(editedFile);
+            this.tempAvatarUrl.set(URL.createObjectURL(editedFile));
+          }
+        });
       };
       reader.readAsDataURL(file);
     }

@@ -42,7 +42,7 @@ namespace backend.src.Api.Controllers
     }
 
     [HttpPost("refresh")]
-    public async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenRequestDto request)
+    public IActionResult RefreshTokenAsync([FromBody] RefreshTokenRequestDto request)
     {
       var authHeader = HttpContext.Request.Headers["Authorization"].ToString();
       var accessToken = authHeader.Replace("Bearer ", "");
@@ -53,7 +53,7 @@ namespace backend.src.Api.Controllers
 
     [HttpPost("logout")]
     [Authorize]
-    public async Task<IActionResult> Logout()
+    public IActionResult Logout()
     {
       return Ok(new { message = "Logout successful. Please discard your token." });
     }
