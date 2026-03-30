@@ -13,11 +13,13 @@ namespace Api.Controllers
   {
     private readonly IImageService _imageService;
     private readonly ILogger<ImagesController> _logger;
+    private readonly IAnalyticsService _analyticsService;
 
-    public ImagesController(IImageService imageService, ILogger<ImagesController> logger)
+    public ImagesController(IImageService imageService, ILogger<ImagesController> logger, IAnalyticsService analyticsService)
     {
       _imageService = imageService;
       _logger = logger;
+      _analyticsService = analyticsService;
     }
 
     [Authorize]
@@ -31,6 +33,7 @@ namespace Api.Controllers
         return Unauthorized();
 
       var result = await _imageService.UploadImageAsync(upload, userId);
+      await _analyticsService.TrackEventAsync("photo_uploaded");
       return CreatedAtAction(nameof(GetImages), new { id = result.Id }, result);
     }
 
@@ -94,6 +97,7 @@ namespace Api.Controllers
       var result = await _imageService.UpdateImageAsync(id, update, currentUserId);
       if (result == null)
         return NotFound();
+      await _analyticsService.TrackEventAsync("photo_updated");
       return Ok(result);
     }
 
@@ -109,6 +113,7 @@ namespace Api.Controllers
       var result = await _imageService.DeleteImageAsync(id, currentUserId);
       if (result == null)
         return NotFound();
+      await _analyticsService.TrackEventAsync("photo_deleted");
       return NoContent();
     }
 

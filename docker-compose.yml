@@ -37,6 +37,7 @@ services:
       - S3__BucketName=${S3_BUCKET_NAME}
       - Google__ClientId=${GOOGLE_CLIENT_ID}
       - SENTRY_DSN=${SENTRY_DSN}
+      - GoogleAnalytics__ApiSecret=${GA_API_SECRET}
     ports:
       - "8081:8080"
     volumes:

@@ -13,6 +13,7 @@ import { startWith, switchMap, debounceTime, distinctUntilChanged, map } from 'r
 import { Subject, of } from 'rxjs';
 import { ImageUploadService } from '../../../services/image-upload.service';
 import { UserService } from '../../../services/user.service';
+import { AnalyticsService } from '../../../services/analytics.service';
 
 export type SearchType = 'images' | 'users';
 export type ImageFilter = 'description' | 'hashtag' | null;
@@ -40,6 +41,7 @@ export class ExploreHeaderComponent {
 
   private readonly imageService = inject(ImageUploadService);
   private readonly userService = inject(UserService);
+  private readonly analyticsService = inject(AnalyticsService);
 
   protected searchQuery = '';
   protected readonly currentFilter = signal<ImageFilter>(null);
@@ -88,6 +90,10 @@ export class ExploreHeaderComponent {
       const words = query.split(/\s+/).filter((w) => w.length > 0);
       query = words.map((word) => (word.startsWith('#') ? word : '#' + word)).join(' ');
       this.searchQuery = query;
+    }
+
+    if (this.searchQuery.length > 0) {
+      this.analyticsService.trackEvent('search_performed', { search_term: this.searchQuery });
     }
 
     if (this.currentSearchType() === 'users') {

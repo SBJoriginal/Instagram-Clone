@@ -15,6 +15,7 @@ import { CommonModule, Location } from '@angular/common';
 import { ReactionService } from '../../services/reaction.service';
 import { LogService } from '../../services/log.service';
 import { UserService } from '../../services/user.service';
+import { AnalyticsService } from '../../services/analytics.service';
 
 @Component({
   selector: 'app-image-detail',
@@ -43,6 +44,7 @@ export class ImageDetail implements OnInit {
   private readonly location = inject(Location);
   private readonly commentService = inject(CommentService);
   private readonly reactionService = inject(ReactionService);
+  private readonly analyticsService = inject(AnalyticsService);
 
   image: ImageResponse | null = null;
   loading = true;
@@ -69,6 +71,7 @@ export class ImageDetail implements OnInit {
       next: (data) => {
         this.image = data;
         this.loading = false;
+        this.analyticsService.trackEvent('image_viewed', { image_id: id });
         this.loadComments();
         this.cdr.detectChanges();
       },
