@@ -58,8 +58,9 @@ namespace backend.src.Api.Controllers
 
     [HttpPost("logout")]
     [Authorize]
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout()
     {
+      await _analyticsService.TrackEventAsync("logout");
       return Ok(new { message = "Logout successful. Please discard your token." });
     }
 
@@ -73,6 +74,7 @@ namespace backend.src.Api.Controllers
         return Unauthorized();
 
       await _authService.DeleteAccountAsync(userId);
+      await _analyticsService.TrackEventAsync("account_deleted");
       return NoContent();
     }
   }
