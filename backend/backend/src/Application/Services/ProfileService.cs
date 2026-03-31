@@ -11,6 +11,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.ComponentModel.DataAnnotations;
 using UGram.src.Application.Configuration;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using Microsoft.AspNetCore.Http;
 
 namespace UGram.src.Application.Services
 {
@@ -200,7 +203,30 @@ namespace UGram.src.Application.Services
       ValidateImageFile(file);
       _logger.LogInformation("Uploading profile picture for user {UserId}", userId);
 
-      string imagePath = await _imageStorageService.SaveImageAsync(file, "images");
+      using var inputStream = file.OpenReadStream();
+      using var outputStream = new MemoryStream();
+      using (var imageProcessor = await SixLabors.ImageSharp.Image.LoadAsync(inputStream))
+      {
+        int maxWidth = 1000;
+        int maxHeight = 1000;
+        if (imageProcessor.Width > maxWidth || imageProcessor.Height > maxHeight)
+        {
+          imageProcessor.Mutate(x => x.Resize(new SixLabors.ImageSharp.Processing.ResizeOptions
+          {
+            Size = new SixLabors.ImageSharp.Size(maxWidth, maxHeight),
+            Mode = SixLabors.ImageSharp.Processing.ResizeMode.Max
+          }));
+        }
+        await imageProcessor.SaveAsJpegAsync(outputStream, new SixLabors.ImageSharp.Formats.Jpeg.JpegEncoder { Quality = 80 });
+      }
+      outputStream.Position = 0;
+      var filteredFile = new FormFile(outputStream, 0, outputStream.Length, file.Name, file.FileName)
+      {
+        Headers = file.Headers,
+        ContentType = "image/jpeg"
+      };
+
+      string imagePath = await _imageStorageService.SaveImageAsync(filteredFile, "images");
 
       if (!string.IsNullOrEmpty(userProfile.ProfilePictureUrl))
       {
@@ -217,7 +243,7 @@ namespace UGram.src.Application.Services
 
       userProfile.ProfilePictureUrl = imagePath;
 
-      var image = new Image
+      var image = new global::Domain.Entities.Image
       {
         FileName = Path.GetFileName(imagePath),
         ContentType = file.ContentType,
@@ -449,5 +475,6 @@ namespace UGram.src.Application.Services
 
       return usernames;
     }
+
   }
 }

@@ -1,6 +1,6 @@
 import { Component, inject, ChangeDetectionStrategy, signal, computed } from '@angular/core';
 import { ProfileHeader } from './profile_header.component/profile_header.component';
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,14 +14,22 @@ import {
   ImageUpdateData,
 } from '../../services/image-upload.service';
 import { ProfileService } from '../../services/profile.service';
-import { TokenService } from '../../services/token.service';
+import { ReactionService } from '../../services/reaction.service';
 import { BehaviorSubject, switchMap, merge, of } from 'rxjs';
 import { ImageEditDialog } from '../../image-edit-dialog/image-edit-dialog';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [ProfileHeader, AsyncPipe, MatCardModule, MatMenuModule, MatButtonModule, MatIconModule],
+  imports: [
+    ProfileHeader,
+    AsyncPipe,
+    CommonModule,
+    MatCardModule,
+    MatMenuModule,
+    MatButtonModule,
+    MatIconModule,
+  ],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,10 +40,10 @@ import { ImageEditDialog } from '../../image-edit-dialog/image-edit-dialog';
 export class Profile {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly tokenService = inject(TokenService);
   private readonly profileService = inject(ProfileService);
   readonly dialog = inject(MatDialog);
   readonly imageUploadService = inject(ImageUploadService);
+  private readonly reactionService = inject(ReactionService);
   protected readonly baseUrl = environment.apiUrl.replace('/api', '');
 
   protected readonly username = signal<string | null>(null);
@@ -118,5 +126,20 @@ export class Profile {
         this.refresh$.next();
       });
     }
+  }
+
+  onToggleReaction(event: Event, image: ImageResponse): void {
+    event.stopPropagation();
+    this.reactionService.toggleReaction(image.id).subscribe({
+      next: () => {
+        // Find the image in the current list and update it
+        // Since images is an observable, we need to refresh or update locally
+        // Updating locally is better for UX
+        this.refresh$.next(); // For now, refreshing is easier since it's a pipe
+      },
+      error: (err) => {
+        console.error('Failed to toggle reaction:', err);
+      },
+    });
   }
 }

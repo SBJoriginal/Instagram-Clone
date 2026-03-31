@@ -8,4 +8,9 @@ export interface ImagePost {
   mentions: string;
   filePath: string;
   createdAt: string;
+  reactionCount: number;
+  hasReacted: boolean;
+  commentCount: number;
+  userId: string;
+  username: string;
 }

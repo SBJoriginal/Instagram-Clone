@@ -12,8 +12,10 @@ import {
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ImageUploadService, ImageResponse } from '../../services/image-upload.service';
+import { ReactionService } from '../../services/reaction.service';
 import {
   ExploreHeaderComponent,
   SearchType,
@@ -30,6 +32,7 @@ import { Subscription } from 'rxjs';
     RouterModule,
     MatProgressSpinnerModule,
     MatIconModule,
+    MatButtonModule,
     ExploreHeaderComponent,
     UserListComponent,
   ],
@@ -42,6 +45,7 @@ import { Subscription } from 'rxjs';
 })
 export class Explore implements OnInit, AfterViewInit, OnDestroy {
   private readonly imageService = inject(ImageUploadService);
+  private readonly reactionService = inject(ReactionService);
   private readonly router = inject(Router);
   private uploadSubscription?: Subscription;
 
@@ -140,5 +144,35 @@ export class Explore implements OnInit, AfterViewInit, OnDestroy {
 
   openImage(image: ImageResponse): void {
     this.router.navigate(['/image', image.id]);
+  }
+
+  onToggleReaction(event: Event, image: ImageResponse): void {
+    event.stopPropagation();
+    this.reactionService.toggleReaction(image.id).subscribe({
+      next: (res) => {
+        this.images.update((current) =>
+          current.map((img) => {
+            if (img.id === image.id) {
+              return {
+                ...img,
+                hasReacted: res.isReacted,
+                reactionCount: res.isReacted ? img.reactionCount + 1 : img.reactionCount - 1,
+              };
+            }
+            return img;
+          }),
+        );
+      },
+      error: () => {
+        // Handle error if needed
+      },
+    });
+  }
+
+  formatImageUrl(path: string): string {
+    if (!path) return '';
+    if (path.startsWith('http') || path.startsWith('data:')) return path;
+    const cleanPath = path.replace(/\\/g, '/');
+    return `http://localhost:8081/${cleanPath}`;
   }
 }

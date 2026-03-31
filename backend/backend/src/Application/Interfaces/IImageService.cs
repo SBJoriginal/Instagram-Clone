@@ -6,9 +6,9 @@ namespace UGram.src.Application.Interfaces
   {
     Task<ImageUploadResponseDto> UploadImageAsync(ImageUploadRequestDto upload, string userId);
 
-    Task<IEnumerable<ImageResponseDto>> GetAllImagesAsync(string? userId = null);
+    Task<IEnumerable<ImageResponseDto>> GetAllImagesAsync(string? userId = null, string? currentUserId = null);
 
-    Task<ImageResponseDto?> GetImageByIdAsync(int id);
+    Task<ImageResponseDto?> GetImageByIdAsync(int id, string? currentUserId = null);
     Task<IEnumerable<ImageResponseDto>> SearchImagesAsync(string filterType, string query, int page, int pageSize);
 
     Task<IEnumerable<string>> GetAutocompleteAsync(string filterType, string query);
@@ -17,6 +17,6 @@ namespace UGram.src.Application.Interfaces
 
     Task<bool?> DeleteImageAsync(int id, string currentUserId);
 
-    Task<IEnumerable<ImageResponseDto>> GetImagesByUsernameAsync(string username);
+    Task<IEnumerable<ImageResponseDto>> GetImagesByUsernameAsync(string username, string? currentUserId = null);
   }
 }

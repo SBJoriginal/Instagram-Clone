@@ -41,6 +41,10 @@ describe('ImageUploadService', () => {
       mentions: '@user',
       userId: 'test-user',
       createdAt: new Date().toISOString(),
+      reactionCount: 0,
+      hasReacted: false,
+      commentCount: 0,
+      profilePictureUrl: '',
     };
 
     service.uploadImage(mockData).subscribe((response) => {
@@ -64,6 +68,9 @@ describe('ImageUploadService', () => {
         mentions: '',
         userId: 'user1',
         createdAt: new Date().toISOString(),
+        reactionCount: 0,
+        hasReacted: false,
+        commentCount: 0,
       },
       {
         id: 2,
@@ -73,6 +80,9 @@ describe('ImageUploadService', () => {
         mentions: '',
         userId: 'user2',
         createdAt: new Date().toISOString(),
+        reactionCount: 0,
+        hasReacted: false,
+        commentCount: 0,
       },
     ];
 
@@ -101,6 +111,10 @@ describe('ImageUploadService', () => {
       mentions: '@updated',
       userId: 'test-user',
       createdAt: new Date().toISOString(),
+      reactionCount: 0,
+      hasReacted: false,
+      commentCount: 0,
+      profilePictureUrl: '',
     };
 
     service.updateImage(1, updateData).subscribe((response) => {

@@ -18,6 +18,10 @@ export interface ImageResponse {
   fileName?: string;
   contentType?: string;
   size?: number;
+  reactionCount: number;
+  hasReacted: boolean;
+  commentCount: number;
+  profilePictureUrl?: string;
 }
 
 export interface ImageUpdateData {

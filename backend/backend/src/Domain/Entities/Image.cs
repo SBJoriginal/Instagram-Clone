@@ -29,4 +29,7 @@ public class Image
 
   [Required]
   public string UserId { get; set; } = string.Empty;
+
+  public virtual ICollection<Reaction> Reactions { get; set; } = new List<Reaction>();
+  public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
 }

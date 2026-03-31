@@ -8,6 +8,7 @@ import {
   OnInit,
   inject,
 } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -27,6 +28,8 @@ import { ProfileService } from '../services/profile.service';
 import { environment } from '../../environments/environment';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { ImageCompressionService } from '../services/image-compression.service';
+import { ImageFilterDialogComponent } from '../shared/components/image-filter-dialog/image-filter-dialog.component';
+import { IMAGE_EDITOR_DIALOG_CONFIG } from '../config/image-editor.config';
 
 export interface ImageUploadData {
   file: File;
@@ -75,6 +78,7 @@ export class ImageUploadComponent implements OnInit {
   private readonly mentionPipe = inject(MentionPipe);
   private readonly fileSizePipe = inject(FileSizePipe);
   private readonly compressionService = inject(ImageCompressionService);
+  private readonly dialog = inject(MatDialog);
 
   private existingUsernames = new Set<string>();
   private currentUsername: string | null = null;
@@ -282,14 +286,23 @@ export class ImageUploadComponent implements OnInit {
       return;
     }
 
-    this.selectedFile.set(file);
-    this.createPreview(file);
-  }
-
-  private createPreview(file: File): void {
     const reader = new FileReader();
     reader.onload = (e) => {
-      this.previewUrl.set(e.target?.result as string);
+      const url = e.target?.result as string;
+
+      const dialogRef = this.dialog.open(ImageFilterDialogComponent, {
+        width: IMAGE_EDITOR_DIALOG_CONFIG.width,
+        maxWidth: IMAGE_EDITOR_DIALOG_CONFIG.maxWidth,
+        maxHeight: IMAGE_EDITOR_DIALOG_CONFIG.maxHeight,
+        data: { imageUrl: url },
+      });
+
+      dialogRef.afterClosed().subscribe((editedFile: File | undefined) => {
+        if (editedFile) {
+          this.selectedFile.set(editedFile);
+          this.previewUrl.set(URL.createObjectURL(editedFile));
+        }
+      });
     };
     reader.readAsDataURL(file);
   }

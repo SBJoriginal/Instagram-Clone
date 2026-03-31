@@ -1,0 +1,103 @@
+<div class="editor-header">
+  <h2 mat-dialog-title>📸 Edit Photo</h2>
+  <button mat-icon-button (click)="onCancel()" class="close-button">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content>
+  <div class="editor-layout">
+    <!-- CANVAS AREA -->
+    <div class="canvas-wrapper">
+      <div #editorContainer class="konva-wrapper"></div>
+      <div class="canvas-hint">
+        <span>Select a sticker to modify</span>
+        <button
+          mat-stroked-button
+          color="warn"
+          [disabled]="!hasSelectedSticker()"
+          (click)="deleteSelectedSticker()"
+        >
+          <mat-icon>delete</mat-icon> Delete
+        </button>
+      </div>
+    </div>
+
+    <!-- SIDEBAR WITH TOOLS -->
+    <div class="editor-sidebar">
+      <!-- FRAMES SECTION -->
+      <mat-expansion-panel expanded panelClass="editor-panel">
+        <mat-expansion-panel-header panelClass="editor-panel-header">
+          <mat-panel-title>🖼️ Frames</mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <mat-grid-list cols="2" rowHeight="40px" gutterSize="8px" class="editor-grid-list">
+          @for (f of frames; track f.value) {
+            <mat-grid-tile>
+              <button
+                mat-flat-button
+                [color]="selectedFrame === f.value ? 'primary' : ''"
+                (click)="applyFrame(f.value)"
+                class="full-width-button"
+              >
+                {{ f.name }}
+              </button>
+            </mat-grid-tile>
+          }
+        </mat-grid-list>
+      </mat-expansion-panel>
+
+      <!-- FILTERS SECTION -->
+      <mat-expansion-panel expanded panelClass="editor-panel">
+        <mat-expansion-panel-header panelClass="editor-panel-header">
+          <mat-panel-title>✨ Filters</mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <mat-grid-list cols="2" rowHeight="40px" gutterSize="8px" class="editor-grid-list">
+          @for (f of filters; track f.value) {
+            <mat-grid-tile>
+              <button
+                mat-flat-button
+                [color]="selectedFilter === f.value ? 'primary' : ''"
+                (click)="applyFilter(f.value)"
+                class="full-width-button"
+              >
+                {{ f.name }}
+              </button>
+            </mat-grid-tile>
+          }
+        </mat-grid-list>
+      </mat-expansion-panel>
+
+      <!-- STICKERS SECTION -->
+      <mat-expansion-panel expanded panelClass="editor-panel">
+        <mat-expansion-panel-header panelClass="editor-panel-header">
+          <mat-panel-title>🎭 Stickers</mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="stickers-grid">
+          @for (s of stickers; track s.url) {
+            <mat-card
+              (click)="addSticker(s.url)"
+              (keydown.enter)="addSticker(s.url)"
+              tabindex="0"
+              role="button"
+              class="sticker-card"
+              matRipple
+            >
+              <mat-card-content class="sticker-card-content">
+                <img [src]="s.url" [alt]="s.name" />
+                <span>{{ s.name }}</span>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      </mat-expansion-panel>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSaveClick()">Apply Changes</button>
+</mat-dialog-actions>

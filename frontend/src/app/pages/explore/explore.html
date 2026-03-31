@@ -17,8 +17,39 @@
         @for (image of images(); track image.id) {
           <button type="button" class="grid-item-button" (click)="openImage(image)">
             <div class="grid-item">
-              <img [src]="image.filePath" [alt]="image.description" loading="lazy" />
-              <div class="overlay"><mat-icon>visibility</mat-icon></div>
+              <img
+                [src]="formatImageUrl(image.filePath)"
+                [alt]="image.description"
+                loading="lazy"
+              />
+              <div class="overlay">
+                <mat-icon>visibility</mat-icon>
+                <div
+                  class="icon-container reaction-container"
+                  (click)="$event.stopPropagation()"
+                  (keyup.enter)="$event.stopPropagation()"
+                  role="presentation"
+                >
+                  <button
+                    mat-icon-button
+                    class="reaction-button"
+                    [class.reacted]="image.hasReacted"
+                    (click)="onToggleReaction($event, image)"
+                    [aria-label]="image.hasReacted ? 'Remove like' : 'Like'"
+                  >
+                    <mat-icon>{{ image.hasReacted ? 'favorite' : 'favorite_border' }}</mat-icon>
+                  </button>
+                  @if (image.reactionCount > 0) {
+                    <span class="reaction-count">{{ image.reactionCount }}</span>
+                  }
+                </div>
+                <div class="icon-container comment-icon-container">
+                  <mat-icon>chat_bubble_outline</mat-icon>
+                  @if (image.commentCount > 0) {
+                    <span class="comment-count-badge">{{ image.commentCount }}</span>
+                  }
+                </div>
+              </div>
             </div>
           </button>
         }
