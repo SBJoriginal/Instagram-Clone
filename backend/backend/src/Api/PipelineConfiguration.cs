@@ -24,10 +24,11 @@ namespace UGram.src.Api
         await next();
       });
 
+      app.UseSwagger();
+      app.UseSwaggerUI();
+
       if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Docker")
       {
-        app.UseSwagger();
-        app.UseSwaggerUI();
         app.MigrateDatabase();
       }
 
