@@ -22,7 +22,8 @@ namespace Backend.Tests
 
       _controller = new ImagesController(
           _mockImageService.Object,
-          new Mock<ILogger<ImagesController>>().Object);
+          new Mock<ILogger<ImagesController>>().Object,
+          new Mock<IAnalyticsService>().Object);
 
       // Mock the User Claims to prevent NullReferenceException when checking ownership
       var claims = new List<Claim>
