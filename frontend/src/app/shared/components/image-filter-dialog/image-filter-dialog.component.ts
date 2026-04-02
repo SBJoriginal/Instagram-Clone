@@ -88,7 +88,6 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
 
   private _isDrawing = false;
   private _currentLine: Konva.Line | null = null;
-
   // Data from config
   stickers = STICKERS;
   filters = FILTERS;
@@ -144,7 +143,6 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
 
     this.drawingLayer = new Konva.Layer();
     this.stage.add(this.drawingLayer);
-
     this.transformer = new Konva.Transformer({
       rotateAnchorCursor: 'grab',
       borderStroke: '#3f51b5',
@@ -366,7 +364,6 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
     this.drawingLayer.destroyChildren();
     this.drawingLayer.draw();
   }
-
   // ─── Filters ──────────────────────────────────────────────────────────────
 
   applyFilter(filterType: string) {
