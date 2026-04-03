@@ -39,4 +39,13 @@ public class ReactionsController : ControllerBase
       return NotFound(ex.Message);
     }
   }
+
+  [Authorize]
+  [EnableRateLimiting("InteractionPolicy")]
+  [HttpGet("users")]
+  public async Task<IActionResult> GetUsersWhoReacted(int imageId)
+  {
+    var users = await _reactionService.GetUsersWhoReactedAsync(imageId);
+    return Ok(users);
+  }
 }

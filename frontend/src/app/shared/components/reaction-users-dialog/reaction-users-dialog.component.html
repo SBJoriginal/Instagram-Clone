@@ -1,0 +1,36 @@
+<h2 mat-dialog-title>Likes</h2>
+
+<mat-dialog-content>
+  @if (loading) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else {
+    @if (users.length === 0) {
+      <p class="empty-state">No likes yet.</p>
+    } @else {
+      <mat-list>
+        @for (user of users; track user.id) {
+          <mat-list-item (click)="navigateToProfile(user.userName)" class="user-item">
+            <span matListItemAvatar class="avatar-container">
+              @if (user.profilePictureUrl) {
+                <img
+                  [src]="formatImageUrl(user.profilePictureUrl)"
+                  [alt]="user.userName"
+                  class="avatar-img"
+                />
+              } @else {
+                <mat-icon>account_circle</mat-icon>
+              }
+            </span>
+            <span matListItemTitle>{{ user.userName }}</span>
+          </mat-list-item>
+        }
+      </mat-list>
+    }
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Close</button>
+</mat-dialog-actions>

@@ -16,6 +16,8 @@ import { ReactionService } from '../../services/reaction.service';
 import { LogService } from '../../services/log.service';
 import { UserService } from '../../services/user.service';
 import { AnalyticsService } from '../../services/analytics.service';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ReactionUsersDialogComponent } from '../../shared/components/reaction-users-dialog/reaction-users-dialog.component';
 
 @Component({
   selector: 'app-image-detail',
@@ -30,6 +32,7 @@ import { AnalyticsService } from '../../services/analytics.service';
     MatInputModule,
     MatButtonModule,
     FormsModule,
+    MatDialogModule,
   ],
   templateUrl: './image-detail.html',
   styleUrl: './image-detail.css',
@@ -45,6 +48,7 @@ export class ImageDetail implements OnInit {
   private readonly commentService = inject(CommentService);
   private readonly reactionService = inject(ReactionService);
   private readonly analyticsService = inject(AnalyticsService);
+  private readonly dialog = inject(MatDialog);
 
   image: ImageResponse | null = null;
   loading = true;
@@ -178,6 +182,16 @@ export class ImageDetail implements OnInit {
       error: (err) => {
         console.error('Failed to toggle reaction:', err);
       },
+    });
+  }
+
+  openReactionUsersDialog(): void {
+    if (!this.image || !this.image.reactionCount) return;
+
+    this.dialog.open(ReactionUsersDialogComponent, {
+      data: { imageId: this.image.id },
+      width: '400px',
+      maxHeight: '80vh',
     });
   }
 
