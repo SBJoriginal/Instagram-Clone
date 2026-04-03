@@ -15,6 +15,7 @@ import {
 } from '../../services/image-upload.service';
 import { ProfileService } from '../../services/profile.service';
 import { ReactionService } from '../../services/reaction.service';
+import { AnalyticsService } from '../../services/analytics.service';
 import { BehaviorSubject, switchMap, merge, of } from 'rxjs';
 import { ImageEditDialog } from '../../image-edit-dialog/image-edit-dialog';
 
@@ -44,6 +45,7 @@ export class Profile {
   readonly dialog = inject(MatDialog);
   readonly imageUploadService = inject(ImageUploadService);
   private readonly reactionService = inject(ReactionService);
+  private readonly analyticsService = inject(AnalyticsService);
   protected readonly baseUrl = environment.apiUrl.replace('/api', '');
 
   protected readonly username = signal<string | null>(null);
@@ -78,6 +80,7 @@ export class Profile {
         this.profileService.getUserProfileByUsername(uname).subscribe({
           next: (profile) => {
             this.isDeletedAccount.set(profile.isDeleted === true);
+            this.analyticsService.trackEvent('profile_visited', { username: uname });
             this.refresh$.next();
           },
           error: () => {

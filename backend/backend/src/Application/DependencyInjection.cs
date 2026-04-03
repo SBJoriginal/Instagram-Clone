@@ -34,6 +34,7 @@ namespace UGram.src.Application
       services.AddScoped<ICommentService, CommentService>();
       services.AddScoped<INotificationService, NotificationService>();
       services.AddScoped<IHealthService, HealthService>();
+      services.AddHttpClient<IAnalyticsService, AnalyticsService>();
     }
   }
 }

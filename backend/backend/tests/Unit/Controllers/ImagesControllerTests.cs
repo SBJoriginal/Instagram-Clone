@@ -24,19 +24,18 @@ namespace UGram.Tests.Unit.Controllers
       _mockImageService = new Mock<IImageService>();
 
       _controller = new ImagesController(
-          _mockImageService.Object,
-          new Mock<ILogger<ImagesController>>().Object);
+        _mockImageService.Object,
+        new Mock<ILogger<ImagesController>>().Object,
+        new Mock<IAnalyticsService>().Object
+      );
 
-      var claims = new List<Claim>
-      {
-          new Claim(ClaimTypes.NameIdentifier, TestUserId)
-      };
+      var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, TestUserId) };
       var identity = new ClaimsIdentity(claims, "TestAuth");
       var principal = new ClaimsPrincipal(identity);
 
       _controller.ControllerContext = new ControllerContext
       {
-        HttpContext = new DefaultHttpContext { User = principal }
+        HttpContext = new DefaultHttpContext { User = principal },
       };
     }
 
@@ -49,13 +48,14 @@ namespace UGram.Tests.Unit.Controllers
         File = fileMock.Object,
         Description = "Test",
         Hashtags = "#test",
-        Mentions = "@test"
+        Mentions = "@test",
       };
 
       var imageResult = new ImageUploadResponseDto { Id = 1, FilePath = "/path" };
 
-      _mockImageService.Setup(s => s.UploadImageAsync(It.IsAny<ImageUploadRequestDto>(), It.IsAny<string>()))
-          .ReturnsAsync(imageResult);
+      _mockImageService
+        .Setup(s => s.UploadImageAsync(It.IsAny<ImageUploadRequestDto>(), It.IsAny<string>()))
+        .ReturnsAsync(imageResult);
 
       var result = await _controller.Upload(uploadDto);
 
@@ -68,14 +68,11 @@ namespace UGram.Tests.Unit.Controllers
     public async Task Update_ReturnsOk_WhenImageExists()
     {
       var updateDto = new ImageUpdateDto { Description = "New" };
-      var responseDto = new ImageResponseDto
-      {
-        Id = 1,
-        Description = "New"
-      };
+      var responseDto = new ImageResponseDto { Id = 1, Description = "New" };
 
-      _mockImageService.Setup(s => s.UpdateImageAsync(1, It.IsAny<ImageUpdateDto>(), TestUserId))
-          .ReturnsAsync(responseDto);
+      _mockImageService
+        .Setup(s => s.UpdateImageAsync(1, It.IsAny<ImageUpdateDto>(), TestUserId))
+        .ReturnsAsync(responseDto);
 
       var result = await _controller.Update(1, updateDto);
 
@@ -87,8 +84,9 @@ namespace UGram.Tests.Unit.Controllers
     [Fact]
     public async Task Update_ReturnsNotFound_WhenImageDoesNotExist()
     {
-      _mockImageService.Setup(s => s.UpdateImageAsync(999, It.IsAny<ImageUpdateDto>(), TestUserId))
-          .ReturnsAsync((ImageResponseDto?)null);
+      _mockImageService
+        .Setup(s => s.UpdateImageAsync(999, It.IsAny<ImageUpdateDto>(), TestUserId))
+        .ReturnsAsync((ImageResponseDto?)null);
 
       var result = await _controller.Update(999, new ImageUpdateDto());
 
@@ -98,8 +96,7 @@ namespace UGram.Tests.Unit.Controllers
     [Fact]
     public async Task Delete_ReturnsNoContent_WhenImageExists()
     {
-      _mockImageService.Setup(s => s.DeleteImageAsync(2, TestUserId))
-          .ReturnsAsync(true);
+      _mockImageService.Setup(s => s.DeleteImageAsync(2, TestUserId)).ReturnsAsync(true);
 
       var result = await _controller.Delete(2);
 
@@ -109,8 +106,7 @@ namespace UGram.Tests.Unit.Controllers
     [Fact]
     public async Task Delete_ReturnsNotFound_WhenImageDoesNotExist()
     {
-      _mockImageService.Setup(s => s.DeleteImageAsync(999, TestUserId))
-          .ReturnsAsync((bool?)null);
+      _mockImageService.Setup(s => s.DeleteImageAsync(999, TestUserId)).ReturnsAsync((bool?)null);
 
       var result = await _controller.Delete(999);
 

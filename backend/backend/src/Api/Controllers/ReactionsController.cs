@@ -11,10 +11,12 @@ namespace Api.Controllers;
 public class ReactionsController : ControllerBase
 {
   private readonly IReactionService _reactionService;
+  private readonly IAnalyticsService _analyticsService;
 
-  public ReactionsController(IReactionService reactionService)
+  public ReactionsController(IReactionService reactionService, IAnalyticsService analyticsService)
   {
     _reactionService = reactionService;
+    _analyticsService = analyticsService;
   }
 
   [Authorize]
@@ -28,6 +30,8 @@ public class ReactionsController : ControllerBase
     try
     {
       var isAdded = await _reactionService.ToggleReactionAsync(imageId, userId);
+      if (isAdded)
+        await _analyticsService.TrackEventAsync("reaction_added");
       return Ok(new { isReacted = isAdded });
     }
     catch (KeyNotFoundException ex)

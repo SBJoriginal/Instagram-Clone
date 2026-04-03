@@ -8,11 +8,13 @@ import {
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { IMAGE_CONFIG } from '@angular/common';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { Router, provideRouter } from '@angular/router';
+import { Router, NavigationEnd, provideRouter } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { GlobalErrorHandler } from './core/errors/global-error-handler';
+import { AnalyticsService } from './services/analytics.service';
 import * as Sentry from '@sentry/angular';
 
 export const appConfig: ApplicationConfig = {
@@ -31,6 +33,16 @@ export const appConfig: ApplicationConfig = {
         /* Force initialization of Sentry.TraceService */
       },
       deps: [Sentry.TraceService],
+      multi: true,
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (router: Router, analytics: AnalyticsService) => () => {
+        router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe((e) => {
+          analytics.trackPageView((e as NavigationEnd).urlAfterRedirects);
+        });
+      },
+      deps: [Router, AnalyticsService],
       multi: true,
     },
     provideBrowserGlobalErrorListeners(),

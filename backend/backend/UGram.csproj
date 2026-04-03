@@ -23,16 +23,17 @@
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageReference Include="Google.Apis.Auth" Version="1.68.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.23" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.23" />
+    <PackageReference
+      Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore"
+      Version="8.0.23"
+    />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.23" />
 
-
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" />
-
 
     <PackageReference Include="Sentry.AspNetCore" Version="6.1.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
@@ -59,5 +60,4 @@
     <Folder Include="tests\Integration\Controllers\" />
     <Folder Include="tests\Unit\" />
   </ItemGroup>
-
 </Project>

@@ -12,16 +12,19 @@ namespace backend.src.Api.Controllers
   public class AuthController : ControllerBase
   {
     private readonly IAuthService _authService;
+    private readonly IAnalyticsService _analyticsService;
 
-    public AuthController(IAuthService authService)
+    public AuthController(IAuthService authService, IAnalyticsService analyticsService)
     {
       _authService = authService;
+      _analyticsService = analyticsService;
     }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
     {
       var createdUser = await _authService.RegisterAsync(registerDto);
+      await _analyticsService.TrackEventAsync("sign_up");
       return CreatedAtAction(nameof(Register), new { id = createdUser.Id }, createdUser);
     }
 
@@ -30,6 +33,7 @@ namespace backend.src.Api.Controllers
     public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
     {
       var loginResponse = await _authService.LoginAsync(loginDto);
+      await _analyticsService.TrackEventAsync("login");
       return Ok(loginResponse);
     }
 
@@ -38,6 +42,7 @@ namespace backend.src.Api.Controllers
     public async Task<IActionResult> GoogleLogin([FromBody] GoogleAuthDto googleAuthDto)
     {
       var loginResponse = await _authService.GoogleLoginAsync(googleAuthDto.IdToken);
+      await _analyticsService.TrackEventAsync("login");
       return Ok(loginResponse);
     }
 
@@ -53,8 +58,9 @@ namespace backend.src.Api.Controllers
 
     [HttpPost("logout")]
     [Authorize]
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout()
     {
+      await _analyticsService.TrackEventAsync("logout");
       return Ok(new { message = "Logout successful. Please discard your token." });
     }
 
@@ -68,6 +74,7 @@ namespace backend.src.Api.Controllers
         return Unauthorized();
 
       await _authService.DeleteAccountAsync(userId);
+      await _analyticsService.TrackEventAsync("account_deleted");
       return NoContent();
     }
   }

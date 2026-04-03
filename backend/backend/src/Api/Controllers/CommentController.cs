@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 using UGram.src.Application.DTOs;
+using UGram.src.Application.Interfaces;
 
 namespace Api.Controllers
 {
@@ -12,10 +13,12 @@ namespace Api.Controllers
   public class CommentController : ControllerBase
   {
     private readonly ICommentService _commentService;
+    private readonly IAnalyticsService _analyticsService;
 
-    public CommentController(ICommentService commentService)
+    public CommentController(ICommentService commentService, IAnalyticsService analyticsService)
     {
       _commentService = commentService;
+      _analyticsService = analyticsService;
     }
 
     [Authorize]
@@ -27,6 +30,7 @@ namespace Api.Controllers
       if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
       var comment = await _commentService.AddCommentAsync(userId, createCommentDto);
+      await _analyticsService.TrackEventAsync("comment_added");
       return Ok(comment);
     }
 
