@@ -13,6 +13,7 @@ import {
 import { TokenService } from './token.service';
 import { LogService } from './log.service';
 import { environment } from '../../environments/environment';
+import { NotificationService } from './notification.service';
 
 @Injectable({
   providedIn: 'root',
@@ -22,6 +23,7 @@ export class AuthService {
   private readonly tokenService = inject(TokenService);
   private readonly router = inject(Router);
   private readonly logger = inject(LogService);
+  private readonly notificationService = inject(NotificationService);
 
   private readonly apiUrl = `${environment.apiUrl}/auth`;
 
@@ -32,6 +34,7 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, request).pipe(
       tap((response) => {
         this.tokenService.saveTokens(response.token, response.refreshToken);
+        this.notificationService.startConnection();
       }),
     );
   }
@@ -53,6 +56,7 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/google`, request).pipe(
       tap((response) => {
         this.tokenService.saveTokens(response.token, response.refreshToken);
+        this.notificationService.startConnection();
       }),
     );
   }
@@ -85,6 +89,7 @@ export class AuthService {
   }
 
   logout(): void {
+    this.notificationService.stopConnection();
     this.tokenService.clearTokens();
     this.router.navigate(['/']);
   }

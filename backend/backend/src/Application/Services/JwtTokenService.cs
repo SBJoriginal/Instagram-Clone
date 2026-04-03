@@ -2,8 +2,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using backend.src.Domain.Entities;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace UGram.src.Application.Services
 {
@@ -35,9 +35,15 @@ namespace UGram.src.Application.Services
       var audience = jwtSettings["Audience"];
       var expirationMinutes = int.Parse(jwtSettings["ExpirationMinutes"] ?? "60");
 
-      if (string.IsNullOrEmpty(secretKey) || string.IsNullOrEmpty(issuer) || string.IsNullOrEmpty(audience))
+      if (
+        string.IsNullOrEmpty(secretKey)
+        || string.IsNullOrEmpty(issuer)
+        || string.IsNullOrEmpty(audience)
+      )
       {
-        throw new InvalidOperationException("JWT settings (Secret, Issuer, Audience) must be configured.");
+        throw new InvalidOperationException(
+          "JWT settings (Secret, Issuer, Audience) must be configured."
+        );
       }
 
       var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
@@ -47,7 +53,7 @@ namespace UGram.src.Application.Services
       {
         new Claim(ClaimTypes.NameIdentifier, user.Id),
         new Claim(ClaimTypes.Email, user.Email!),
-        new Claim(ClaimTypes.Name, user.UserName!)
+        new Claim(ClaimTypes.Name, user.UserName!),
       };
 
       var token = new JwtSecurityToken(
@@ -88,20 +94,29 @@ namespace UGram.src.Application.Services
 
       try
       {
-        var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
-        {
-          ValidateIssuerSigningKey = true,
-          IssuerSigningKey = key,
-          ValidateIssuer = true,
-          ValidIssuer = issuer,
-          ValidateAudience = true,
-          ValidAudience = audience,
-          ValidateLifetime = false,
-          ClockSkew = TimeSpan.Zero
-        }, out SecurityToken securityToken);
+        var principal = tokenHandler.ValidateToken(
+          token,
+          new TokenValidationParameters
+          {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = key,
+            ValidateIssuer = true,
+            ValidIssuer = issuer,
+            ValidateAudience = true,
+            ValidAudience = audience,
+            ValidateLifetime = false,
+            ClockSkew = TimeSpan.Zero,
+          },
+          out SecurityToken securityToken
+        );
 
-        if (!(securityToken is JwtSecurityToken jwtSecurityToken) ||
-            !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+        if (
+          !(securityToken is JwtSecurityToken jwtSecurityToken)
+          || !jwtSecurityToken.Header.Alg.Equals(
+            SecurityAlgorithms.HmacSha256,
+            StringComparison.InvariantCultureIgnoreCase
+          )
+        )
         {
           return null;
         }
