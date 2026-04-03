@@ -1,4 +1,12 @@
-import { Component, inject, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  inject,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  OnDestroy,
+  signal,
+} from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -53,9 +61,33 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
 
   private stage!: Konva.Stage;
   private layer!: Konva.Layer;
+  private drawingLayer!: Konva.Layer;
   private transformer!: Konva.Transformer;
   private mainImage!: Konva.Image;
 
+  // ─── Drawing State ────────────────────────────────────────────────────────
+
+  readonly drawMode = signal<'pen' | 'eraser' | 'off'>('off');
+  readonly brushColor = signal<string>('#e53935');
+  readonly brushSize = signal<number>(6);
+
+  readonly drawColors: string[] = [
+    '#e53935',
+    '#e91e63',
+    '#9c27b0',
+    '#3f51b5',
+    '#2196f3',
+    '#009688',
+    '#4caf50',
+    '#ffeb3b',
+    '#ff9800',
+    '#795548',
+    '#ffffff',
+    '#000000',
+  ];
+
+  private _isDrawing = false;
+  private _currentLine: Konva.Line | null = null;
   // Data from config
   stickers = STICKERS;
   filters = FILTERS;
@@ -109,6 +141,8 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
     this.layer = new Konva.Layer();
     this.stage.add(this.layer);
 
+    this.drawingLayer = new Konva.Layer();
+    this.stage.add(this.drawingLayer);
     this.transformer = new Konva.Transformer({
       rotateAnchorCursor: 'grab',
       borderStroke: '#3f51b5',
@@ -147,11 +181,60 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
     imageObj.src = this.data.imageUrl;
 
     this.stage.on('click tap', (e) => {
+      if (this.drawMode() !== 'off') return;
       if (e.target === this.stage || e.target === this.mainImage) {
         this.transformer.nodes([]);
         this.layer.draw();
       }
     });
+
+    this._setupDrawingEvents();
+  }
+
+  private _setupDrawingEvents() {
+    const getPos = () => this.stage.getPointerPosition();
+
+    const startDraw = () => {
+      if (this.drawMode() === 'off') return;
+      const pos = getPos();
+      if (!pos) return;
+      const { x, y, w, h } = this.getImageBounds();
+      if (pos.x < x || pos.x > x + w || pos.y < y || pos.y > y + h) return;
+
+      this._isDrawing = true;
+      const isEraser = this.drawMode() === 'eraser';
+      this._currentLine = new Konva.Line({
+        stroke: isEraser ? 'white' : this.brushColor(),
+        strokeWidth: isEraser ? this.brushSize() * 3 : this.brushSize(),
+        globalCompositeOperation: isEraser ? 'destination-out' : 'source-over',
+        lineCap: 'round',
+        lineJoin: 'round',
+        points: [pos.x, pos.y],
+        listening: false,
+      });
+      this.drawingLayer.add(this._currentLine);
+    };
+
+    const moveDraw = () => {
+      if (!this._isDrawing || !this._currentLine) return;
+      const pos = getPos();
+      if (!pos) return;
+      const { x, y, w, h } = this.getImageBounds();
+      const clampedX = Math.max(x, Math.min(pos.x, x + w));
+      const clampedY = Math.max(y, Math.min(pos.y, y + h));
+      const pts = this._currentLine.points();
+      this._currentLine.points([...pts, clampedX, clampedY]);
+      this.drawingLayer.batchDraw();
+    };
+
+    const endDraw = () => {
+      this._isDrawing = false;
+      this._currentLine = null;
+    };
+
+    this.stage.on('mousedown touchstart', startDraw);
+    this.stage.on('mousemove touchmove', moveDraw);
+    this.stage.on('mouseup touchend', endDraw);
   }
 
   private refreshImageScale() {
@@ -251,6 +334,36 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  // ─── Drawing Controls ────────────────────────────────────────────────────
+
+  activateDrawMode(mode: 'pen' | 'eraser'): void {
+    if (this.drawMode() === mode) {
+      this.drawMode.set('off');
+    } else {
+      this.drawMode.set(mode);
+      // Deselect stickers so they don't interfere
+      this.transformer.nodes([]);
+      this.layer.draw();
+    }
+  }
+
+  setBrushColor(color: string): void {
+    this.brushColor.set(color);
+  }
+
+  onCustomColorChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.brushColor.set(input.value);
+  }
+
+  onBrushSizeChange(value: number): void {
+    this.brushSize.set(value);
+  }
+
+  clearDrawing(): void {
+    this.drawingLayer.destroyChildren();
+    this.drawingLayer.draw();
+  }
   // ─── Filters ──────────────────────────────────────────────────────────────
 
   applyFilter(filterType: string) {
@@ -534,7 +647,9 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
 
   onSaveClick() {
     this.transformer.nodes([]);
+    this.drawMode.set('off');
     this.layer.draw();
+    this.drawingLayer.draw();
 
     const { x, y, w, h } = this.getImageBounds();
     const padding = 30;

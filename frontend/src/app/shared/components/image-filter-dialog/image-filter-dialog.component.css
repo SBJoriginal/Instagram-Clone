@@ -195,3 +195,91 @@
     grid-template-columns: 1fr 1fr 1fr;
   }
 }
+
+/* ─── Draw Section ──────────────────────────────────────────────────────────── */
+
+.draw-controls {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  gap: 8px;
+}
+
+.draw-tool-row {
+  display: flex;
+  gap: 8px;
+}
+
+.draw-tool-btn {
+  flex: 1;
+}
+
+.draw-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888;
+  margin-top: 4px;
+}
+
+.color-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.color-swatch {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  border-radius: 50% !important;
+  border: 2px solid transparent !important;
+  padding: 0 !important;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.color-swatch:hover {
+  transform: scale(1.15);
+}
+
+.color-swatch--selected {
+  border-color: #3f51b5 !important;
+  transform: scale(1.2);
+  box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.35);
+}
+
+.color-custom-input {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  cursor: pointer;
+  padding: 0;
+  background: none;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.color-custom-input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.color-custom-input::-webkit-color-swatch {
+  border: none;
+  border-radius: 50%;
+}
+
+.draw-slider {
+  width: 100%;
+}
+
+.clear-draw-btn {
+  width: 100%;
+  margin-top: 4px;
+}
