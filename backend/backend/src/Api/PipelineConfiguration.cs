@@ -1,8 +1,9 @@
 using Infrastructure.Persistence;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Options;
+using UGram.src.Api.Hubs;
 using UGram.src.Application.Configuration;
 
 namespace UGram.src.Api
@@ -17,12 +18,14 @@ namespace UGram.src.Api
       app.UseExceptionHandler();
 
       // Security Headers for Google OAuth / GSI
-      app.Use(async (context, next) =>
-      {
-        context.Response.Headers.Append("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
-        context.Response.Headers.Append("Cross-Origin-Embedder-Policy", "require-corp");
-        await next();
-      });
+      app.Use(
+        async (context, next) =>
+        {
+          context.Response.Headers.Append("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+          context.Response.Headers.Append("Cross-Origin-Embedder-Policy", "require-corp");
+          await next();
+        }
+      );
 
       app.UseSwagger();
       app.UseSwaggerUI();
@@ -32,7 +35,9 @@ namespace UGram.src.Api
         app.MigrateDatabase();
       }
 
-      var fileUploadSettings = app.Services.GetRequiredService<IOptions<FileUploadSettings>>().Value;
+      var fileUploadSettings = app
+        .Services.GetRequiredService<IOptions<FileUploadSettings>>()
+        .Value;
       var provider = new FileExtensionContentTypeProvider();
 
       foreach (var mimeType in fileUploadSettings.ImageMimeTypes)
@@ -40,10 +45,7 @@ namespace UGram.src.Api
         provider.Mappings[mimeType.Key] = mimeType.Value;
       }
 
-      app.UseStaticFiles(new StaticFileOptions
-      {
-        ContentTypeProvider = provider
-      });
+      app.UseStaticFiles(new StaticFileOptions { ContentTypeProvider = provider });
       app.ConfigureUploadsFolder();
       app.UseRouting();
       app.UseCors("AllowAll");
@@ -51,6 +53,7 @@ namespace UGram.src.Api
       app.UseAuthentication();
       app.UseAuthorization();
       app.MapControllers();
+      app.MapHub<NotificationHub>("/hubs/notifications");
 
       return app;
     }
@@ -64,11 +67,13 @@ namespace UGram.src.Api
         Directory.CreateDirectory(uploadsPath);
       }
 
-      app.UseStaticFiles(new StaticFileOptions
-      {
-        FileProvider = new PhysicalFileProvider(uploadsPath),
-        RequestPath = UploadsRequestPath
-      });
+      app.UseStaticFiles(
+        new StaticFileOptions
+        {
+          FileProvider = new PhysicalFileProvider(uploadsPath),
+          RequestPath = UploadsRequestPath,
+        }
+      );
     }
 
     private static void MigrateDatabase(this WebApplication app)
@@ -84,7 +89,10 @@ namespace UGram.src.Api
       }
       catch (Exception ex)
       {
-        logger.LogError(ex, "An error occurred while migrating the database. Ensure PostgreSQL is running and the connection string is correct.");
+        logger.LogError(
+          ex,
+          "An error occurred while migrating the database. Ensure PostgreSQL is running and the connection string is correct."
+        );
         throw;
       }
     }

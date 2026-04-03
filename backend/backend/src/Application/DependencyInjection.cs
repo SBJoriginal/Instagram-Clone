@@ -1,10 +1,10 @@
-using UGram.src.Application.Validators;
-using FluentValidation;
-using FluentValidation.AspNetCore;
 using Application.Interfaces;
 using Application.Services;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using UGram.src.Application.Interfaces;
 using UGram.src.Application.Services;
+using UGram.src.Application.Validators;
 
 namespace UGram.src.Application
 {
@@ -32,6 +32,7 @@ namespace UGram.src.Application
       services.AddScoped<IImageService, ImageService>();
       services.AddScoped<IReactionService, ReactionService>();
       services.AddScoped<ICommentService, CommentService>();
+      services.AddScoped<INotificationService, NotificationService>();
       services.AddScoped<IHealthService, HealthService>();
       services.AddHttpClient<IAnalyticsService, AnalyticsService>();
     }

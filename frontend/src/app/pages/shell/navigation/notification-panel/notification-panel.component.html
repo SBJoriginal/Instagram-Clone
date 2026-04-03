@@ -1,0 +1,45 @@
+<div class="panel" role="dialog" aria-label="Notifications">
+  <div class="panel-header">
+    <h3>Notifications</h3>
+    <button mat-icon-button (click)="panelClose.emit()" aria-label="Close notifications">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="panel-body">
+    @if (notificationService.notifications().length === 0) {
+      <div class="empty">
+        <mat-icon class="empty-icon">notifications_none</mat-icon>
+        <p>No notifications yet</p>
+      </div>
+    }
+
+    @for (n of notificationService.notifications(); track n.id) {
+      <div
+        class="notification-item"
+        [class.unread]="!n.isRead"
+        (click)="onNotificationClick(n.id, n.imageId)"
+        role="button"
+        tabindex="0"
+        [attr.aria-label]="n.message"
+      >
+        @if (n.actorProfilePictureUrl) {
+          <img class="avatar" [src]="n.actorProfilePictureUrl" alt="avatar" />
+        } @else {
+          <mat-icon class="avatar-placeholder">account_circle</mat-icon>
+        }
+
+        <div class="content">
+          <p class="message">{{ n.message }}</p>
+          <p class="time">
+            {{ n.createdAt | date: 'shortTime' }} · {{ n.createdAt | date: 'mediumDate' }}
+          </p>
+        </div>
+
+        @if (!n.isRead) {
+          <span class="dot" aria-hidden="true"></span>
+        }
+      </div>
+    }
+  </div>
+</div>
