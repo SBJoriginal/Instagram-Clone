@@ -27,8 +27,6 @@ namespace UGram.src.Api
         }
       );
 
-      app.UseSwagger();
-      app.UseSwaggerUI();
 
       if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Docker")
       {
@@ -49,6 +47,10 @@ namespace UGram.src.Api
       app.ConfigureUploadsFolder();
       app.UseRouting();
       app.UseCors("AllowAll");
+
+      app.UseSwagger();
+      app.UseSwaggerUI();
+
       app.UseRateLimiter();
       app.UseAuthentication();
       app.UseAuthorization();

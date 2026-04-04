@@ -7,6 +7,8 @@
     <UserSecretsId>6cb55bb6-575a-4d11-a09d-8973c46ea609</UserSecretsId>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
+    <OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>
+    <OpenApiDocumentName>v1</OpenApiDocumentName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -38,6 +40,10 @@
     <PackageReference Include="Sentry.AspNetCore" Version="6.1.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="8.0.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
