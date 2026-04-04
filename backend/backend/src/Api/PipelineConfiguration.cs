@@ -48,8 +48,15 @@ namespace UGram.src.Api
       app.UseRouting();
       app.UseCors("AllowAll");
 
-      app.UseSwagger();
-      app.UseSwaggerUI();
+      app.UseSwagger(options =>
+      {
+        options.RouteTemplate = "api/swagger/{documentName}/swagger.json";
+      });
+      app.UseSwaggerUI(options =>
+      {
+        options.SwaggerEndpoint("/api/swagger/v1/swagger.json", "V1 Docs");
+        options.RoutePrefix = "api/swagger";
+      });
 
       app.UseRateLimiter();
       app.UseAuthentication();
