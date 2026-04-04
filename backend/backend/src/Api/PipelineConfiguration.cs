@@ -47,7 +47,7 @@ namespace UGram.src.Api
       app.ConfigureUploadsFolder();
       app.UseRouting();
       app.UseCors("AllowAll");
-      
+
       app.UseSwagger();
       app.UseSwaggerUI();
 
