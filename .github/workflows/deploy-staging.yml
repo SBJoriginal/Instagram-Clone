@@ -199,6 +199,7 @@ jobs:
           sed -i "s|SENTRY_DSN_PLACEHOLDER|${{ secrets.STAGING_SENTRY_FRONTEND_DSN }}|g" src/environments/*.ts
           sed -i "s|http://localhost:8081|$(echo "${{ secrets.STAGING_API_URL }}" | sed 's|/api$||')|g" src/index.html
           sed -i "s|ws://localhost:8081|$(echo "${{ secrets.STAGING_API_URL }}" | sed 's|/api$||' | sed 's|http|ws|')|g" src/index.html
+          sed -i "s|http://localhost:8081/api|${{ secrets.STAGING_API_URL }}|g" public/swagger.html
 
       - name: Build
         run: npm run build
