@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -12,6 +13,7 @@
     }
   </style>
 </head>
+
 <body>
   <div id="swagger-ui"></div>
   <script src="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-bundle.js" crossorigin></script>
@@ -21,7 +23,7 @@
       const apiUrl = 'http://localhost:8081/api';
       // Swagger JSON route has been moved under /api so CloudFront doesn't route it to S3
       const swaggerJsonUrl = apiUrl + '/swagger/v1/swagger.json';
-      
+
       window.ui = SwaggerUIBundle({
         url: swaggerJsonUrl,
         dom_id: '#swagger-ui',
@@ -29,4 +31,5 @@
     };
   </script>
 </body>
+
 </html>
