@@ -19,8 +19,8 @@
     window.onload = () => {
       // The deployment script replaces "http://localhost:8081/api" with the actual API URL.
       const apiUrl = 'http://localhost:8081/api';
-      // Swagger JSON is typically at {backend_root}/swagger/v1/swagger.json
-      const swaggerJsonUrl = apiUrl.replace(/\/api\/?$/, '/swagger/v1/swagger.json');
+      // Swagger JSON route has been moved under /api so CloudFront doesn't route it to S3
+      const swaggerJsonUrl = apiUrl + '/swagger/v1/swagger.json';
       
       window.ui = SwaggerUIBundle({
         url: swaggerJsonUrl,
