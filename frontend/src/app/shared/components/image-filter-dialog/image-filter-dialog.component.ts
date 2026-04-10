@@ -59,11 +59,11 @@ interface ImageBounds {
 export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
   @ViewChild('editorContainer') editorContainer!: ElementRef<HTMLDivElement>;
 
-  private stage!: Konva.Stage;
-  private layer!: Konva.Layer;
-  private drawingLayer!: Konva.Layer;
-  private transformer!: Konva.Transformer;
-  private mainImage!: Konva.Image;
+  private stage!: any;
+  private layer!: any;
+  private drawingLayer!: any;
+  private transformer!: any;
+  private mainImage!: any;
 
   // ─── Drawing State ────────────────────────────────────────────────────────
 
@@ -87,7 +87,7 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
   ];
 
   private _isDrawing = false;
-  private _currentLine: Konva.Line | null = null;
+  private _currentLine: any | null = null;
   // Data from config
   stickers = STICKERS;
   filters = FILTERS;
@@ -150,7 +150,7 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
       anchorSize: 10,
       enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
       flipEnabled: false,
-      boundBoxFunc: (oldBox, newBox) => {
+      boundBoxFunc: (oldBox: any, newBox: any) => {
         if (newBox.width <= 0 || newBox.height <= 0) {
           return oldBox;
         }
@@ -180,7 +180,7 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
     };
     imageObj.src = this.data.imageUrl;
 
-    this.stage.on('click tap', (e) => {
+    this.stage.on('click tap', (e: any) => {
       if (this.drawMode() !== 'off') return;
       if (e.target === this.stage || e.target === this.mainImage) {
         this.transformer.nodes([]);
@@ -272,7 +272,7 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
     };
   }
 
-  private addFrameRect(config: Konva.RectConfig) {
+  private addFrameRect(config: any) {
     this.layer.add(new Konva.Rect({ ...config, name: 'frame-element', listening: false }));
   }
 
@@ -328,7 +328,7 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
   deleteSelectedSticker(): void {
     const selectedNodes = this.transformer.nodes();
     if (selectedNodes.length > 0) {
-      selectedNodes.forEach((node) => node.destroy());
+      selectedNodes.forEach((node: any) => node.destroy());
       this.transformer.nodes([]);
       this.layer.draw();
     }
@@ -386,7 +386,7 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
 
   applyFrame(frameType: string) {
     this.selectedFrame = frameType;
-    this.layer.find('.frame-element').forEach((el) => el.destroy());
+    this.layer.find('.frame-element').forEach((el: any) => el.destroy());
 
     if (!this.mainImage || frameType === 'none') {
       this.layer.draw();
@@ -689,7 +689,7 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
   onKeyDown(event: KeyboardEvent) {
     const selectedNodes = this.transformer.nodes();
     if (selectedNodes.length > 0 && (event.key === 'Delete' || event.key === 'Backspace')) {
-      selectedNodes.forEach((node) => node.destroy());
+      selectedNodes.forEach((node: any) => node.destroy());
       this.transformer.nodes([]);
       this.layer.draw();
     }
