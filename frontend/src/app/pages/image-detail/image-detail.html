@@ -127,17 +127,28 @@
         <!-- Footer: Comment Input -->
         <footer class="sidebar-footer">
           <div class="interaction-summary">
-            <div
-              class="count-item"
-              (click)="toggleLike()"
-              (keyup.enter)="toggleLike()"
-              role="button"
-              tabindex="0"
-            >
-              <mat-icon inline [class.liked]="image.hasReacted">
-                {{ image.hasReacted ? 'favorite' : 'favorite_border' }}
-              </mat-icon>
-              <span>{{ image.reactionCount || 0 }} likes</span>
+            <div class="count-item">
+              <span
+                class="interaction-icon-btn"
+                (click)="toggleLike()"
+                (keyup.enter)="toggleLike()"
+                role="button"
+                tabindex="0"
+              >
+                <mat-icon inline [class.liked]="image.hasReacted">
+                  {{ image.hasReacted ? 'favorite' : 'favorite_border' }}
+                </mat-icon>
+              </span>
+              <span
+                class="likes-text"
+                (click)="openReactionUsersDialog()"
+                (keyup.enter)="openReactionUsersDialog()"
+                role="button"
+                tabindex="0"
+                style="cursor: pointer; text-decoration: underline"
+              >
+                {{ image.reactionCount || 0 }} likes
+              </span>
             </div>
             <div class="count-item">
               <mat-icon inline>chat_bubble</mat-icon>

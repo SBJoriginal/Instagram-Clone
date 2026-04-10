@@ -6,15 +6,20 @@ using UGram.src.Application.Interfaces;
 
 namespace UGram.src.Application.Services;
 
+using UGram.src.Application.DTOs;
+
+
 public class ReactionService : IReactionService
 {
   private readonly AppDbContext _context;
   private readonly INotificationService _notificationService;
+  private readonly IImageStorageService _imageStorageService;
 
-  public ReactionService(AppDbContext context, INotificationService notificationService)
+  public ReactionService(AppDbContext context, INotificationService notificationService, IImageStorageService imageStorageService)
   {
     _context = context;
     _notificationService = notificationService;
+    _imageStorageService = imageStorageService;
   }
 
   public async Task<bool> ToggleReactionAsync(int imageId, string userId)
@@ -44,5 +49,33 @@ public class ReactionService : IReactionService
     await _notificationService.CreateNotificationAsync(image.UserId, userId, imageId, "Like");
 
     return true; // Reaction added
+  }
+
+  public async Task<List<UserProfileResponseDto>> GetUsersWhoReactedAsync(int imageId)
+  {
+    var reactions = await _context.Reactions
+      .Where(r => r.ImageId == imageId)
+      .Join(
+        _context.UserProfiles,
+        reaction => reaction.UserId,
+        profile => profile.UserId,
+        (reaction, profile) => profile
+      )
+      .ToListAsync();
+
+    var userDtos = new List<UserProfileResponseDto>();
+    foreach (var profile in reactions)
+    {
+      userDtos.Add(new UserProfileResponseDto
+      {
+        Id = profile.UserId,
+        UserName = profile.UserName,
+        ProfilePictureUrl = !string.IsNullOrEmpty(profile.ProfilePictureUrl)
+          ? await _imageStorageService.GetImageUrlAsync(profile.ProfilePictureUrl)
+          : null,
+      });
+    }
+
+    return userDtos;
   }
 }
