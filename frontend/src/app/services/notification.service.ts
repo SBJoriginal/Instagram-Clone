@@ -58,7 +58,9 @@ export class NotificationService {
     this.hubConnection
       .start()
       .then(() => this.loadNotifications())
-      .catch(() => {});
+      .catch(() => {
+        // Silently fail if connection fails
+      });
   }
 
   stopConnection(): void {
