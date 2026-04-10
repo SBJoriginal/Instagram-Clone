@@ -120,6 +120,7 @@ AWS CloudWatch is used for infrastructure monitoring of AWS resources (Elastic B
 ### Dashboard Preview
 
 ![CloudWatch Monitoring](docs/images/cloudwatch-monitoring.png)
+![CloudWatch Monitoring](docs/images/cloudwatch-monitoring-2.png)
 *CloudWatch dashboard showing infrastructure monitoring and metrics.*
 
 ---
