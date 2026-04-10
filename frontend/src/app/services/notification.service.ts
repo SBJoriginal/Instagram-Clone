@@ -3,15 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import * as signalR from '@microsoft/signalr';
 import { Notification } from '../models/notification.model';
 import { TokenService } from './token.service';
-import { LogService } from './log.service';
 import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
   private readonly http = inject(HttpClient);
   private readonly tokenService = inject(TokenService);
-  private readonly logger = inject(LogService);
-
   private readonly apiUrl = `${environment.apiUrl}/notification`;
   private hubConnection?: signalR.HubConnection;
 
@@ -51,6 +48,7 @@ export class NotificationService {
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(`${environment.apiUrl.replace('/api', '')}/hubs/notifications?access_token=${token}`)
       .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.None)
       .build();
 
     this.hubConnection.on('ReceiveNotification', (notification: Notification) => {
@@ -60,7 +58,9 @@ export class NotificationService {
     this.hubConnection
       .start()
       .then(() => this.loadNotifications())
-      .catch((err: unknown) => this.logger.error('SignalR error:', err));
+      .catch(() => {
+        // Silently fail if connection fails
+      });
   }
 
   stopConnection(): void {

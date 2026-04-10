@@ -17,6 +17,13 @@ import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatRippleModule } from '@angular/material/core';
 import Konva from 'konva';
+import { Stage } from 'konva/lib/Stage';
+import { Layer } from 'konva/lib/Layer';
+import { Transformer, Box } from 'konva/lib/shapes/Transformer';
+import { Image as KonvaImage } from 'konva/lib/shapes/Image';
+import { Line } from 'konva/lib/shapes/Line';
+import { Node, KonvaEventObject } from 'konva/lib/Node';
+import { RectConfig } from 'konva/lib/shapes/Rect';
 import {
   STICKERS,
   FILTERS,
@@ -59,11 +66,11 @@ interface ImageBounds {
 export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
   @ViewChild('editorContainer') editorContainer!: ElementRef<HTMLDivElement>;
 
-  private stage!: Konva.Stage;
-  private layer!: Konva.Layer;
-  private drawingLayer!: Konva.Layer;
-  private transformer!: Konva.Transformer;
-  private mainImage!: Konva.Image;
+  private stage!: Stage;
+  private layer!: Layer;
+  private drawingLayer!: Layer;
+  private transformer!: Transformer;
+  private mainImage!: KonvaImage;
 
   // ─── Drawing State ────────────────────────────────────────────────────────
 
@@ -87,7 +94,7 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
   ];
 
   private _isDrawing = false;
-  private _currentLine: Konva.Line | null = null;
+  private _currentLine: Line | null = null;
   // Data from config
   stickers = STICKERS;
   filters = FILTERS;
@@ -150,7 +157,7 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
       anchorSize: 10,
       enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
       flipEnabled: false,
-      boundBoxFunc: (oldBox, newBox) => {
+      boundBoxFunc: (oldBox: Box, newBox: Box) => {
         if (newBox.width <= 0 || newBox.height <= 0) {
           return oldBox;
         }
@@ -180,7 +187,7 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
     };
     imageObj.src = this.data.imageUrl;
 
-    this.stage.on('click tap', (e) => {
+    this.stage.on('click tap', (e: KonvaEventObject<MouseEvent | TouchEvent>) => {
       if (this.drawMode() !== 'off') return;
       if (e.target === this.stage || e.target === this.mainImage) {
         this.transformer.nodes([]);
@@ -272,7 +279,7 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
     };
   }
 
-  private addFrameRect(config: Konva.RectConfig) {
+  private addFrameRect(config: RectConfig) {
     this.layer.add(new Konva.Rect({ ...config, name: 'frame-element', listening: false }));
   }
 
@@ -328,7 +335,7 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
   deleteSelectedSticker(): void {
     const selectedNodes = this.transformer.nodes();
     if (selectedNodes.length > 0) {
-      selectedNodes.forEach((node) => node.destroy());
+      selectedNodes.forEach((node: Node) => node.destroy());
       this.transformer.nodes([]);
       this.layer.draw();
     }
@@ -386,7 +393,7 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
 
   applyFrame(frameType: string) {
     this.selectedFrame = frameType;
-    this.layer.find('.frame-element').forEach((el) => el.destroy());
+    this.layer.find('.frame-element').forEach((el: Node) => el.destroy());
 
     if (!this.mainImage || frameType === 'none') {
       this.layer.draw();
@@ -689,7 +696,7 @@ export class ImageFilterDialogComponent implements AfterViewInit, OnDestroy {
   onKeyDown(event: KeyboardEvent) {
     const selectedNodes = this.transformer.nodes();
     if (selectedNodes.length > 0 && (event.key === 'Delete' || event.key === 'Backspace')) {
-      selectedNodes.forEach((node) => node.destroy());
+      selectedNodes.forEach((node: Node) => node.destroy());
       this.transformer.nodes([]);
       this.layer.draw();
     }
